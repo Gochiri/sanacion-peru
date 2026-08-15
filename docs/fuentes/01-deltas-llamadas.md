@@ -19,23 +19,27 @@ Lo que aporta por encima del handoff:
 8. **Las sesiones 1-a-1 de Christie siguen vivas** como producto; el 21 días es su puerta de entrada. No fueron sustituidas por la escuela.
 9. **Joaquín es contraparte técnica capaz** (monta campañas, cambia destinos, instala píxel del lado de Meta, produce video). Receptor natural de la capacitación de tracking.
 10. **Reflexología (low ticket más caro) está en Hotmart; 21 días en System.io.** El low ticket más rentable es el que hoy no deja base de datos.
+11. **El dolor de los grupos ES en palabras de Christie:** los grupos en español "se han ido llenando y se han ido vaciando, porque todos quieren gratis, gratis, gratis, todo gratis" — llega puro curioso sin cualificación. Es la base del filtro de la encuesta (Q3/Q4, `P-03`).
 
 ---
 
 ## 2 · Llamada de cierre — 4-ago-2026, 49 min (Luca, Joaquín; Christie ausente)
 
 ### Compromisos adquiridos con el cliente (verbales, no todos en el estimado)
+
+> Codificados `K1…K9` para no colisionar con los códigos `C1…C6` del checklist de información.
+
 | # | Compromiso | Implicación |
 |---|---|---|
-| C1 | **Facturación por invoice** a Nueva Conciencia Formación SAC (RUC Perú). Los links de fastpaydirect quedaron descartados ("no le vayan a dar comprar"). | §4.2 del handoff obsoleta. Cobro del 2.º 50% también será por invoice. |
-| C2 | **Páginas en español + italiano incluidas**; se habló de "un plugin/switch que cambie el idioma" y hasta de **inglés** ("mentalícense: español, italiano, inglés" — Luca). | El switch no existe nativo en GHL → se resuelve con réplicas + selector. Inglés NO está cotizado → F3. Gestionar expectativa. |
-| C3 | **SOPs escritos + capacitación (~2 h)** por fase. | Horas no contabilizadas en §6 del handoff. |
-| C4 | **Snapshot portable** si el cliente se va algún día. | Refuerza build replicable. |
-| C5 | **Fase 1 sirve para lanzar este mismo mes** (agosto). Henry lo confirmó. | Fecha dura. El retraso de ~5 días come directamente esa promesa. |
-| C6 | Plazo dicho: **4 semanas**, con intención de entregar en ~2. | |
-| C7 | Asesoría de copy/VSL incluida (guía, no producción): el cliente crea videos y creativos, nosotros damos estructura y feedback. | |
-| C8 | Se le dijo al cliente que la licencia GHL propia cuesta **$97/mes** + $10 WhatsApp + variables. | El cliente ya ancló $97. Relevante para el acuerdo con Jaime (ver §3). |
-| C9 | Cambios futuros de embudo = re-mapeo + trabajo por horas o nueva implementación, no reconstrucción gratis. | Dicho explícitamente; nos protege. |
+| K1 | **Facturación por invoice** a Nueva Conciencia Formación SAC (RUC Perú). Los links de fastpaydirect quedaron descartados ("no le vayan a dar comprar"). | §4.2 del handoff obsoleta. Cobro del 2.º 50% también será por invoice. |
+| K2 | **Páginas en español + italiano incluidas**; se habló de "un plugin/switch que cambie el idioma" y hasta de **inglés** ("mentalícense: español, italiano, inglés" — Luca). | El switch no existe nativo en GHL → se resuelve con réplicas + selector. Inglés NO está cotizado → F3. Gestionar expectativa. |
+| K3 | **SOPs escritos + capacitación (~2 h)** por fase. | Los SOPs escritos no estaban contemplados en el handoff; las sesiones de capacitación sí (6.2: una en F1 · 6.3: dos en F2). Lo nuevo son los SOPs y la duración. |
+| K4 | **Snapshot portable** si el cliente se va algún día. | Refuerza build replicable. |
+| K5 | **Fase 1 sirve para lanzar este mismo mes** (agosto). Henry lo confirmó. | Fecha dura. El retraso de ~5 días come directamente esa promesa. |
+| K6 | Plazo dicho: **4 semanas**, con intención de entregar en ~2. | |
+| K7 | Asesoría de copy/VSL incluida (guía, no producción): el cliente crea videos y creativos, nosotros damos estructura y feedback. | |
+| K8 | Se le dijo al cliente que la licencia GHL propia cuesta **$97/mes** + $10 WhatsApp + variables. | El cliente ya ancló $97. Relevante para el acuerdo con Jaime (ver §3). |
+| K9 | Cambios futuros de embudo = re-mapeo + trabajo por horas o nueva implementación, no reconstrucción gratis. | Dicho explícitamente; nos protege. Debe quedar por escrito en los SOPs y el acta de entrega. |
 
 ### Decisiones técnicas nuevas
 | # | Decisión | Detalle |
@@ -59,7 +63,7 @@ Lo que aporta por encima del handoff:
 
 1. **Jaime es el dueño de la relación**: Luca es SU cliente; Profit ejecuta la implementación. Hubo vacío de comunicación (Jaime no estuvo en mapeo ni cierre; no se definió antes dónde viviría la cuenta).
 2. **Resolución (post-llamada, confirmada por Henry): la subcuenta del cliente vive en la agencia GHL de Jaime.** El Location ID de las notas viejas de la CLI no aplica; ya existe subcuenta real.
-3. **La mensualidad y los consumos** (licencia, WhatsApp, IA, email) **los negocia y cobra Jaime directamente con el cliente**. Nosotros no hablamos de costos de plataforma con Luca/Christie/Joaquín: cualquier pregunta se remite a Jaime. (El cliente ya ancló $97 como referencia — C8.)
+3. **La mensualidad y los consumos** (licencia, WhatsApp, IA, email) **los negocia y cobra Jaime directamente con el cliente**. Nosotros no hablamos de costos de plataforma con Luca/Christie/Joaquín: cualquier pregunta se remite a Jaime. (El cliente ya ancló $97 como referencia — K8.)
 4. **La agencia de Jaime no tiene Stripe habilitado** → no hay rebilling SaaS automático: los consumos se refacturan **manualmente** (reportes/capturas mensuales) hasta que Jaime active Stripe (dijo ~1 mes). Riesgo operativo recurrente; el que factura es Jaime.
 5. **El build debe ser replicable por snapshot.** Plan explícito de revender la implementación a otros mentores (empezando por la esposa de Jaime, mapeo pendiente de agendar). Consecuencia técnica: **todo link, número, precio y dato del cliente va en custom values; cero hardcode** en workflows, plantillas y páginas.
 6. **Comunicación:** grupo compartido con Jaime; avisarle avances. Retraso reconocido (~5 días): "que no piensen que cobramos y no respondimos".
