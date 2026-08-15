@@ -69,7 +69,8 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 
 ## Interno (no va al cliente)
 
-- `P-08`: confirmar con Henry qué se facturó (¿F1 sola o paquete completo?) — define el margen de re-escopeo de F2 (§15 del mapa).
+- `P-08` ✅ resuelto (15-ago): cobrado el **50% de F1**; F2 en horizonte, sin facturar. Plan de F2 en §15 del mapa: se estructura con la opción 2 de fábrica ANTES de cobrarla y se cierra contra el éxito del primer lanzamiento. Tareas ClickUp: 2.º 50% de F1 contra entrega (condición Meta) + propuesta F2 estructurada.
+- La sección C sigue siendo "pedir ya": con F2 en horizonte, la PoC de System.io y el contenido de la app de síntomas son los que desriesgan (y ayudan a vender) esa fase.
 - Costos de plataforma/consumos: si el cliente pregunta, **remitir a Jaime** (acuerdo interno 6-ago). **Pasarle a Jaime el ancla que el cliente ya escuchó: $97 licencia + $10 WhatsApp (K8)** — si cotiza por encima, la promesa la hicimos nosotros.
 - Avisar a Jaime por el grupo compartido: form recibido, mapa v3 listo, checklist enviado.
 - **Pruebas de plataforma del día 1 (antes de prometer nada más):** disqualify de survey dispara trigger (§7) · anclaje temporal de WF3 (§10) · ¿LC WhatsApp soporta 2º número? (`P-02`) · corte a N ciclos en suscripciones (§12).
