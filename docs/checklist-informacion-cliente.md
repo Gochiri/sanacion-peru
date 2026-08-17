@@ -51,9 +51,9 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 
 ---
 
-## D · Mensaje enviado al grupo (versión final acordada con Henry, 15-ago)
+## D · Mensaje enviado al grupo (versión final acordada con Henry, 15-ago · rev. 2)
 
-> Ajustes de Henry sobre el borrador: WhatsApp va en **modo coexistencia** (no hace falta número sin WhatsApp; se revisa en CRM y en la app) · Stripe se omite por ahora (se conecta directo en GHL después) · se quitaron del mensaje: videos (A7), validación IT de Luca (B4), legales (B7), Zoom (B9) y full day (C4) — **siguen vigentes en las secciones A/B/C de este checklist para pedirlos cuando toquen**.
+> Ajustes de Henry sobre el borrador: WhatsApp en **modo coexistencia** · Stripe omitido por ahora (se conecta directo en GHL) · fuera del mensaje: videos (A7), validación IT de Luca (B4), guion/anuncios de Joaquín (B3), legales (B7), Zoom (B9) y full day (C4) — **todos siguen vigentes en las secciones A/B/C de este checklist para pedirlos cuando toquen**. Cada bloque numera desde 1.
 
 > Hola Luca, Christie, Joaquín 👋 ¡Buenas!
 >
@@ -70,21 +70,20 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 >
 > *🟡 ESTA SEMANA:*
 >
-> *7️⃣* Links de invitación de los grupos de WhatsApp del lanzamiento (español e italiano).
-> *8️⃣* Canal de YouTube: quién sube el video y coordinar que sea *no listado* (si se transmite en abierto perdemos la medición de asistencia y la urgencia).
-> *9️⃣* Joaquín: el guion/promesa de los anuncios + el funnel anterior que no convirtió + VSL si existe (para que la página diga lo mismo que el anuncio).
-> *🔟* Disponibilidad real de Luca para las llamadas de cierre: franjas concretas por mercado, descanso entre llamadas y máximo por día.
-> *1️⃣1️⃣* Sus 10-20 mejores testimonios escritos con permiso de uso (y si alguno se anima a video, oro puro ✨).
-> *1️⃣2️⃣* Logos en fondo transparente o el archivo original (AI/SVG) — los que llegaron traen el fondo negro pegado.
-> *1️⃣3️⃣* El video o contenido educativo gratuito para quien aún no califica + los links de compra actuales del 21 Días y Reflexología.
+> *1️⃣* Links de invitación de los grupos de WhatsApp del lanzamiento (español e italiano).
+> *2️⃣* Canal de YouTube: quién sube el video y coordinar que sea *no listado* (si se transmite en abierto perdemos la medición de asistencia y la urgencia).
+> *3️⃣* Disponibilidad real de Luca para las llamadas de cierre: franjas concretas por mercado, descanso entre llamadas y máximo por día.
+> *4️⃣* Sus 10-20 mejores testimonios escritos con permiso de uso (y si alguno se anima a video, oro puro ✨).
+> *5️⃣* Logos en fondo transparente o el archivo original (AI/SVG) — los que llegaron traen el fondo negro pegado.
+> *6️⃣* El video o contenido educativo gratuito para quien aún no califica + los links de compra actuales del 21 Días y Reflexología.
 >
 > *🟢 SIN APURO (pero mejor ya):*
 >
-> *1️⃣4️⃣* API key de System.io + export de contactos y compradores (nos sirve para rescatar su base histórica 💰).
-> *1️⃣5️⃣* Export de compradores de Hotmart.
-> *1️⃣6️⃣* El contenido de la aplicación de síntomas que ofreció Luca (será el cerebro del asistente en la Fase 2).
+> *1️⃣* API key de System.io + export de contactos y compradores (nos sirve para rescatar su base histórica 💰).
+> *2️⃣* Export de compradores de Hotmart.
+> *3️⃣* El contenido de la aplicación de síntomas que ofreció Luca (será el cerebro del asistente en la Fase 2).
 >
-> Cualquier punto que no sepan cómo resolver, nos dicen y lo vemos juntos en una llamada corta 📞 Lo urgente es del 1 al 6 — con eso nada nos detiene. ¡Vamos con todo! 💪🚀
+> Cualquier punto que no sepan cómo resolver, nos dicen y lo vemos juntos en una llamada corta 📞 Lo urgente es el primer bloque — con eso nada nos detiene. ¡Vamos con todo! 💪🚀
 
 ---
 
