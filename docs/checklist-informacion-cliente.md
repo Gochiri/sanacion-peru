@@ -16,9 +16,9 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 | # | Qué | Para qué / qué bloquea |
 |---|---|---|
 | **A1** | **Meta Business:** ¿Joaquín recuperó el admin del portafolio? Si en 48 h no hay acceso → autorización para **crear portafolio nuevo a nombre de Nueva Conciencia Formación SAC**. Incluye: quién es hoy admin del Business Manager, de la cuenta publicitaria y de la página de Facebook. **Si vamos por portafolio nuevo, reunir EN PARALELO los documentos de verificación de negocio: ficha RUC / constitución de la SAC, email @lanuovacoscienza.com activo y teléfono verificable** — la verificación tarda días y es requisito del WhatsApp API. | Bloquea **píxel + CAPI Y el alta de WhatsApp API**. Dependencia nº 1. Sin histórico que perder: nunca hubo píxel en Perú y el de Italia no tiene CAPI. |
-| **A2** | **Número para la API de WhatsApp.** El form dio `+51 986 199 020`: ¿ese es el número NUEVO destinado a la API, o el que ya usan? El que se conecta **no puede tener WhatsApp activo en la app** — si conectamos el actual, Luca pierde la app y los grupos. Si no hay número nuevo: conseguir chip/número virtual hoy. *(Lo del posible número italiano lo evaluamos nosotros primero — depende de si la plataforma soporta un segundo número, `P-02`; no prometerlo.)* | Bloquea todo el canal automatizado: plantillas, recordatorios, confirmaciones. |
+| **A2** | **Número para la API de WhatsApp — modo coexistencia (decisión Henry 15-ago).** Puede ser el número que ya usan (¿el `+51 986 199 020` del form u otro?): la conexión coexistente mantiene el WhatsApp Business del teléfono funcionando y las conversaciones se revisan tanto en el CRM como en la app. Solo falta que confirmen cuál número se conecta. *(Nota técnica interna: verificar en la subcuenta los límites de coexistencia — los grupos siguen sin ser administrables por API, y el historial/funciones varían. Lo del posible número italiano lo evaluamos nosotros primero — `P-02`; no prometerlo.)* | Bloquea todo el canal automatizado: plantillas, recordatorios, confirmaciones. |
 | **A3** | **Dominio y DNS:** acceso al panel donde vive `lanuovacoscienza.com` (o el dominio que prefieran). Confirmar si quieren subdominio tipo `eventos.lanuovacoscienza.com`. | Bloquea publicación de páginas y verificación del dominio de envío de email. |
-| **A4** | **Cobros, la foto completa:** (1) acceso de colaborador a la cuenta Stripe que usa System.io — **¿de qué país es la cuenta y quién es el titular?** (Stripe no opera para comercios domiciliados en Perú; asumimos que es la cuenta italiana/personal de Luca). (2) **¿Cómo paga hoy un alumno peruano en la práctica?** (¿Yape? ¿Plin? ¿transferencia BCP/Interbank? ¿tarjeta?) (3) **Datos exactos de pago manual** para las plantillas de cierre: IBAN para Italia, cuenta/CCI/QR Yape para Perú. (4) Aviso nuestro, no pregunta: la plataforma cobra en **una sola moneda** — proponemos USD (como su form); el precio a Italia bajo USD se confirma en A6. | Bloquea la conexión de cobro, los tres planes de la escuela y los custom values `datos_pago_pe`/`datos_pago_it`. Sin (2) y (3), el primer cierre en Perú se improvisa por WhatsApp. |
+| **A4** | **Cobros:** (1) **¿Cómo paga hoy un alumno peruano en la práctica?** (¿Yape? ¿Plin? ¿transferencia BCP/Interbank? ¿tarjeta?) (2) **Datos exactos de pago manual** para las plantillas de cierre: IBAN para Italia, cuenta/CCI/QR Yape para Perú. *(Stripe se pospone — decisión Henry 15-ago: se conecta después directamente en GHL con el cliente; al hacerlo siguen vigentes las preguntas de país/titular de la cuenta y la restricción de moneda única (D10) — proponemos USD.)* | Sin (1) y (2), el primer cierre en Perú se improvisa por WhatsApp. La conexión de Stripe pasa a tarea de build, no de checklist. |
 | **A5** | **El primer lanzamiento:** fecha exacta del primer evento del jueves · **¿arranca solo Perú, solo Italia o ambos?** (`P-14` — reordena todo el plan de construcción) · cadencia definitiva (semanal como dice Joaquín, o ciclo de 2 semanas como dice Christie — `P-01`) · horarios por mercado (dato propio: su mejor asistencia fue un sábado 17:00 en Italia) · **¿el evento del jueves vende (masterclass) o solo educa (webinar)?** (`P-10`) · y mientras no haya full day en Lima: **¿Perú cierra por llamada de 30 min con Luca?** (así lo asume el mapa). | Bloquea copy de recordatorios, programación de WF3, CTA de la página del evento y el orden de los 5 días de build. |
 | **A6** | **Precios que faltan:** 21 días, Dispersión del dolor, Reflexología (por mercado) · montos de la escuela en 2 y 3 cuotas · precio de la escuela para Italia bajo moneda única USD (¿$1.000 también?). | Los de la escuela bloquean los productos de cobro de F1. Los low ticket bloquean solo la escalera (F2), pero pedirlos ya. |
 | **A7** | **Estado de producción del contenido del lanzamiento:** ¿cuántas clases diarias de falso-en-vivo están ya grabadas? ¿Quién graba las que faltan y el video del evento del jueves, y para qué fecha? ¿Hay VSL o se graba? | **El sistema puede estar listo el día 5 y no haber nada que emitir el jueves.** Es la dependencia gemela de las llaves técnicas: sin videos confirmados a fecha, el lanzamiento se corre una semana — se dice hoy (riesgo 15 del mapa). |
@@ -51,19 +51,40 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 
 ---
 
-## D · Mensaje listo para enviar (WhatsApp, sección A)
+## D · Mensaje enviado al grupo (versión final acordada con Henry, 15-ago)
 
-> Luca, Christie, Joaquín — ¡gracias por el formulario! 🙏 Con eso ya arrancamos la construcción. Para no frenar el lanzamiento de agosto necesitamos **7 cosas esta semana** (idealmente en 48 h):
+> Ajustes de Henry sobre el borrador: WhatsApp va en **modo coexistencia** (no hace falta número sin WhatsApp; se revisa en CRM y en la app) · Stripe se omite por ahora (se conecta directo en GHL después) · se quitaron del mensaje: videos (A7), validación IT de Luca (B4), legales (B7), Zoom (B9) y full day (C4) — **siguen vigentes en las secciones A/B/C de este checklist para pedirlos cuando toquen**.
+
+> Hola Luca, Christie, Joaquín 👋 ¡Buenas!
 >
-> 1️⃣ **Meta:** Joaquín, ¿pudiste recuperar el administrador del portafolio? Si no se puede, les proponemos crear uno nuevo a nombre de Nueva Conciencia Formación SAC — no pierden nada y desbloquea el píxel Y el WhatsApp automatizado de una vez. Si vamos por el nuevo, vayan juntando en paralelo: ficha RUC de la SAC, que el correo del dominio esté activo y un teléfono verificable (Meta los pide para verificar el negocio).
-> 2️⃣ **Número de WhatsApp para el sistema:** ¿el +51 986 199 020 que pusieron en el form es el número nuevo, o el que ya usan? El del sistema tiene que ser un número SIN WhatsApp activo en el teléfono (el de Luca y sus grupos no se tocan). Si no hay número nuevo aún, con un chip nuevo nos basta.
-> 3️⃣ **Dominio:** acceso al panel de `lanuovacoscienza.com` (donde compraron el dominio) para conectar las páginas y el correo.
-> 4️⃣ **Cobros:** invitación de colaborador a la cuenta Stripe que usan en System.io — ¿de qué país es esa cuenta y a nombre de quién está? Y muy importante: ¿cómo les paga hoy en la práctica un alumno peruano (Yape, Plin, transferencia, tarjeta)? Pásennos los datos exactos de cobro de cada mercado (IBAN de Italia, cuenta/QR de Perú) para dejarlos cargados en el sistema. Ojo: la plataforma cobra en una sola moneda — proponemos dólares, como pusieron en el form.
-> 5️⃣ **El primer lanzamiento:** ¿arrancamos con Perú, con Italia o con ambos? Fecha del primer jueves, si va semanal o cada 2 semanas, horarios por mercado, y si ese jueves ya se vende (masterclass) o solo se educa (webinar). Y mientras no haya full day en Lima, ¿el cierre en Perú es por llamada de 30 min con Luca?
-> 6️⃣ **Precios que faltan:** escuela en 2 y 3 cuotas (¿y a Italia le cobramos también $1.000?), 21 días, Dispersión y Reflexología.
-> 7️⃣ **Los videos:** ¿cuántas clases diarias ya están grabadas? ¿Quién graba las que faltan y el video del jueves, y para cuándo? El sistema va a estar listo — necesitamos que haya qué emitir. 🎥
+> Antes que nada, gracias por llenar el formulario 🙏 — con los logos, precios y datos del negocio ya arrancamos la construcción del sistema. Para avanzar sin frenos y llegar al lanzamiento de agosto, les dejamos la lista de lo que necesitamos de su lado, en orden de urgencia 👇
 >
-> Con eso nada nos detiene. Lo de la lista B (grupos, YouTube, testimonios, textos legales, validación del italiano) se los vamos pidiendo en el camino — solo adelanto uno: **antes de publicar páginas necesitamos su política de privacidad y el descargo médico** (les decimos exactamente qué debe cubrir). 💪
+> *🔴 URGENTE — lo ideal es tenerlo en 48 h:*
+>
+> *1️⃣ Meta (Facebook):* Joaquín, ¿pudiste recuperar el administrador del portafolio? Si no se puede, les proponemos crear uno nuevo a nombre de Nueva Conciencia Formación SAC — no pierden nada y desbloquea el píxel Y el WhatsApp automatizado de una vez. Si vamos por el nuevo, vayan juntando en paralelo: ficha RUC de la SAC, el correo del dominio activo y un teléfono verificable (Meta los pide para verificar el negocio).
+> *2️⃣ Número de WhatsApp para el sistema:* ¿conectamos el +51 986 199 020 que pusieron en el form, u otro? La conexión es en modo *coexistencia*: el WhatsApp Business del teléfono sigue funcionando normal, y las conversaciones las van a poder revisar tanto en el CRM como en la app de WhatsApp Business. Solo confírmennos cuál número usamos 📲
+> *3️⃣ Dominio:* acceso al panel donde compraron `lanuovacoscienza.com` para conectar las páginas y el correo.
+> *4️⃣ Cobros:* ¿cómo les paga hoy en la práctica un alumno peruano (Yape, Plin, transferencia, tarjeta)? Pásennos los datos exactos de cobro de cada mercado (IBAN de Italia, cuenta/QR de Perú) para dejarlos cargados en el sistema 💳
+> *5️⃣ El primer lanzamiento:* ¿arrancamos con Perú, con Italia o con ambos? Fecha del primer jueves, si va semanal o cada 2 semanas, horarios por mercado, y si ese jueves ya se vende (masterclass) o solo se educa (webinar). Y mientras no haya full day en Lima: ¿el cierre en Perú es por llamada de 30 min con Luca?
+> *6️⃣ Precios que faltan:* la escuela en 2 y 3 cuotas (¿y a Italia también $1.000?), 21 Días, Dispersión del Dolor y Reflexología.
+>
+> *🟡 ESTA SEMANA:*
+>
+> *7️⃣* Links de invitación de los grupos de WhatsApp del lanzamiento (español e italiano).
+> *8️⃣* Canal de YouTube: quién sube el video y coordinar que sea *no listado* (si se transmite en abierto perdemos la medición de asistencia y la urgencia).
+> *9️⃣* Joaquín: el guion/promesa de los anuncios + el funnel anterior que no convirtió + VSL si existe (para que la página diga lo mismo que el anuncio).
+> *🔟* Disponibilidad real de Luca para las llamadas de cierre: franjas concretas por mercado, descanso entre llamadas y máximo por día.
+> *1️⃣1️⃣* Sus 10-20 mejores testimonios escritos con permiso de uso (y si alguno se anima a video, oro puro ✨).
+> *1️⃣2️⃣* Logos en fondo transparente o el archivo original (AI/SVG) — los que llegaron traen el fondo negro pegado.
+> *1️⃣3️⃣* El video o contenido educativo gratuito para quien aún no califica + los links de compra actuales del 21 Días y Reflexología.
+>
+> *🟢 SIN APURO (pero mejor ya):*
+>
+> *1️⃣4️⃣* API key de System.io + export de contactos y compradores (nos sirve para rescatar su base histórica 💰).
+> *1️⃣5️⃣* Export de compradores de Hotmart.
+> *1️⃣6️⃣* El contenido de la aplicación de síntomas que ofreció Luca (será el cerebro del asistente en la Fase 2).
+>
+> Cualquier punto que no sepan cómo resolver, nos dicen y lo vemos juntos en una llamada corta 📞 Lo urgente es del 1 al 6 — con eso nada nos detiene. ¡Vamos con todo! 💪🚀
 
 ---
 
