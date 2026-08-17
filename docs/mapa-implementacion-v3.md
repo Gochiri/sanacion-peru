@@ -55,7 +55,7 @@ Lo que **no** hace la F1 (y se dice así al cliente para no generar expectativa)
 - Zona horaria base **America/Lima** (los calendarios manejan Roma con conversión — ver §9)
 - Usuarios: Luca, Christie, Joaquín (+ equipo Profit). Roles: cliente sin permisos de configuración
 - Integración nativa **Stripe** (cuenta del cliente — país/titular por confirmar, A4; moneda única D10)
-- **LC WhatsApp** en la subcuenta — número nuevo. ⚠️ El form da `+51 986 199 020` como "WhatsApp del negocio": **confirmar si es el número destinado a la API o el actual** — el actual NO se conecta (perdería la app y los grupos de Luca, contra D2). Checklist A2. Costos y mensualidad se hablan con Jaime, no con nosotros
+- **LC WhatsApp** en la subcuenta, **en modo coexistencia (D2)**: puede ser el número actual — la app del teléfono sigue funcionando y las conversaciones se ven en CRM y en la app. Falta que el cliente confirme cuál número se conecta (¿el `+51 986 199 020` del form u otro?) — checklist A2. Costos y mensualidad se hablan con Jaime, no con nosotros
 - Píxel de Meta a nivel funnel (solo PageView/ViewContent) + eventos de conversión por CAPI desde workflows (§13) · **banner de consentimiento de cookies para tráfico UE** (§13)
 
 ### 3b · Precios conocidos (form de onboarding)
