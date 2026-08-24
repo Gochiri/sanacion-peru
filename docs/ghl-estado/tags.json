@@ -1,10 +1,13 @@
 {
-  "tags": [
+  "tags_de_workflow": [
     "a-educar",
     "cuota-adicional",
     "oportunidad-creada",
     "primer-pago-procesado",
     "registrado"
   ],
-  "nota": "Creados a nivel de subcuenta para que aparezcan en los selectores de triggers y condiciones. Los genera crear_tags() en cada despliegue."
+  "tags_de_trigger": [
+    "pago-manual"
+  ],
+  "nota": "Los de workflow los crea crear_tags() en cada despliegue. 'pago-manual' es un trigger de WF5 (pago por transferencia/Yape): no lo añade ningun workflow, lo recibe el contacto."
 }
