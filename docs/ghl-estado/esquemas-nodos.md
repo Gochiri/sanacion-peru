@@ -77,6 +77,15 @@ este entorno no es alcanzable.
 - Los pasos **dentro** de una rama ya vienen enlazados: si el ensamblador los vuelve a
   encadenar, GHL responde *"Node has 2 incoming edges"*. Van marcados `_en_rama`.
 
+## Las bifurcaciones NO se pueden anidar
+
+Meter un `if_else` dentro de la rama de otro hace que GHL rechace el workflow con
+*"Add at least one branch"* repetido por cada rama. Probado con el enlazado corregido para
+respetar los nodos internos: falla igual. **Toda bifurcación va en el primer nivel.**
+
+Consecuencia práctica: si una rama necesita decidir entre más de dos caminos, hay que
+resolverlo con campos que ya vengan decididos desde el formulario, no ramificando dentro.
+
 ## Listar carpetas
 
 `GET /workflow/{loc}` devuelve **solo workflows**. Las carpetas aparecen únicamente en

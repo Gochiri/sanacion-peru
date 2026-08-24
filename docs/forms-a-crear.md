@@ -51,34 +51,58 @@ Opciones (exactas, ya existen en el campo):
 **Q2 · ¿Hace cuánto buscas solución?** → **`contact.tiempo_con_sintoma`**
 `Menos de 6 meses` · `6-24 meses` · `Mas de 2 anos` · `Mas de 5 anos`
 
-**Q3 · ¿Qué esperas encontrar en esta clase?** → **la eliminatoria**
-| Opción | Resultado |
+**Q3 · ¿Qué esperas encontrar en esta clase?** → **`contact.nivel_calificacion`** — la eliminatoria
+
+El texto de cada opción **es el valor exacto del campo**, para que el builder lo guarde tal cual:
+
+| Texto que ve la persona | Valor que se guarda |
 |---|---|
-| Entender la causa emocional de mi síntoma y cómo abordarla | **Califica** |
-| Un medicamento o tratamiento médico para mi enfermedad | **No califica** |
-| Solo curiosidad, quiero mirar | **A educar** |
+| Entender la causa emocional de mi síntoma y cómo abordarla | `Califica` |
+| Un medicamento o tratamiento médico para mi enfermedad | `No califica` |
+| Solo curiosidad, quiero mirar | `A educar` |
 
 **Q4 · Si esta clase te muestra un camino claro, ¿estarías dispuesto/a a invertir en tu proceso?**
-| Opción | Resultado |
-|---|---|
-| Sí | Califica |
-| Necesitaría saber más | Califica |
-| No, busco solo contenido gratuito | **A educar** |
+→ **`contact.nivel_calificacion`** (el mismo campo)
 
-*(Q4 filtra el "todos quieren gratis" que describió Christie, sin matar la conversión de una clase gratuita.)*
+| Texto que ve la persona | Valor que se guarda |
+|---|---|
+| Sí | `Califica` |
+| Necesitaría saber más | `Califica` |
+| No, busco solo contenido gratuito | `A educar` |
+
+### ⚠️ Q4 necesita lógica de salto — sin esto el filtro se rompe
+
+Las dos preguntas escriben en el mismo campo, así que **la última respondida gana**. Si alguien
+contesta Q3 = *"un medicamento o tratamiento médico"* y luego Q4 = *"Sí"*, **acaba calificado y
+entra al grupo** — justo el lead que hace perder el tiempo a Luca.
+
+**Q4 solo se muestra si Q3 calificó:**
+
+| Respuesta a Q3 | Qué pasa |
+|---|---|
+| Entender la causa emocional… (`Califica`) | **se muestra Q4** |
+| Un medicamento o tratamiento… (`No califica`) | **se salta Q4** → fin de la encuesta |
+| Solo curiosidad… (`A educar`) | **se salta Q4** → fin de la encuesta |
+
+Así Q4 solo puede degradar de `Califica` a `A educar` —que es su propósito: filtrar el
+"todo gratis" que describió Christie— y nunca puede rescatar a un descalificado.
 
 ### Cómo se escribe el resultado
 
-El workflow WF2 rutea por **`contact.nivel_calificacion`** (`Califica` / `A educar` / `No califica`)
-y **`contact.motivo_descalificacion`** (`Busca pastillas o medicina` / `Curiosidad` / …).
+**`contact.nivel_calificacion`** lo escriben Q3 y Q4 directamente (decisión tomada). Es el campo por
+el que WF2 rutea todo el registro: `Califica` va al grupo, el resto a la ruta educativa.
 
-Como el builder no permite escribir un campo desde la lógica de la encuesta, hay dos caminos:
-- **Recomendado:** que Q3/Q4 mapeen directamente a `contact.nivel_calificacion`, poniendo como
-  texto de opción el valor exacto del campo.
-- **Alternativa:** dejar Q3/Q4 como preguntas propias y que WF2 traduzca la respuesta al campo.
-  Requiere retocar WF2 (yo lo hago).
+**`contact.motivo_descalificacion`** queda **sin llenar en Fase 1**, a propósito.
 
-**Dime cuál eliges y ajusto el workflow a lo que quede.**
+La idea era que WF2 lo dedujera del nivel, pero eso exige una bifurcación dentro de otra y
+**GHL no admite bifurcaciones anidadas** (probado: rechaza el workflow entero). Escribir un valor
+fijo para toda la rama descalificada contaminaría el reporte, porque ahí caen tanto los que buscan
+medicina como los curiosos.
+
+No se pierde nada relevante: **`nivel_calificacion` ya distingue los dos grupos** —`No califica`
+son los que buscan medicina, `A educar` los curiosos y los de "solo gratis"—, que es lo que hace
+falta para el reporte de Fase 1. El matiz curiosidad-vs-solo-gratis se recupera en Fase 2, cuando
+el asistente califique en conversación.
 
 ### Campos ocultos (hidden)
 
@@ -97,6 +121,10 @@ descalificadora de Q3 y verificar que **el contacto queda creado igual y con sus
 guardadas**. Si al descalificar no se registra el contacto, la secuencia educativa de WF2 nunca
 corre y **esos leads se pierden en silencio** — que es justo lo contrario del objetivo. Si eso
 pasa, avísame: hay un plan B (encuesta sin descalificación y que el ruteo lo haga entero WF2).
+
+⚠️ **Segunda prueba:** responder Q3 con la opción del medicamento y confirmar que **Q4 no aparece**
+y que `nivel_calificacion` queda en `No califica`. Si Q4 se muestra igual, la lógica de salto no
+quedó bien y el filtro es inservible.
 
 ---
 

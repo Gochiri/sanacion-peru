@@ -210,6 +210,8 @@ def bifurcar(nombre: str, condiciones: list[dict], rama_si: list[dict],
     cid, yid, nid = uid(), uid(), uid()
 
     def encadenar(pasos: list[dict], padre: str) -> list[dict]:
+        """Encadena los pasos de una rama. NO admite bifurcaciones anidadas:
+        el canvas de GHL las rechaza con "Add at least one branch" (probado)."""
         salida = []
         for i, paso in enumerate(pasos):
             paso = {**paso}
