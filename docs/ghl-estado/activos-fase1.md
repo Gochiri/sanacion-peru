@@ -13,7 +13,7 @@
 | Recurso | Por qué |
 |---|---|
 | **Formularios y encuestas** | `POST /forms/` responde *"This route is not yet supported by the IAM Service"*. En el API interno todas las rutas probadas dan 404/403. **F01 (registro) y F03 (postulación) se hacen en la UI.** |
-| **teamMembers del calendario** | Ni el POST ni el PUT los aceptan (queda `[]` en las 3 formas probadas). Se asigna en la UI. |
+| **teamMembers del calendario** | **Limitación confirmada del API**: no se aceptan ni en POST ni en PUT, con 6 formas distintas probadas (userId simple, con priority/isPrimary, con meetingLocation, array de strings, con y sin eventType). Siempre queda `[]`. **Se asigna en la UI.** |
 
 ---
 
@@ -25,11 +25,15 @@
 
 **Dos cosas lo dejan incompleto:**
 
-1. **`teamMembers` está vacío** — el API no los acepta.
-2. **Luca no existe como usuario en la subcuenta.** Los únicos usuarios son Germán, Henry y
-   Oliver (equipo Profit). El calendario es de Luca: hasta que sea usuario, las citas no
-   pueden asignársele.
-3. El horario 9-18 lun-vie es **inventado**: falta la disponibilidad real de Luca (checklist B5).
+1. ~~Luca no existe como usuario~~ → ✅ **resuelto el 18-ago**: Luca Stefanizzi ya es usuario
+   (`nEVI8WGKSdfvkR9FUyXM`, rol `user`) con permisos de operación pero sin configuración,
+   workflows, funnels ni campañas. **GHL le envió invitación por email** a
+   `stefanizziluca274@gmail.com` — avisar al cliente de que la va a recibir.
+2. **`teamMembers` sigue vacío**: es limitación del API, no del usuario. Crear a Luca no lo
+   resolvió — hay que **asignarlo en la UI** (Calendarios → Llamada de cierre - Perú → Team members).
+3. El horario 9-18 lun-vie es **provisional**: falta la disponibilidad real de Luca (checklist B5).
+
+Usuarios de la subcuenta en `usuarios.json`. Christie y Joaquín siguen sin crear.
 
 ## Producto de cobro — Escuela NCA Academy
 
