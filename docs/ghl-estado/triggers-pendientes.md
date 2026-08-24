@@ -33,7 +33,7 @@ Nota: aunque se mande `active: true`, GHL lo guarda como `false` mientras el wor
 | Workflow | Trigger | Depende de | Estado |
 |---|---|---|---|
 | WF1 | Contact Created + Customer Replied (WhatsApp) | — / canal WhatsApp | Contact Created se puede ya (falta confirmar identificador). El de WhatsApp espera el número (llave A2) |
-| WF2 | Survey Submitted (F01/F02) | **encuesta de registro** | Bloqueado: ACT-01, se hace en UI |
+| WF2 | Survey Submitted (F01) | encuesta ✅ | **Creado el 18-ago** (`Oex22HP7RdErgubmgzfq`, tipo `survey_submited`) — ⚠️ verificar en UI, GHL no valida el tipo |
 | WF3 | Opportunity Stage Changed → Registrado | pipeline ✅ | Se puede ya (falta confirmar identificador) |
 | WF4A | Trigger Link Clicked (link del evento) | **trigger link + página del evento** | Bloqueado: ACT-03, se hace en UI |
 | WF4B | Form Submitted (F03) | **formulario de postulación** | Bloqueado: ACT-02, se hace en UI |

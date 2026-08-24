@@ -1,0 +1,23 @@
+{
+  "surveys": [
+    {
+      "nombre": "F01 · Registro al evento",
+      "id": "iheVfI7xkesInu8jKLKB",
+      "link": "https://api.leadconnectorhq.com/widget/survey/iheVfI7xkesInu8jKLKB",
+      "estado": "creado en UI el 18-ago"
+    }
+  ],
+  "triggers": [
+    {
+      "workflow": "WF2 - Registro y calificacion",
+      "trigger_id": "Oex22HP7RdErgubmgzfq",
+      "tipo": "survey_submited",
+      "condicion": "survey = iheVfI7xkesInu8jKLKB",
+      "active": false,
+      "verificar": "GHL no valida el tipo de trigger: hay que abrir WF2 en la UI y confirmar que aparece como 'Survey Submitted' con F01 seleccionado. Si aparece vacio o con otro nombre, el identificador es otro."
+    }
+  ],
+  "pendientes": [
+    "F03 · Postulacion (para WF4B)"
+  ]
+}
