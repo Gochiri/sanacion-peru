@@ -16,7 +16,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from esb_lib import (  # noqa: E402
     CARPETA, bifurcar, campo, capi, carpeta, cargar_estado, cliente, cond,
-    desplegar, email, esperar, etiqueta, mover_a_etapa, notificar, resumen, whatsapp,
+    crear_tags, desplegar, email, esperar, etiqueta, mover_a_etapa, notificar,
+    resumen, tags_usados, whatsapp,
 )
 
 E = cargar_estado()
@@ -218,6 +219,13 @@ def main():
         if not fid:
             sys.exit("No se pudo crear/encontrar la carpeta")
         print(f"Carpeta: {CARPETA} ({fid})")
+
+        # Los tags deben existir en la subcuenta antes de usarlos en triggers
+        # y condiciones, o no aparecen en los selectores de la UI.
+        tags = tags_usados(WORKFLOWS)
+        faltantes = crear_tags(c, tags)
+        print(f"Tags: {len(tags) - len(faltantes)}/{len(tags)} disponibles"
+              + (f" · FALTAN: {faltantes}" if faltantes else ""))
 
     import time
     resultados = []

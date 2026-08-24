@@ -124,6 +124,19 @@ fue concluyente (el workflow se vació por el bug del PUT de arriba antes de cor
 → **Pendiente de confirmar en la UI:** abrir un nodo If/Else y ver si el campo aparece
 relleno. Si aparece vacío, hay que copiar el esquema real de una condición hecha a mano.
 
+## Tags: hay que crearlos a nivel de subcuenta
+
+`add_contact_tag` crea el tag en tiempo de ejecución, pero entonces **no aparece en los
+selectores de la UI** al configurar triggers y condiciones. Hay que crearlos antes con
+`POST /workflow/{loc}/tags/create`.
+
+⚠️ Ese endpoint responde con **cuerpo vacío**, así que `create_location_tag()` del cliente
+devuelve `False` aunque haya funcionado (falla al parsear "" como JSON). Nunca confiar en
+su valor de retorno: verificar contra `GET /locations/{loc}/tags`. Es lo que hace
+`crear_tags()` en `esb_lib.py`, que ya corre dentro del despliegue.
+
+Los 5 tags de la Fase 1 están en `tags.json`.
+
 ## Rate limit del PUT interno
 
 Guardar varios workflows seguidos falla de forma intermitente con errores genéricos; **el mismo payload

@@ -299,6 +299,42 @@ def whatsapp(nombre: str, plantilla: str, cuerpo: str) -> dict:
 
 # ── Despliegue ───────────────────────────────────────────────────────────
 
+def tags_usados(workflows: list) -> set[str]:
+    """Todos los tags que referencian los workflows: los que añaden/quitan y los
+    que aparecen en condiciones de bifurcación."""
+    usados: set[str] = set()
+    for _, fn in workflows:
+        for s in fn():
+            if es_marcador(s):
+                continue
+            a = s.get("attributes", {})
+            usados.update(a.get("tags", []) or [])
+            for cnd in a.get("if", []) or []:
+                if isinstance(cnd, dict) and cnd.get("field") == "contact.tags":
+                    if cnd.get("value"):
+                        usados.add(cnd["value"])
+    return usados
+
+
+def crear_tags(c: InternalGHLClient, tags: set[str]) -> list[str]:
+    """Crea los tags a nivel de subcuenta y devuelve los que existen al terminar.
+
+    Los tags deben existir en la subcuenta para poder seleccionarlos en triggers
+    y condiciones desde la UI. `add_contact_tag` los crearía en tiempo de
+    ejecución, pero entonces no aparecen en los selectores al configurar.
+
+    Ojo: el endpoint responde con cuerpo VACÍO, así que `create_location_tag()`
+    del cliente devuelve False aunque haya funcionado. Por eso aquí se verifica
+    contra el listado real en lugar de confiar en el valor de retorno.
+    """
+    from cli_anything.gohighlevel.utils import ghl_client as g
+    for tag in sorted(tags):
+        c.request("POST", f"/workflow/{c.location_id}/tags/create", {"tag": tag})
+    existentes = {t if isinstance(t, str) else t.get("name")
+                  for t in g.get(f"/locations/{c.location_id}/tags").get("tags", [])}
+    return sorted(tags - existentes)      # los que faltaron
+
+
 def listar_todo(c: InternalGHLClient) -> list[dict]:
     """Workflows Y carpetas de la subcuenta.
 

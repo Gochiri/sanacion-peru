@@ -1,0 +1,10 @@
+{
+  "tags": [
+    "a-educar",
+    "cuota-adicional",
+    "oportunidad-creada",
+    "primer-pago-procesado",
+    "registrado"
+  ],
+  "nota": "Creados a nivel de subcuenta para que aparezcan en los selectores de triggers y condiciones. Los genera crear_tags() en cada despliegue."
+}
