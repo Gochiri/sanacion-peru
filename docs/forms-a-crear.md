@@ -38,6 +38,18 @@ demostrar el opt-in para mensajes iniciados por el negocio.
 - ☑ *"Acepto la política de privacidad y el tratamiento de mis datos de salud"* → enlazar la política
 - ☑ *"Acepto recibir información por WhatsApp y correo"*
 
+### ⚠️ Reparto en slides — Q3 y Q4 NO pueden ir juntas
+
+En el builder de encuestas de GHL **la lógica condicional se configura por slide, no por pregunta**.
+Si Q3 y Q4 comparten slide, no hay forma de ocultar Q4 cuando Q3 descalifica, y el filtro se rompe.
+
+| Slide | Contenido |
+|---|---|
+| 1 | Datos + los 2 consentimientos |
+| 2 | Q1 cluster · Q1b síntoma en texto · Q2 tiempo |
+| **3** | **Q3 — la eliminatoria** |
+| **4** | **Q4 — filtro de inversión** (con condición de slide) |
+
 ### Paso 3 — Calificación
 
 **Q1 · ¿Cuál de estos describe mejor lo que vives hoy?** → **`contact.cluster_sintoma`**
@@ -53,7 +65,11 @@ Opciones (exactas, ya existen en el campo):
 
 **Q3 · ¿Qué esperas encontrar en esta clase?** → **`contact.nivel_calificacion`** — la eliminatoria
 
-El texto de cada opción **es el valor exacto del campo**, para que el builder lo guarde tal cual:
+El texto de cada opción **es el valor exacto del campo**, para que el builder lo guarde tal cual.
+Si el desplegable permite separar etiqueta y valor, va la frase completa como etiqueta y el valor
+exacto (`Califica`) como valor. Si no lo permite, el texto visible debe ser literalmente
+`Califica` / `No califica` / `A educar`, y la frase explicativa se pone en el **texto de ayuda de
+la pregunta**:
 
 | Texto que ve la persona | Valor que se guarda |
 |---|---|
@@ -70,11 +86,15 @@ El texto de cada opción **es el valor exacto del campo**, para que el builder l
 | Necesitaría saber más | `Califica` |
 | No, busco solo contenido gratuito | `A educar` |
 
-### ⚠️ Q4 necesita lógica de salto — sin esto el filtro se rompe
+### ⚠️ La condición del Slide 4 — sin esto el filtro se rompe
 
 Las dos preguntas escriben en el mismo campo, así que **la última respondida gana**. Si alguien
 contesta Q3 = *"un medicamento o tratamiento médico"* y luego Q4 = *"Sí"*, **acaba calificado y
 entra al grupo** — justo el lead que hace perder el tiempo a Luca.
+
+En el engranaje del **Slide 4** → *Conditional Logic*:
+
+> Mostrar este slide **solo si** `Nivel calificacion` **es igual a** `Califica`
 
 **Q4 solo se muestra si Q3 calificó:**
 
