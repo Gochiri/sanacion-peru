@@ -5,10 +5,18 @@
 Henry creó el trigger de WF2 a mano y al leerlo por API quedó la forma real. **Esto es lo que
 antes había que adivinar**:
 
-| Trigger (UI) | `type` | Condición |
-|---|---|---|
-| Survey submitted | **`survey_submission`** | `{"field": "survey.id", "operator": "is-any-of", "value": ["<id>"]}` |
-| Contact tag added | `contact_tag` | `{"field": "tagsAdded", "operator": "index-of-true", "value": "<tag>"}` |
+| Trigger (UI) | `type` | Condición | Verificado |
+|---|---|---|---|
+| Survey submitted | **`survey_submission`** | `{"field": "survey.id", "operator": "is-any-of", "value": ["<id>"]}` | ✅ UI |
+| Contact created | **`contact_created`** | sin filtros | ✅ UI |
+| Contact tag | **`contact_tag`** | `{"field": "tagsAdded", "operator": "index-of-true", "value": "<tag>"}` | ✅ UI |
+| Pipeline stage changed | `pipeline_stage_changed` | `pipeline.id` + `pipeline_stage.id`, ambos `is-any-of` con array | ⚠️ sin verificar |
+| Customer booked appointment | `customer_booked_appointment` | `{"field": "calendar.id", "operator": "is-any-of", "value": ["<id>"]}` | ⚠️ sin verificar |
+
+**El patrón de nombres no es fiable:** "Contact created" → `contact_created` y "Contact tag" →
+`contact_tag` siguen el snake_case, pero "Survey submitted" → **`survey_submission`**, no
+`survey_submitted`. Por eso cada identificador nuevo hay que verlo en la UI antes de darlo por
+bueno.
 
 Dos detalles que no se adivinan:
 - La condición usa **`survey.id`** con **`is-any-of`** y el valor en **array**, no `survey` con `eq`.
@@ -22,13 +30,13 @@ que hay que abrirlo en la UI y confirmar que aparece como "Contact Created".
 
 | Workflow | Trigger | Estado |
 |---|---|---|
-| WF1 | `contact_created` | creado — ⚠️ verificar en UI |
+| WF1 | `contact_created` | ✅ verificado en UI |
 | WF2 | `survey_submission` + F01 | ✅ verificado en UI |
-| WF3 | Opportunity Stage Changed → Registrado | pendiente |
-| WF4A | Trigger Link Clicked | espera la página del evento |
-| WF4B | Form Submitted (F03) | espera F03 |
-| WF4C | Customer Booked Appointment | espera el calendario con Luca asignado |
-| WF5 | `contact_tag` → `pago-manual` | creado — ⚠️ verificar en UI |
+| WF3 | `pipeline_stage_changed` → Registrado | creado — ⚠️ verificar |
+| WF4A | Trigger Link Clicked | **espera la página del evento** (falta el dominio) |
+| WF4B | Form Submitted (F03) | **espera F03** |
+| WF4C | `customer_booked_appointment` | creado — ⚠️ verificar |
+| WF5 | `contact_tag` → `pago-manual` | ✅ verificado en UI |
 
 Los triggers se guardan con `active: false` mientras el workflow está en borrador.
 

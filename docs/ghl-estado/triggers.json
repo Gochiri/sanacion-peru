@@ -3,8 +3,7 @@
     "workflow": "WF1 - Captacion y atribucion",
     "trigger_id": "KrVpMHmXkzzFuV0ccJox",
     "tipo": "contact_created",
-    "filtros": [],
-    "active": true
+    "filtros": []
   },
   {
     "workflow": "WF2 - Registro y calificacion",
@@ -20,12 +19,34 @@
         "title": "Survey is",
         "type": "string"
       }
-    ],
-    "active": false
+    ]
   },
   {
     "workflow": "WF3 - Recordatorios de evento",
-    "trigger": null
+    "trigger_id": "HQsp2rCv7JuEqa6LieVd",
+    "tipo": "pipeline_stage_changed",
+    "filtros": [
+      {
+        "field": "pipeline.id",
+        "operator": "is-any-of",
+        "value": [
+          "NCuspbUzn0AhWXAPn3g7"
+        ],
+        "title": "Pipeline Is",
+        "type": "select",
+        "id": "pipeline-is"
+      },
+      {
+        "field": "pipeline_stage.id",
+        "operator": "is-any-of",
+        "value": [
+          "f8453476-5203-4acf-81b8-9e72311290ab"
+        ],
+        "title": "Stage Is",
+        "type": "select",
+        "id": "stage-is"
+      }
+    ]
   },
   {
     "workflow": "WF4A - Asistencia",
@@ -37,7 +58,20 @@
   },
   {
     "workflow": "WF4C - Cita agendada",
-    "trigger": null
+    "trigger_id": "xpsdmnfLIWa1lPzlkVL7",
+    "tipo": "customer_booked_appointment",
+    "filtros": [
+      {
+        "field": "calendar.id",
+        "operator": "is-any-of",
+        "value": [
+          "yCYC1PwGWrYRxifCIvBX"
+        ],
+        "title": "Calendar Is",
+        "type": "select",
+        "id": "calendar-is"
+      }
+    ]
   },
   {
     "workflow": "WF5 - Cobro confirmado",
@@ -52,7 +86,6 @@
         "type": "select",
         "id": "tag-added"
       }
-    ],
-    "active": false
+    ]
   }
 ]
