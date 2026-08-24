@@ -126,26 +126,27 @@ def etiqueta(nombre: str, tags: list[str], quitar: bool = False) -> dict:
     }
 
 
-ETAPA_PENDIENTE = "[PENDIENTE-OPP]"
-
-
 def mover_a_etapa(nombre: str, pipeline_id: str, stage_id: str,
                   status: str = "open") -> dict:
-    """MARCADOR de movimiento de etapa — no se despliega.
+    """create_opportunity — en GHL no existe "cambiar etapa": esta acción hace
+    upsert sobre la oportunidad del contacto, así que sirve para mover de etapa.
+    Para cerrar la venta se pasa status="won" (Ganado no es una etapa).
 
-    ⚠️ En GHL no existe una acción de "cambiar etapa": se usa `create_opportunity`
-    (hace upsert sobre la oportunidad del contacto). El tipo es válido, pero sus
-    attributes NO son los que parecen: con {pipelineId, stageId, status, name}
-    GHL responde "Pipeline is required., Opportunity Name is required." — los
-    nombres reales de los campos son otros y hay que copiarlos de un nodo hecho
-    en la UI.
-
-    Hasta entonces se reporta como pendiente en vez de desplegarse mal.
+    Esquema descubierto contra la cuenta real: los campos van en snake_case y
+    `opportunity_source`, `monetary_value` y `fields` son obligatorios aunque
+    la documentación no los mencione.
     """
     return {
-        "_marcador": ETAPA_PENDIENTE, "name": nombre,
-        "ramas": [{"nombre": f"-> etapa {stage_id[:8]}… status={status}",
-                   "condiciones": []}],
+        "id": uid(), "type": "create_opportunity", "name": nombre,
+        "attributes": {
+            "pipeline_id": pipeline_id,
+            "stage_id": stage_id,
+            "opportunity_name": "{{contact.name}}",
+            "opportunity_source": "Workflow",
+            "monetary_value": 0,
+            "status": status,
+            "fields": [],
+        },
     }
 
 
@@ -194,26 +195,50 @@ def esperar(nombre: str, valor: int, unidad: str = "days") -> dict:
     }
 
 
-BIFURCACION_PENDIENTE = "[PENDIENTE-IF]"
+def bifurcar(nombre: str, condiciones: list[dict], rama_si: list[dict],
+             rama_no: list[dict] | None = None, operador: str = "and") -> list[dict]:
+    """if_else — devuelve la LISTA de nodos de la bifurcación, ya enlazados.
 
+    El if_else no es un paso lineal: es un nodo de canvas cuyo `next` es un
+    ARRAY con los ids de sus ramas ("If/else condition node must have next as
+    array"). Cada rama es un nodo aparte con nodeType branch-yes / branch-no,
+    y su `next` apunta al primer paso de esa rama.
 
-def bifurcar(nombre: str, ramas: list[tuple[str, list[dict]]]) -> dict:
-    """MARCADOR de bifurcación — no se despliega.
-
-    ⚠️ El `if_else` de GHL no es un paso lineal: es un nodo de canvas con ramas
-    (`nodeType` condition-node / branch-yes / branch-no) cuyas salidas son las
-    ramas, no un `next`. Verificado: un if_else aislado pasa el PUT, pero
-    encadenado con link_steps lo rechaza.
-
-    Hasta copiar el esquema real de un if_else hecho en la UI, estas
-    bifurcaciones NO se despliegan: el builder las salta y las reporta para
-    insertarlas a mano. Los workflows quedan en borrador, así que no se ejecutan
-    a medias.
+    Los pasos de cada rama se encadenan entre sí y NO deben pasar por
+    link_steps() después, o se les pisa el parentKey.
     """
-    return {
-        "_marcador": BIFURCACION_PENDIENTE, "name": nombre,
-        "ramas": [{"nombre": n, "condiciones": c} for n, c in ramas],
-    }
+    cid, yid, nid = uid(), uid(), uid()
+
+    def encadenar(pasos: list[dict], padre: str) -> list[dict]:
+        salida = []
+        for i, paso in enumerate(pasos):
+            paso = {**paso}
+            paso["parentKey"] = padre if i == 0 else pasos[i - 1]["id"]
+            paso["next"] = pasos[i + 1]["id"] if i < len(pasos) - 1 else None
+            salida.append(paso)
+        return salida
+
+    # Los marcadores (CAPI pendiente) no son nodos reales: se apartan del
+    # encadenado y se devuelven al final para que el despliegue los reporte.
+    marcadores = [s for s in rama_si + (rama_no or []) if es_marcador(s)]
+    si = encadenar([s for s in rama_si if not es_marcador(s)], yid)
+    no = encadenar([s for s in (rama_no or []) if not es_marcador(s)], nid)
+
+    nodos = [
+        {"id": cid, "type": "if_else", "name": nombre, "nodeType": "condition-node",
+         "attributes": {"name": nombre, "operator": operador, "if": condiciones},
+         "next": [yid, nid], "parentKey": None},
+        {"id": yid, "type": "if_else", "name": f"{nombre} - Si", "nodeType": "branch-yes",
+         "attributes": {"name": f"{nombre} - Si"},
+         "next": si[0]["id"] if si else None, "parentKey": cid},
+        {"id": nid, "type": "if_else", "name": f"{nombre} - No", "nodeType": "branch-no",
+         "attributes": {"name": f"{nombre} - No"},
+         "next": no[0]["id"] if no else None, "parentKey": cid},
+    ] + si + no
+
+    for i, n in enumerate(nodos):
+        n["order"] = i
+    return nodos + marcadores
 
 
 def es_marcador(step: dict) -> bool:
@@ -276,16 +301,56 @@ def carpeta(c: InternalGHLClient, nombre: str) -> str | None:
     return r.get("id") if r else None
 
 
+def ensamblar(steps: list[dict]) -> list[dict]:
+    """Enlaza una mezcla de pasos planos y bifurcaciones.
+
+    Los pasos planos se encadenan en secuencia; los nodos de una bifurcación ya
+    vienen enlazados entre sí (`bifurcar()`), así que solo hay que engancharlos
+    al último paso plano anterior. Al final se renumera `order` de forma global:
+    si dos bloques repiten el índice GHL responde "corrupted order".
+    """
+    salida: list[dict] = []
+    anterior: dict | None = None      # último nodo de la cadena plana
+
+    for paso in steps:
+        paso = {**paso}
+        if "nodeType" in paso:
+            # nodo de bifurcación: solo se ajusta el enganche del condition-node
+            if paso["nodeType"] == "condition-node":
+                if anterior is not None:
+                    anterior["next"] = paso["id"]
+                    paso["parentKey"] = anterior["id"]
+                anterior = None       # tras ramificar ya no hay cadena plana
+            salida.append(paso)
+            continue
+
+        # paso plano
+        if anterior is not None:
+            anterior["next"] = paso["id"]
+            paso["parentKey"] = anterior["id"]
+        else:
+            paso.setdefault("parentKey", None)
+        paso["next"] = None
+        salida.append(paso)
+        anterior = paso
+
+    for i, s in enumerate(salida):
+        s["order"] = i
+    return salida
+
+
 def guardar(c: InternalGHLClient, wid: str, nombre: str, steps: list[dict]) -> tuple[bool, Any]:
     """PUT leyendo la versión actual primero.
 
     Imprescindible: GHL usa versionado optimista y el builder de la CLI manda
     version:1 fijo, por eso su --update está roto.
     """
+    templates = ensamblar(steps)
+
     actual = c.request("GET", f"/workflow/{c.location_id}/{wid}") or {}
     r = c.request("PUT", f"/workflow/{c.location_id}/{wid}", {
         "name": nombre, "version": actual.get("version", 1),
-        "workflowData": {"templates": link_steps(steps)},
+        "workflowData": {"templates": templates},
     })
     return bool(r and not r.get("_error")), r
 
@@ -294,7 +359,7 @@ def desplegar(c: InternalGHLClient, nombre_wf: str, steps: list[dict],
               folder_id: str, dry_run: bool = False) -> dict:
     """Crea el workflow (draft) y guarda sus pasos."""
     reales = [s for s in steps if not es_marcador(s)]
-    bifurcaciones = [s for s in steps if es_marcador(s)]
+    bifurcaciones = [s for s in steps if es_marcador(s)]  # solo quedan los CAPI
     pendientes = [s["name"] for s in reales if WHATSAPP_PENDIENTE in s.get("name", "")]
 
     detalle = []
@@ -320,11 +385,11 @@ def desplegar(c: InternalGHLClient, nombre_wf: str, steps: list[dict],
     # seguidos (mismo payload pasa al reintentar). Hasta 3 intentos con pausa.
     import time
     ok, resp = False, None
-    for intento in range(3):
+    for intento in range(5):
         ok, resp = guardar(c, wid, nombre_wf, reales)
         if ok:
             break
-        time.sleep(1.5 * (intento + 1))
+        time.sleep(2.0 * (intento + 1))
 
     return {"workflow": nombre_wf, "id": wid, "pasos": len(reales),
             "pendientes_wa": len(pendientes), "bifurcaciones": len(bifurcaciones),
@@ -346,9 +411,10 @@ def resumen(resultados: list[dict]) -> None:
                   f"{r.get('bifurcaciones',0)} IF)  {estado}")
     print("=" * 66)
     print(f"  {len(resultados)} workflows · {total} pasos desplegados")
-    print(f"  PENDIENTES DE ESQUEMA: {wa} nodos WhatsApp · {bif} bifurcaciones")
+    print(f"  PENDIENTES: {wa} nodos WhatsApp · {bif} eventos CAPI")
     if wa:
-        print(f'\n  WhatsApp: creados como `sms` marcados "{WHATSAPP_PENDIENTE}".')
+        print(f'\n  WhatsApp: creados como `sms` marcados "{WHATSAPP_PENDIENTE}" —')
+        print("            falta confirmar canal y plantilla aprobada de Meta.")
     if bif:
-        print(f'  Bifurcaciones: NO desplegadas (marcadas "{BIFURCACION_PENDIENTE}" arriba).')
-        print("  Ambas esperan copiar el esquema real de un nodo hecho en la UI.")
+        print(f'  CAPI: no desplegados ("{CAPI_PENDIENTE}") — requieren pixel y')
+        print("        access token de Meta (llave A1 del checklist).")

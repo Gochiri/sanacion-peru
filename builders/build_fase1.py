@@ -34,30 +34,28 @@ def wf1():
               [("contact.utm_campaign", "{{contact.utm_campaign}}"),
                ("contact.utm_adset", "{{contact.utm_adset}}"),
                ("contact.utm_ad", "{{contact.utm_ad}}")]),
-        bifurcar("Detectar idioma por prefijo telefonico", [
-            ("Italia (+39)", [cond("contact.phone", "contains", "+39")]),
-            ("Peru (+51)",   [cond("contact.phone", "contains", "+51")]),
-        ]),
-        campo("Idioma IT / mercado Italia",
-              [("contact.idioma", "IT"), ("contact.mercado", "Italia")]),
-        campo("Idioma ES / mercado Peru-LATAM",
-              [("contact.idioma", "ES"), ("contact.mercado", "Peru-LATAM")]),
-        bifurcar("Guard: ya tiene oportunidad?", [
-            ("Sin oportunidad", [cond("contact.tags", "not_contains", "oportunidad-creada")]),
-        ]),
-        mover("Crear oportunidad en Lead nuevo", "Lead nuevo"),
-        etiqueta("Marcar oportunidad creada", ["oportunidad-creada"]),
-        whatsapp("Enviar link de registro a quien escribe sin registrarse",
-                 "respuesta-entrada-desconocido",
-                 f"Hola {{{{contact.first_name}}}}, aqui te dejo el enlace para "
-                 f"registrarte a la clase: {CV('link_registro_es')}"),
-        esperar("Esperar 30 min por registro", 30, "minutes"),
-        bifurcar("Se registro?", [
-            ("No se registro", [cond("contact.tags", "not_contains", "registrado")]),
-        ]),
-        notificar("Avisar a Luca: escribio y no se registro",
-                  "Lead sin registrar",
-                  "{{contact.name}} ({{contact.phone}}) escribio y no completo el registro."),
+        *bifurcar("Es contacto italiano?",
+            [cond("contact.phone", "contains", "+39")],
+            rama_si=[
+                campo("Idioma IT / mercado Italia",
+                      [("contact.idioma", "IT"), ("contact.mercado", "Italia")]),
+                mover("Crear oportunidad IT en Lead nuevo", "Lead nuevo"),
+                etiqueta("Marcar oportunidad creada (IT)", ["oportunidad-creada"]),
+                whatsapp("Link de registro IT", "respuesta-entrada-desconocido",
+                         f"Ciao {{{{contact.first_name}}}}, iscriviti qui: {CV('link_registro_it')}"),
+            ],
+            rama_no=[
+                campo("Idioma ES / mercado Peru-LATAM",
+                      [("contact.idioma", "ES"), ("contact.mercado", "Peru-LATAM")]),
+                mover("Crear oportunidad ES en Lead nuevo", "Lead nuevo"),
+                etiqueta("Marcar oportunidad creada (ES)", ["oportunidad-creada"]),
+                whatsapp("Link de registro ES", "respuesta-entrada-desconocido",
+                         f"Hola {{{{contact.first_name}}}}, registrate aqui: {CV('link_registro_es')}"),
+                esperar("Esperar 30 min por registro", 30, "minutes"),
+                notificar("Avisar a Luca: escribio y no se registro",
+                          "Lead sin registrar",
+                          "{{contact.name}} ({{contact.phone}}) escribio y no completo el registro."),
+            ]),
     ]
 
 
@@ -65,32 +63,28 @@ def wf1():
 def wf2():
     return [
         etiqueta("Marcar registrado", ["registrado"]),
-        bifurcar("Nivel de calificacion", [
-            ("No califica", [cond("contact.nivel_calificacion", "eq", "No califica")]),
-            ("A educar",    [cond("contact.nivel_calificacion", "eq", "A educar")]),
-            ("Califica",    [cond("contact.nivel_calificacion", "eq", "Califica")]),
-        ]),
-        # — rama descalificada —
-        mover("Mover a No califica", "No califica"),
-        etiqueta("Etiquetar para remarketing", ["a-educar"]),
-        whatsapp("Enviar contenido educativo (sin link de grupo)",
-                 "educativo-no-califica",
-                 f"Gracias por escribirnos. Te dejamos este contenido para "
-                 f"entender la causa emocional del sintoma: {CV('link_educativo_es')}"),
-        email("Email educativo no califica",
-              "Un primer paso para entender tu sintoma",
-              f"<p>Te compartimos este material: {CV('link_educativo_es')}</p>"),
-        # — rama califica —
-        mover("Mover a Registrado", "Registrado"),
-        whatsapp("Bienvenida con link del grupo",
-                 "bienvenida-registro",
-                 f"Hola {{{{contact.first_name}}}}! Ya estas registrado. Unete al grupo "
-                 f"para recibir el acceso: {CV('link_grupo_whatsapp_es')}"),
-        email("Confirmacion de registro",
-              "Tu lugar esta confirmado",
-              f"<p>Te esperamos el {CV('fecha_evento_vigente')} a las "
-              f"{CV('hora_evento_pe')}.</p>"),
-        capi("CAPI: Registro", "CompleteRegistration"),
+        *bifurcar("Califica para la escuela?",
+            [cond("contact.nivel_calificacion", "eq", "Califica")],
+            rama_si=[
+                mover("Mover a Registrado", "Registrado"),
+                whatsapp("Bienvenida con link del grupo", "bienvenida-registro",
+                         f"Hola {{{{contact.first_name}}}}! Ya estas registrado. Unete al grupo "
+                         f"para recibir el acceso: {CV('link_grupo_whatsapp_es')}"),
+                email("Confirmacion de registro", "Tu lugar esta confirmado",
+                      f"<p>Te esperamos el {CV('fecha_evento_vigente')} a las "
+                      f"{CV('hora_evento_pe')}.</p>"),
+                capi("CAPI: Registro", "CompleteRegistration"),
+            ],
+            rama_no=[
+                mover("Mover a No califica", "No califica"),
+                etiqueta("Etiquetar para remarketing", ["a-educar"]),
+                whatsapp("Contenido educativo (sin link de grupo)", "educativo-no-califica",
+                         f"Gracias por escribirnos. Te dejamos este contenido para "
+                         f"entender la causa emocional del sintoma: {CV('link_educativo_es')}"),
+                email("Email educativo no califica",
+                      "Un primer paso para entender tu sintoma",
+                      f"<p>Te compartimos este material: {CV('link_educativo_es')}</p>"),
+            ]),
     ]
 
 
@@ -98,9 +92,6 @@ def wf2():
 def wf3():
     return [
         esperar("Esperar hasta T-24h del evento", 1, "days"),
-        bifurcar("Sigue en Registrado?", [
-            ("Sigue registrado", [cond("contact.tags", "not_contains", "comprado")]),
-        ]),
         whatsapp("Recordatorio 24 h", "recordatorio-24h",
                  f"Manana es la clase: {CV('fecha_evento_vigente')} a las {CV('hora_evento_pe')}."),
         email("Email recordatorio 24 h", "Manana nos vemos",
@@ -114,11 +105,13 @@ def wf3():
         email("Email en vivo", "Estamos en vivo",
               f"<p>Entra ahora: {CV('link_evento_es')}</p>"),
         esperar("Esperar 2 h tras el evento", 2, "hours"),
-        bifurcar("Asistio?", [
-            ("No asistio", [cond("contact.asistio_evento", "is_empty", "")]),
-        ]),
-        whatsapp("Recuperacion de no-show (copy suave)", "no-show",
-                 "Te perdiste la clase de hoy, pero te dejamos lo esencial."),
+        # `asistio_evento` es CHECKBOX: GHL espera boolean, no array/cadena.
+        *bifurcar("No asistio al evento?",
+            [cond("contact.asistio_evento", "eq", False)],
+            rama_si=[
+                whatsapp("Recuperacion de no-show (copy suave)", "no-show",
+                         "Te perdiste la clase de hoy, pero te dejamos lo esencial."),
+            ]),
     ]
 
 
@@ -135,14 +128,12 @@ def wf4b():
     return [
         mover("Mover a Postulo", "Postulo"),
         capi("CAPI: Postulacion", "Schedule"),
-        bifurcar("Mercado del contacto", [
-            ("Italia", [cond("contact.mercado", "eq", "Italia")]),
-            ("Peru",   [cond("contact.mercado", "eq", "Peru-LATAM")]),
-        ]),
-        whatsapp("Enviar calendario Italia", "postulacion-agenda",
-                 f"Agenda tu llamada con Luca: {CV('link_calendario_cierre_it')}"),
-        whatsapp("Enviar calendario Peru", "postulacion-agenda",
-                 f"Agenda tu llamada con Luca: {CV('link_calendario_cierre_pe')}"),
+        *bifurcar("Es del mercado Italia?",
+            [cond("contact.mercado", "eq", "Italia")],
+            rama_si=[whatsapp("Enviar calendario Italia", "postulacion-agenda",
+                              f"Prenota la tua chiamata: {CV('link_calendario_cierre_it')}")],
+            rama_no=[whatsapp("Enviar calendario Peru", "postulacion-agenda",
+                              f"Agenda tu llamada con Luca: {CV('link_calendario_cierre_pe')}")]),
     ]
 
 
@@ -164,27 +155,25 @@ def wf4c():
 # ── WF5 · Cobro confirmado (SP07-lite) ───────────────────────────────────
 def wf5():
     return [
-        bifurcar("Guard: ya se proceso el primer pago?", [
-            ("Es el primer pago", [cond("contact.tags", "not_contains", "primer-pago-procesado")]),
-        ]),
         campo("Registrar datos de la venta",
               [("contact.producto_comprado", "Escuela"),
                ("contact.estado_pago", "Al dia")]),
         etiqueta("Marcar primer pago procesado", ["primer-pago-procesado"]),
         # Ganado NO es una etapa: es el status de la oportunidad.
         mover("Cerrar oportunidad como Ganado", "Llamada realizada", status="won"),
-        bifurcar("Pago de contado?", [
-            ("Contado", [cond("contact.plan_pago", "eq", "Contado")]),
-        ]),
-        campo("Activar bono de llamada con Christie",
-              [("contact.bono_llamada_christie", "Si")]),
-        notificar("Avisar a Christie: sesion bono de 40 min",
-                  "Nuevo alumno con bono de sesion",
-                  "{{contact.name}} pago de contado y tiene derecho a la sesion de 40 min."),
         notificar("Avisar a Luca: dar de alta en System.io",
                   "Alta manual de alumno",
                   "{{contact.name}} ({{contact.email}}) pago. Crear acceso en System.io."),
         capi("CAPI: Compra", "Purchase"),
+        *bifurcar("Pago de contado?",
+            [cond("contact.plan_pago", "eq", "Contado")],
+            rama_si=[
+                campo("Activar bono de llamada con Christie",
+                      [("contact.bono_llamada_christie", "Si")]),
+                notificar("Avisar a Christie: sesion bono de 40 min",
+                          "Nuevo alumno con bono de sesion",
+                          "{{contact.name}} pago de contado y tiene derecho a la sesion de 40 min."),
+            ]),
     ]
 
 
@@ -218,8 +207,11 @@ def main():
             sys.exit("No se pudo crear/encontrar la carpeta")
         print(f"Carpeta: {CARPETA} ({fid})")
 
+    import time
     resultados = []
-    for nombre, fn in seleccion:
+    for i, (nombre, fn) in enumerate(seleccion):
+        if not args.dry_run and i:
+            time.sleep(2)      # el backend falla si se guardan muchos seguidos
         r = desplegar(c, nombre, fn(), fid, dry_run=args.dry_run)
         resultados.append(r)
         if args.dry_run:
