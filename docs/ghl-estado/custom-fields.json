@@ -50,6 +50,17 @@
     "options": []
   },
   {
+    "nombre": "Franja llamada",
+    "fieldKey": "contact.franja_llamada",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "WvPbHGN9aRIQAHdnesch",
+    "options": [
+      "Mañana",
+      "Tarde",
+      "Noche"
+    ]
+  },
+  {
     "nombre": "Fuente contacto",
     "fieldKey": "contact.fuente_contacto",
     "dataType": "SINGLE_OPTIONS",
@@ -103,14 +114,21 @@
     ]
   },
   {
+    "nombre": "Motivo postulacion",
+    "fieldKey": "contact.motivo_postulacion",
+    "dataType": "LARGE_TEXT",
+    "id": "yAZmtjG3HP4uO2hXdWar",
+    "options": []
+  },
+  {
     "nombre": "Nivel calificacion",
     "fieldKey": "contact.nivel_calificacion",
     "dataType": "SINGLE_OPTIONS",
     "id": "F4n43YBwtdya1dyJYdzO",
     "options": [
-      "Califica",
-      "A educar",
-      "No califica"
+      "Entender por que mi cuerpo enfermo y como sanarlo",
+      "Un medicamento o tratamiento medico",
+      "Solo tengo curiosidad"
     ]
   },
   {

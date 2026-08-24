@@ -144,23 +144,31 @@ pasa, avísame: hay un plan B (encuesta sin descalificación y que el ruteo lo h
 
 ## F03 · Postulación a la escuela (español)
 
-**Tipo:** Formulario simple, corto.
+**Tipo:** formulario simple (no survey) — es corto, cabe en una pantalla.
 **Dónde va:** página `/postulacion-es`, a la que lleva el botón de la página del evento.
-**Su envío es el disparador de WF4B**, que mueve a *Postuló* y manda el link del calendario.
+**Su envío dispara WF4B**, que mueve a *Postuló* y manda el link del calendario.
 
-| Campo | Tipo | Obligatorio |
-|---|---|---|
-| Nombre | Standard: First Name | Sí |
-| WhatsApp | Standard: Phone | Sí — reconfirmar, es por donde se le escribe |
-| Email | Standard: Email | Sí |
-| *"¿Qué te gustaría resolver con la escuela?"* | Texto largo → **`contact.sintoma_declarado`** | No |
-| *"¿En qué franja te viene mejor la llamada?"* | Desplegable: Mañana / Tarde / Noche | Sí |
+| # | Campo | Tipo | Obligatorio | Label visible |
+|---|---|---|---|---|
+| 1 | First Name | Standard | Sí | Nombre |
+| 2 | Phone | Standard | Sí | WhatsApp |
+| 3 | Email | Standard | Sí | Email |
+| 4 | `contact.motivo_postulacion` | Custom · texto largo | No | ¿Qué te gustaría resolver con la escuela? |
+| 5 | `contact.franja_llamada` | Custom · desplegable | Sí | ¿En qué franja te viene mejor la llamada? |
 
-**Al enviar:** mensaje de confirmación (*"te escribimos por WhatsApp para agendar"*).
-El link del calendario **no va en la página**: lo manda WF4B 1:1 por WhatsApp, para que quede
+Los dos campos personalizados **ya están creados**:
+
+- **`Motivo postulacion`** — separado de `Sintoma declarado` a propósito: si compartieran campo, lo
+  que escriba aquí pisaría el síntoma que puso al registrarse.
+- **`Franja llamada`** — opciones ya cargadas: `Mañana` · `Tarde` · `Noche`. Sirve para que Luca
+  sepa cuándo buscarlo **si no agenda solo**.
+
+**Sobrescribir los labels**: al arrastrar un campo personalizado GHL usa su nombre interno, y el
+visitante leería una etiqueta de sistema.
+
+**Al enviar:** mensaje de confirmación ("te escribimos por WhatsApp para agendar").
+**El link del calendario NO va en la página**: lo manda WF4B 1:1 por WhatsApp, para que quede
 trazado quién agendó.
-
----
 
 ## Después de crearlos
 
