@@ -1,0 +1,188 @@
+[
+  {
+    "nombre": "Asistio evento",
+    "fieldKey": "contact.asistio_evento",
+    "dataType": "CHECKBOX",
+    "id": "uCNc3WrtGvu2qFcEoG39",
+    "options": [
+      "Si"
+    ]
+  },
+  {
+    "nombre": "Bono llamada christie",
+    "fieldKey": "contact.bono_llamada_christie",
+    "dataType": "CHECKBOX",
+    "id": "7YhSYFuz89u6Vf05Fk4u",
+    "options": [
+      "Si"
+    ]
+  },
+  {
+    "nombre": "Cluster sintoma",
+    "fieldKey": "contact.cluster_sintoma",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "tygBkeZP67oq47gzurTr",
+    "options": [
+      "Dolores articulares",
+      "Digestivo",
+      "Ansiedad-panico-depresion",
+      "Piel",
+      "Otro"
+    ]
+  },
+  {
+    "nombre": "Estado pago",
+    "fieldKey": "contact.estado_pago",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "zSvMgseoMi5Zub9tQr3i",
+    "options": [
+      "Al dia",
+      "Fallido",
+      "En mora",
+      "Completado"
+    ]
+  },
+  {
+    "nombre": "Fecha evento",
+    "fieldKey": "contact.fecha_evento",
+    "dataType": "DATE",
+    "id": "D9FEqWaQBdZpxYw3jTrI",
+    "options": []
+  },
+  {
+    "nombre": "Fuente contacto",
+    "fieldKey": "contact.fuente_contacto",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "QkN8Icuy83KyzBGNmZDI",
+    "options": [
+      "Meta Ads",
+      "TikTok",
+      "IG organico",
+      "Telegram",
+      "Referido",
+      "Base historica"
+    ]
+  },
+  {
+    "nombre": "Idioma",
+    "fieldKey": "contact.idioma",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "ehI6wrdH3ISrRVH0Q6JL",
+    "options": [
+      "ES",
+      "IT"
+    ]
+  },
+  {
+    "nombre": "Lanzamiento",
+    "fieldKey": "contact.lanzamiento",
+    "dataType": "TEXT",
+    "id": "wi9ZpY6ZFk7q5Xx7GL4Q",
+    "options": []
+  },
+  {
+    "nombre": "Mercado",
+    "fieldKey": "contact.mercado",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "RHvsJaHCeyNUxAjCc9j1",
+    "options": [
+      "Peru-LATAM",
+      "Italia"
+    ]
+  },
+  {
+    "nombre": "Motivo descalificacion",
+    "fieldKey": "contact.motivo_descalificacion",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "mQsOe29I8aqtSYqgURzw",
+    "options": [
+      "Busca pastillas o medicina",
+      "Curiosidad",
+      "Sin capacidad de pago",
+      "Fuera de mercado"
+    ]
+  },
+  {
+    "nombre": "Nivel calificacion",
+    "fieldKey": "contact.nivel_calificacion",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "F4n43YBwtdya1dyJYdzO",
+    "options": [
+      "Califica",
+      "A educar",
+      "No califica"
+    ]
+  },
+  {
+    "nombre": "Pais",
+    "fieldKey": "contact.pais",
+    "dataType": "TEXT",
+    "id": "XXG7VpP2ckvoAEzoouqT",
+    "options": []
+  },
+  {
+    "nombre": "Plan pago",
+    "fieldKey": "contact.plan_pago",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "jeTCA7vNWMTKUrx7Eg0E",
+    "options": [
+      "Contado",
+      "2 cuotas",
+      "3 cuotas"
+    ]
+  },
+  {
+    "nombre": "Producto comprado",
+    "fieldKey": "contact.producto_comprado",
+    "dataType": "MULTIPLE_OPTIONS",
+    "id": "nHjHVOUlxUefgbhI9v5J",
+    "options": [
+      "Escuela",
+      "21 dias",
+      "5 leyes",
+      "Dispersion",
+      "Reflexologia",
+      "Libro"
+    ]
+  },
+  {
+    "nombre": "Sintoma declarado",
+    "fieldKey": "contact.sintoma_declarado",
+    "dataType": "LARGE_TEXT",
+    "id": "yCx3eixzl4jdgmbMuGgZ",
+    "options": []
+  },
+  {
+    "nombre": "Tiempo con sintoma",
+    "fieldKey": "contact.tiempo_con_sintoma",
+    "dataType": "SINGLE_OPTIONS",
+    "id": "YpoBzvpkPeLvTbcT2AuC",
+    "options": [
+      "Menos de 6 meses",
+      "6-24 meses",
+      "Mas de 2 anos",
+      "Mas de 5 anos"
+    ]
+  },
+  {
+    "nombre": "Utm ad",
+    "fieldKey": "contact.utm_ad",
+    "dataType": "TEXT",
+    "id": "qDbmqMJa5h43EMWAK3wC",
+    "options": []
+  },
+  {
+    "nombre": "Utm adset",
+    "fieldKey": "contact.utm_adset",
+    "dataType": "TEXT",
+    "id": "IYzkJkOU9CnTGvbcauEh",
+    "options": []
+  },
+  {
+    "nombre": "Utm campaign",
+    "fieldKey": "contact.utm_campaign",
+    "dataType": "TEXT",
+    "id": "pnbXdz3SieHQzDCAt0On",
+    "options": []
+  }
+]

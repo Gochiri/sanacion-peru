@@ -1,0 +1,140 @@
+[
+  {
+    "nombre": "Nombre lanzamiento vigente",
+    "fieldKey": "{{ custom_values.nombre_lanzamiento_vigente }}",
+    "value": "LNZ-2026-W35-ES",
+    "id": "3EzHDVmI0IigMY7CMkyv"
+  },
+  {
+    "nombre": "Fecha evento vigente",
+    "fieldKey": "{{ custom_values.fecha_evento_vigente }}",
+    "value": "PENDIENTE",
+    "id": "Ms4vppm44izcqdAjycQq"
+  },
+  {
+    "nombre": "Hora evento pe",
+    "fieldKey": "{{ custom_values.hora_evento_pe }}",
+    "value": "PENDIENTE",
+    "id": "lwJe55SYNQtWy7XfXlWq"
+  },
+  {
+    "nombre": "Hora evento it",
+    "fieldKey": "{{ custom_values.hora_evento_it }}",
+    "value": "PENDIENTE",
+    "id": "6a77w126h2Z6sz5rDfaG"
+  },
+  {
+    "nombre": "Link youtube evento",
+    "fieldKey": "{{ custom_values.link_youtube_evento }}",
+    "value": "PENDIENTE",
+    "id": "hYdi6qJEpff8Dzhpf1Tj"
+  },
+  {
+    "nombre": "Link grupo whatsapp es",
+    "fieldKey": "{{ custom_values.link_grupo_whatsapp_es }}",
+    "value": "PENDIENTE",
+    "id": "HeZQ15ef59Wfo5AIUiNd"
+  },
+  {
+    "nombre": "Link grupo whatsapp it",
+    "fieldKey": "{{ custom_values.link_grupo_whatsapp_it }}",
+    "value": "PENDIENTE",
+    "id": "inLhF4IWsn0sGNtGp74N"
+  },
+  {
+    "nombre": "Link registro es",
+    "fieldKey": "{{ custom_values.link_registro_es }}",
+    "value": "PENDIENTE",
+    "id": "Gxzl5oguI5jBe3p8lsfc"
+  },
+  {
+    "nombre": "Link registro it",
+    "fieldKey": "{{ custom_values.link_registro_it }}",
+    "value": "PENDIENTE",
+    "id": "eW2neS3rAO6fG4qedboM"
+  },
+  {
+    "nombre": "Link evento es",
+    "fieldKey": "{{ custom_values.link_evento_es }}",
+    "value": "PENDIENTE",
+    "id": "WYVpnd5BH5QZBrsXwluw"
+  },
+  {
+    "nombre": "Link evento it",
+    "fieldKey": "{{ custom_values.link_evento_it }}",
+    "value": "PENDIENTE",
+    "id": "tKHFNXN8wyDaqyl3bu9N"
+  },
+  {
+    "nombre": "Link calendario cierre pe",
+    "fieldKey": "{{ custom_values.link_calendario_cierre_pe }}",
+    "value": "PENDIENTE",
+    "id": "HljAPkDdY5Yb4iqvnHlg"
+  },
+  {
+    "nombre": "Link calendario cierre it",
+    "fieldKey": "{{ custom_values.link_calendario_cierre_it }}",
+    "value": "PENDIENTE",
+    "id": "E5Wqfp1Kgam44ydd9nSQ"
+  },
+  {
+    "nombre": "Link educativo es",
+    "fieldKey": "{{ custom_values.link_educativo_es }}",
+    "value": "PENDIENTE",
+    "id": "OedRVaNCWlLKuzpqmOaC"
+  },
+  {
+    "nombre": "Link educativo it",
+    "fieldKey": "{{ custom_values.link_educativo_it }}",
+    "value": "PENDIENTE",
+    "id": "7svBXW5lW1jEe64gE7Dw"
+  },
+  {
+    "nombre": "Link pago contado",
+    "fieldKey": "{{ custom_values.link_pago_contado }}",
+    "value": "PENDIENTE",
+    "id": "fdPZmwybn0CxMYoDyiZL"
+  },
+  {
+    "nombre": "Link pago 2cuotas",
+    "fieldKey": "{{ custom_values.link_pago_2cuotas }}",
+    "value": "PENDIENTE",
+    "id": "uX2JIQMWAQBdYDl5Lr7S"
+  },
+  {
+    "nombre": "Link pago 3cuotas",
+    "fieldKey": "{{ custom_values.link_pago_3cuotas }}",
+    "value": "PENDIENTE",
+    "id": "gEtsLn2cWYvIhlm9oD26"
+  },
+  {
+    "nombre": "Datos pago pe",
+    "fieldKey": "{{ custom_values.datos_pago_pe }}",
+    "value": "PENDIENTE",
+    "id": "KsXlrukVh2Fk8oYlq29A"
+  },
+  {
+    "nombre": "Datos pago it",
+    "fieldKey": "{{ custom_values.datos_pago_it }}",
+    "value": "PENDIENTE",
+    "id": "e2QTcIWfaN058kPxmqmW"
+  },
+  {
+    "nombre": "Link zoom llamada",
+    "fieldKey": "{{ custom_values.link_zoom_llamada }}",
+    "value": "PENDIENTE",
+    "id": "EfRIcaHp3nfUz0wpzA5B"
+  },
+  {
+    "nombre": "Email remitente",
+    "fieldKey": "{{ custom_values.email_remitente }}",
+    "value": "info@lanuovacoscienza.com",
+    "id": "pFdID2FgAjJfVQk2t2e8"
+  },
+  {
+    "nombre": "Firma luca",
+    "fieldKey": "{{ custom_values.firma_luca }}",
+    "value": "Luca - Salud Consciente",
+    "id": "NW3P3PNqziocIsZu2sel"
+  }
+]

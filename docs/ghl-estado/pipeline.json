@@ -1,0 +1,47 @@
+{
+  "pipelineId": "NCuspbUzn0AhWXAPn3g7",
+  "nombre": "Lanzamiento",
+  "etapas": [
+    {
+      "nombre": "Lead nuevo",
+      "stageId": "7961feb0-bce1-45a6-a142-4322623ac483",
+      "posicion": 0
+    },
+    {
+      "nombre": "Calificado",
+      "stageId": "951297a6-2aac-4b03-b28b-7e5cf63f8119",
+      "posicion": 1
+    },
+    {
+      "nombre": "Registrado",
+      "stageId": "f8453476-5203-4acf-81b8-9e72311290ab",
+      "posicion": 2
+    },
+    {
+      "nombre": "Asistio",
+      "stageId": "1ca2be35-368f-47b6-b84d-e156a85cc043",
+      "posicion": 3
+    },
+    {
+      "nombre": "Postulo",
+      "stageId": "189c7d83-8cad-4f76-8151-5c1a8f93df91",
+      "posicion": 4
+    },
+    {
+      "nombre": "Llamada agendada",
+      "stageId": "cdae972d-2bd2-4886-b97e-ccc658083402",
+      "posicion": 5
+    },
+    {
+      "nombre": "Llamada realizada",
+      "stageId": "ff5a88bd-c6ef-4894-841e-7d3e5de195c1",
+      "posicion": 6
+    },
+    {
+      "nombre": "No califica",
+      "stageId": "a8ce6325-15e6-46fd-965f-d9282fd2f368",
+      "posicion": 7
+    }
+  ],
+  "nota": "Ganado/Perdido = status de oportunidad en GHL (won/lost), no etapas del pipeline."
+}
