@@ -90,6 +90,40 @@ equivocado hacía que nunca se encontrara y se creara una nueva en cada corrida
 - El `order` es **global y secuencial** en el workflow: si un bloque repite índices, GHL responde
   *"action has a corrupted order"*. Lo resuelve `ensamblar()` en `esb_lib.py`.
 
+## ⚠️ Un PUT sin `workflowData` BORRA todos los pasos
+
+El PUT de `/workflow/{loc}/{id}` **reemplaza** el documento: si el body no incluye
+`workflowData`, el workflow queda con **0 pasos**. Pasó al intentar publicar un workflow
+de prueba mandando solo `{name, status, version}` — se vació entero.
+
+**Regla:** cualquier PUT sobre un workflow existente debe llevar `workflowData` completo,
+aunque solo se quiera cambiar el nombre o el estado. Leer primero con GET y reenviar todo.
+
+```python
+got = c.request("GET", f"/workflow/{loc}/{wid}")
+c.request("PUT", f"/workflow/{loc}/{wid}", {
+    "name": got["name"], "version": got["version"],
+    "workflowData": got["workflowData"],   # <- imprescindible
+    "status": "published",
+})
+```
+
+## Condiciones de las bifurcaciones — sin verificar en UI
+
+La forma que usamos se guarda sin error:
+
+```json
+{"name": "Es contacto italiano?", "operator": "and",
+ "if": [{"field": "contact.phone", "operator": "contains", "value": "+39"}]}
+```
+
+Pero **GHL no valida los attributes**, así que guardarse no prueba que la UI la renderice
+ni que el motor la evalúe. Un intento de verificarlo ejecutando un workflow de prueba no
+fue concluyente (el workflow se vació por el bug del PUT de arriba antes de correr).
+
+→ **Pendiente de confirmar en la UI:** abrir un nodo If/Else y ver si el campo aparece
+relleno. Si aparece vacío, hay que copiar el esquema real de una condición hecha a mano.
+
 ## Rate limit del PUT interno
 
 Guardar varios workflows seguidos falla de forma intermitente con errores genéricos; **el mismo payload
