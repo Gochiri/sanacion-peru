@@ -16,7 +16,7 @@
   {
     "nombre": "WF3 - Recordatorios de evento",
     "id": "45167ab6-bc70-467c-9800-69f968a1a97a",
-    "pasos": 13,
+    "pasos": 14,
     "bifurcaciones": 1,
     "whatsapp_pendientes": 4
   },
@@ -44,7 +44,7 @@
   {
     "nombre": "WF5 - Cobro confirmado",
     "id": "2625536e-5791-4dfd-989a-7163b16ccebb",
-    "pasos": 10,
+    "pasos": 11,
     "bifurcaciones": 1,
     "whatsapp_pendientes": 0
   }

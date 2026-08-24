@@ -154,25 +154,37 @@ def wf4c():
 
 # ── WF5 · Cobro confirmado (SP07-lite) ───────────────────────────────────
 def wf5():
+    """Cobro confirmado.
+
+    El guard del primer pago es la bifurcación EXTERNA a propósito: con planes de
+    2 o 3 cuotas, cada cobro vuelve a disparar este workflow. Sin el guard, cada
+    cuota reabriría "Ganado" y mandaría otro Purchase a Meta, inflando las
+    conversiones sobre las que Joaquin optimiza campañas.
+    """
     return [
-        campo("Registrar datos de la venta",
-              [("contact.producto_comprado", "Escuela"),
-               ("contact.estado_pago", "Al dia")]),
-        etiqueta("Marcar primer pago procesado", ["primer-pago-procesado"]),
-        # Ganado NO es una etapa: es el status de la oportunidad.
-        mover("Cerrar oportunidad como Ganado", "Llamada realizada", status="won"),
-        notificar("Avisar a Luca: dar de alta en System.io",
-                  "Alta manual de alumno",
-                  "{{contact.name}} ({{contact.email}}) pago. Crear acceso en System.io."),
-        capi("CAPI: Compra", "Purchase"),
-        *bifurcar("Pago de contado?",
-            [cond("contact.plan_pago", "eq", "Contado")],
+        *bifurcar("Es el primer pago?",
+            [cond("contact.tags", "not_contains", "primer-pago-procesado")],
             rama_si=[
-                campo("Activar bono de llamada con Christie",
+                campo("Registrar datos de la venta",
+                      [("contact.producto_comprado", "Escuela"),
+                       ("contact.estado_pago", "Al dia")]),
+                etiqueta("Marcar primer pago procesado", ["primer-pago-procesado"]),
+                mover("Cerrar oportunidad como Ganado", "Llamada realizada", status="won"),
+                notificar("Avisar a Luca: dar de alta en System.io",
+                          "Alta manual de alumno",
+                          "{{contact.name}} ({{contact.email}}) pago. Crear acceso en System.io."),
+                capi("CAPI: Compra", "Purchase"),
+                campo("Activar bono si pago de contado",
                       [("contact.bono_llamada_christie", "Si")]),
                 notificar("Avisar a Christie: sesion bono de 40 min",
                           "Nuevo alumno con bono de sesion",
-                          "{{contact.name}} pago de contado y tiene derecho a la sesion de 40 min."),
+                          "{{contact.name}} pago. Si fue de contado, le toca la sesion de 40 min."),
+            ],
+            rama_no=[
+                etiqueta("Cuota posterior: no reabrir la venta", ["cuota-adicional"]),
+                notificar("Avisar a Luca: cuota recibida",
+                          "Cuota adicional cobrada",
+                          "{{contact.name}} pago una cuota. La venta ya estaba registrada."),
             ]),
     ]
 

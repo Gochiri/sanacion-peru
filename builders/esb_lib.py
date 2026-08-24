@@ -229,7 +229,9 @@ def bifurcar(nombre: str, condiciones: list[dict], rama_si: list[dict],
     # GHL exige SIEMPRE dos ramas y que ninguna esté vacía. Si la definición no
     # da rama "no", se rellena con un paso inocuo (tag) para satisfacer al canvas.
     if not no:
-        relleno = etiqueta(f"{nombre} - sin accion", [f"rama-no-{cid[:8]}"])
+        # GHL exige que la rama exista y no esté vacía. Se usa una espera mínima
+        # como no-op: a diferencia de un tag, no ensucia los datos del contacto.
+        relleno = esperar(f"{nombre} - sin accion", 1, "minutes")
         relleno.update(parentKey=nid, next=None, _en_rama=True)
         no = [relleno]
     ramas_ids = [yid, nid]

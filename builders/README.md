@@ -14,17 +14,23 @@ python builders/build_fase1.py --solo WF3    # un solo workflow
 - `esb_lib.py` — constructores de nodos + despliegue. Encapsula todo lo verificado contra la cuenta real.
 - `build_fase1.py` — definición de WF1–WF5.
 
-## Estado: 7 workflows · 37 pasos desplegados (draft)
+## Estado: 7 workflows · 65 pasos desplegados (draft)
 
-| Workflow | Pasos | Pendientes |
-|---|---|---|
-| WF1 Captación y atribución | 8 | 1 WA · 4 IF |
-| WF2 Registro y calificación | 6 | 2 WA · 4 IF |
-| WF3 Recordatorios de evento | 10 | 4 WA · 2 IF |
-| WF4A Asistencia | 1 | 2 IF |
-| WF4B Postulación | 2 | 2 WA · 3 IF |
-| WF4C Cita agendada | 5 | 3 WA · 1 IF |
-| WF5 Cobro confirmado | 5 | 4 IF |
+| Workflow | Pasos | Ramas | WhatsApp |
+|---|---|---|---|
+| WF1 Captación y atribución | 15 | 1 | 2 |
+| WF2 Registro y calificación | 11 | 1 | 2 |
+| WF3 Recordatorios de evento | 14 | 1 | 4 |
+| WF4A Asistencia | 2 | — | — |
+| WF4B Postulación | 6 | 1 | 2 |
+| WF4C Cita agendada | 6 | — | 3 |
+| WF5 Cobro confirmado | 11 | 1 | — |
+
+**WF4A es corto a propósito:** su único trabajo es marcar la asistencia y mover la
+etapa cuando alguien hace clic en el link del evento. La postulación y la agenda
+viven en WF4B/WF4C porque cada uno cuelga de un trigger distinto (clic en trigger
+link · envío de F03 · cita agendada) y GHL une todos los triggers de un workflow
+al mismo flujo.
 
 **Todos en borrador.** Los triggers se configuran en la UI — el builder crea la cadena de acciones.
 
