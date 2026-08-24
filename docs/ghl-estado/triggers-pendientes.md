@@ -1,56 +1,51 @@
-# Triggers — ninguno configurado, y por qué
+# Triggers — estado y esquema real
 
-Estado: **los 7 workflows están sin trigger.** No es un olvido: es que casi todos cuelgan de
-recursos que todavía no existen en la subcuenta.
+## ✅ Identificadores confirmados en la UI
 
-## Se pueden crear por API, pero con una trampa
+Henry creó el trigger de WF2 a mano y al leerlo por API quedó la forma real. **Esto es lo que
+antes había que adivinar**:
 
-`POST /workflow/{loc}/trigger` funciona y el trigger persiste. **Pero GHL no valida el `type`:**
-acepta `contact_created` y `contact_create` por igual, y guarda lo que reciba. Si el identificador
-es incorrecto, queda un trigger que **nunca dispara** — peor que no tenerlo, porque en la UI
-parece configurado.
+| Trigger (UI) | `type` | Condición |
+|---|---|---|
+| Survey submitted | **`survey_submission`** | `{"field": "survey.id", "operator": "is-any-of", "value": ["<id>"]}` |
+| Contact tag added | `contact_tag` | `{"field": "tagsAdded", "operator": "index-of-true", "value": "<tag>"}` |
 
-No hay endpoint de catálogo (`/trigger/types`, `/trigger-config`… todos 404), así que los
-identificadores solo se confirman viéndolos en un trigger hecho desde la UI.
+Dos detalles que no se adivinan:
+- La condición usa **`survey.id`** con **`is-any-of`** y el valor en **array**, no `survey` con `eq`.
+- Los campos personalizados se referencian **por id** (`contact.F4n43YBwtdya1dyJYdzO`), no por
+  fieldKey.
 
-El único verificado en código real es **`contact_tag`** (lo usa el CampaignBuilder del CLI):
+⚠️ `contact_created` (WF1) **sigue sin verificar**: GHL acepta cualquier `type` sin validarlo, así
+que hay que abrirlo en la UI y confirmar que aparece como "Contact Created".
 
-```json
-{"type": "contact_tag", "masterType": "highlevel", "status": "draft",
- "workflowId": "<id>", "location_id": "<loc>", "name": "<nombre>",
- "conditions": [{"operator": "index-of-true", "field": "tagsAdded",
-                 "value": "<tag>", "title": "Tag Added", "type": "select",
-                 "id": "tag-added"}],
- "actions": [{"workflow_id": "<id>", "type": "add_to_workflow"}],
- "active": true, "triggersChanged": true, "schedule_config": {}}
+## Estado
+
+| Workflow | Trigger | Estado |
+|---|---|---|
+| WF1 | `contact_created` | creado — ⚠️ verificar en UI |
+| WF2 | `survey_submission` + F01 | ✅ verificado en UI |
+| WF3 | Opportunity Stage Changed → Registrado | pendiente |
+| WF4A | Trigger Link Clicked | espera la página del evento |
+| WF4B | Form Submitted (F03) | espera F03 |
+| WF4C | Customer Booked Appointment | espera el calendario con Luca asignado |
+| WF5 | `contact_tag` → `pago-manual` | creado — ⚠️ verificar en UI |
+
+Los triggers se guardan con `active: false` mientras el workflow está en borrador.
+
+## ⚠️ El filtro que rompía WF2
+
+El trigger creado en la UI traía un segundo filtro:
+
+```
+Nivel calificacion == "Entender por que mi cuerpo enfermo y como sanarlo"
 ```
 
-Leerlos: `GET /workflow/{loc}/trigger?workflowId=<id>`.
-Nota: aunque se mande `active: true`, GHL lo guarda como `false` mientras el workflow esté en borrador.
+Con eso **WF2 solo se disparaba para quien califica**, así que los descalificados **nunca entraban
+al workflow y nunca recibían la secuencia educativa** — se perdían en silencio, que es exactamente
+el problema que el proyecto viene a resolver.
 
-## Qué necesita cada workflow
+**Regla:** el trigger captura *todos* los envíos del survey; **la separación la hace la bifurcación
+interna del workflow**, no el filtro del trigger. Filtro eliminado el 18-ago.
 
-| Workflow | Trigger | Depende de | Estado |
-|---|---|---|---|
-| WF1 | Contact Created + Customer Replied (WhatsApp) | — / canal WhatsApp | Contact Created se puede ya (falta confirmar identificador). El de WhatsApp espera el número (llave A2) |
-| WF2 | Survey Submitted (F01) | encuesta ✅ | **Creado el 18-ago** (`Oex22HP7RdErgubmgzfq`, tipo `survey_submited`) — ⚠️ verificar en UI, GHL no valida el tipo |
-| WF3 | Opportunity Stage Changed → Registrado | pipeline ✅ | Se puede ya (falta confirmar identificador) |
-| WF4A | Trigger Link Clicked (link del evento) | **trigger link + página del evento** | Bloqueado: ACT-03, se hace en UI |
-| WF4B | Form Submitted (F03) | **formulario de postulación** | Bloqueado: ACT-02, se hace en UI |
-| WF4C | Customer Booked Appointment | **calendarios de cierre** | Bloqueado: ACT-04, se hace en UI |
-| WF5 | Payment Received + Contact Tag Added `pago-manual` | productos de cobro / tag ✅ | La rama de tag se puede ya; Payment Received espera ACT-07 |
-
-## Conclusión
-
-Los triggers **no son el cuello de botella**: lo son los recursos de los que cuelgan.
-5 de 7 esperan formularios, calendarios o páginas — todo trabajo de UI que el API no cubre
-(ver `ghl-cli-uso.md`). Configurar los triggers es el último paso, no el siguiente.
-
-Cuando se creen esos recursos en la UI, conviene configurar **un trigger a mano** y leerlo con el
-GET de arriba: eso confirma los identificadores reales y permite automatizar el resto.
-
-## Tags de trigger
-
-`pago-manual` no lo añade ningún workflow — lo recibe el contacto cuando paga por transferencia o
-Yape (D8/D10), y es lo que dispara la rama manual de WF5. Por eso no salía en `tags_usados()` y se
-creó aparte. Ya existe en la subcuenta.
+Vale para cualquier trigger: filtrar en la entrada descarta contactos sin dejar rastro; filtrar
+dentro del workflow permite darle un camino a cada uno.

@@ -1,0 +1,58 @@
+[
+  {
+    "workflow": "WF1 - Captacion y atribucion",
+    "trigger_id": "KrVpMHmXkzzFuV0ccJox",
+    "tipo": "contact_created",
+    "filtros": [],
+    "active": true
+  },
+  {
+    "workflow": "WF2 - Registro y calificacion",
+    "trigger_id": "MUBLhpJQFFhF36Cgjhnl",
+    "tipo": "survey_submission",
+    "filtros": [
+      {
+        "operator": "is-any-of",
+        "field": "survey.id",
+        "value": [
+          "iheVfI7xkesInu8jKLKB"
+        ],
+        "title": "Survey is",
+        "type": "string"
+      }
+    ],
+    "active": false
+  },
+  {
+    "workflow": "WF3 - Recordatorios de evento",
+    "trigger": null
+  },
+  {
+    "workflow": "WF4A - Asistencia",
+    "trigger": null
+  },
+  {
+    "workflow": "WF4B - Postulacion",
+    "trigger": null
+  },
+  {
+    "workflow": "WF4C - Cita agendada",
+    "trigger": null
+  },
+  {
+    "workflow": "WF5 - Cobro confirmado",
+    "trigger_id": "inj4SYfoWGJBcsmhGyKV",
+    "tipo": "contact_tag",
+    "filtros": [
+      {
+        "operator": "index-of-true",
+        "field": "tagsAdded",
+        "value": "pago-manual",
+        "title": "Tag Added",
+        "type": "select",
+        "id": "tag-added"
+      }
+    ],
+    "active": false
+  }
+]
