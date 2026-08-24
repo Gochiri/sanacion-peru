@@ -1,0 +1,31 @@
+{
+  "producto": {
+    "id": "6a8cbb4032d4e69ff955515f",
+    "nombre": "Escuela NCA Academy"
+  },
+  "precios": [
+    {
+      "nombre": "Contado",
+      "id": null,
+      "monto": 1000,
+      "ciclos": 1,
+      "total": 1000
+    },
+    {
+      "nombre": "2 cuotas de 500",
+      "id": null,
+      "monto": 500,
+      "ciclos": 2,
+      "total": 1000
+    },
+    {
+      "nombre": "3 cuotas de 335",
+      "id": null,
+      "monto": 335,
+      "ciclos": 3,
+      "total": 1005
+    }
+  ],
+  "moneda": "USD",
+  "nota": "Precios confirmados por el cliente el 18-ago. Italia usa EUR (1000/500/335) pero GHL maneja una sola moneda por subcuenta (D10): se difiere a Fase 2."
+}
