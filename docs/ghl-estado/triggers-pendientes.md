@@ -1,59 +1,53 @@
-# Triggers — estado y esquema real
+# Triggers — catálogo real y lecciones
 
-## ✅ Identificadores confirmados en la UI
+## Los 5 identificadores verificados en la UI
 
-Henry creó el trigger de WF2 a mano y al leerlo por API quedó la forma real. **Esto es lo que
-antes había que adivinar**:
+| Trigger (nombre en la UI) | `type` real | Condiciones |
+|---|---|---|
+| Contact created | `contact_created` | sin filtros |
+| Contact tag | `contact_tag` | `tagsAdded` · `index-of-true` · `"<tag>"` |
+| Survey submitted | `survey_submission` | `survey.id` · `is-any-of` · `["<id>"]` |
+| Pipeline stage changed | **`pipeline_stage_updated`** | `opportunity.pipelineId` · `==` · `"<id>"`<br>`opportunity.pipelineStageId` · `==` · `"<id>"` |
+| Customer booked appointment | **`customer_appointment`** | `contactMode` · `is-any-of` · `["contact"]`<br>`calendar.id` · `==` · `"<id>"` |
 
-| Trigger (UI) | `type` | Condición | Verificado |
-|---|---|---|---|
-| Survey submitted | **`survey_submission`** | `{"field": "survey.id", "operator": "is-any-of", "value": ["<id>"]}` | ✅ UI |
-| Contact created | **`contact_created`** | sin filtros | ✅ UI |
-| Contact tag | **`contact_tag`** | `{"field": "tagsAdded", "operator": "index-of-true", "value": "<tag>"}` | ✅ UI |
-| Pipeline stage changed | `pipeline_stage_changed` | `pipeline.id` + `pipeline_stage.id`, ambos `is-any-of` con array | ⚠️ sin verificar |
-| Customer booked appointment | `customer_booked_appointment` | `{"field": "calendar.id", "operator": "is-any-of", "value": ["<id>"]}` | ⚠️ sin verificar |
+## ⚠️ Adivinar identificadores no funciona — crearlos en la UI
 
-**El patrón de nombres no es fiable:** "Contact created" → `contact_created` y "Contact tag" →
-`contact_tag` siguen el snake_case, pero "Survey submitted" → **`survey_submission`**, no
-`survey_submitted`. Por eso cada identificador nuevo hay que verlo en la UI antes de darlo por
-bueno.
+De los que se intentaron por API sin haberlos visto antes, **la mitad salieron mal**, y GHL los
+acepta igual porque **no valida el `type`**: quedan como triggers que nunca disparan pero que en la
+UI parecen configurados.
 
-Dos detalles que no se adivinan:
-- La condición usa **`survey.id`** con **`is-any-of`** y el valor en **array**, no `survey` con `eq`.
-- Los campos personalizados se referencian **por id** (`contact.F4n43YBwtdya1dyJYdzO`), no por
-  fieldKey.
+Lo que se falló al adivinar, con el patrón detrás:
 
-⚠️ `contact_created` (WF1) **sigue sin verificar**: GHL acepta cualquier `type` sin validarlo, así
-que hay que abrirlo en la UI y confirmar que aparece como "Contact Created".
+| Lo que parecía | Lo que es | Lección |
+|---|---|---|
+| `pipeline_stage_changed` | `pipeline_stage_updated` | el nombre visible **no** se convierte a snake_case: "changed" → `updated` |
+| `customer_booked_appointment` | `customer_appointment` | el nombre visible se **acorta** |
+| `pipeline.id` / `pipeline_stage.id` | `opportunity.pipelineId` / `opportunity.pipelineStageId` | los campos van en **notación de objeto sobre la entidad**, no como recurso suelto |
+| `is-any-of` con array | `==` con valor simple | el operador por defecto es `==`; `is-any-of` solo en `survey.id` y `contactMode` |
+| *(no lo puse)* | `contactMode` · `is-any-of` · `["contact"]` | los triggers de cita **exigen** decidir a quién se inscribe (contacto / invitados / ambos) |
+
+**Regla operativa: los triggers se crean en la UI.** Es más rápido que adivinar, verificar y
+corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
+/workflow/{loc}/trigger?workflowId=<id>`), que es como se construyó este catálogo.
 
 ## Estado
 
 | Workflow | Trigger | Estado |
 |---|---|---|
-| WF1 | `contact_created` | ✅ verificado en UI |
-| WF2 | `survey_submission` + F01 | ✅ verificado en UI |
-| WF3 | `pipeline_stage_changed` → Registrado | creado — ⚠️ verificar |
+| WF1 | `contact_created` | ✅ |
+| WF2 | `survey_submission` + F01 | ✅ (se le quitó un filtro que rompía el flujo, ver abajo) |
+| WF3 | `pipeline_stage_updated` → Lanzamiento/Registrado | ✅ corregido en UI |
 | WF4A | Trigger Link Clicked | **espera la página del evento** (falta el dominio) |
 | WF4B | Form Submitted (F03) | **espera F03** |
-| WF4C | `customer_booked_appointment` | creado — ⚠️ verificar |
-| WF5 | `contact_tag` → `pago-manual` | ✅ verificado en UI |
+| WF4C | `customer_appointment` → calendario de cierre | ✅ corregido en UI |
+| WF5 | `contact_tag` → `pago-manual` | ✅ |
 
-Los triggers se guardan con `active: false` mientras el workflow está en borrador.
+## ⚠️ No filtrar la calificación en el trigger
 
-## ⚠️ El filtro que rompía WF2
+El trigger de WF2 traía un segundo filtro `Nivel calificacion == "<frase de califica>"`. Con eso
+**WF2 solo se disparaba para quien califica**: los descalificados nunca entraban al workflow y
+nunca recibían la secuencia educativa — se perdían en silencio, que es el problema que el proyecto
+viene a resolver.
 
-El trigger creado en la UI traía un segundo filtro:
-
-```
-Nivel calificacion == "Entender por que mi cuerpo enfermo y como sanarlo"
-```
-
-Con eso **WF2 solo se disparaba para quien califica**, así que los descalificados **nunca entraban
-al workflow y nunca recibían la secuencia educativa** — se perdían en silencio, que es exactamente
-el problema que el proyecto viene a resolver.
-
-**Regla:** el trigger captura *todos* los envíos del survey; **la separación la hace la bifurcación
-interna del workflow**, no el filtro del trigger. Filtro eliminado el 18-ago.
-
-Vale para cualquier trigger: filtrar en la entrada descarta contactos sin dejar rastro; filtrar
-dentro del workflow permite darle un camino a cada uno.
+**Regla:** el trigger captura *todos* los envíos; **la separación la hace la bifurcación interna**.
+Filtrar en la entrada descarta contactos sin dejar rastro; filtrar dentro le da un camino a cada uno.

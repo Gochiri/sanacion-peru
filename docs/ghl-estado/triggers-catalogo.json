@@ -1,0 +1,58 @@
+{
+  "verificados_en_ui": {
+    "contact_created": {
+      "filtros": []
+    },
+    "contact_tag": {
+      "filtros": [
+        {
+          "field": "tagsAdded",
+          "operator": "index-of-true",
+          "value": "<tag>"
+        }
+      ]
+    },
+    "survey_submission": {
+      "filtros": [
+        {
+          "field": "survey.id",
+          "operator": "is-any-of",
+          "value": [
+            "<id>"
+          ]
+        }
+      ]
+    },
+    "pipeline_stage_updated": {
+      "filtros": [
+        {
+          "field": "opportunity.pipelineId",
+          "operator": "==",
+          "value": "<id>"
+        },
+        {
+          "field": "opportunity.pipelineStageId",
+          "operator": "==",
+          "value": "<id>"
+        }
+      ]
+    },
+    "customer_appointment": {
+      "filtros": [
+        {
+          "field": "contactMode",
+          "operator": "is-any-of",
+          "value": [
+            "contact"
+          ]
+        },
+        {
+          "field": "calendar.id",
+          "operator": "==",
+          "value": "<id>"
+        }
+      ]
+    }
+  },
+  "nota": "GHL no valida el 'type': acepta cualquiera y queda un trigger que nunca dispara. Crearlos en la UI y leerlos con GET /workflow/{loc}/trigger?workflowId=<id>."
+}
