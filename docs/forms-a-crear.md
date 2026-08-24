@@ -38,17 +38,13 @@ demostrar el opt-in para mensajes iniciados por el negocio.
 - ☑ *"Acepto la política de privacidad y el tratamiento de mis datos de salud"* → enlazar la política
 - ☑ *"Acepto recibir información por WhatsApp y correo"*
 
-### ⚠️ Reparto en slides — Q3 y Q4 NO pueden ir juntas
-
-En el builder de encuestas de GHL **la lógica condicional se configura por slide, no por pregunta**.
-Si Q3 y Q4 comparten slide, no hay forma de ocultar Q4 cuando Q3 descalifica, y el filtro se rompe.
+### Reparto en slides
 
 | Slide | Contenido |
 |---|---|
 | 1 | Datos + los 2 consentimientos |
 | 2 | Q1 cluster · Q1b síntoma en texto · Q2 tiempo |
-| **3** | **Q3 — la eliminatoria** |
-| **4** | **Q4 — filtro de inversión** (con condición de slide) |
+| **3** | **Q3 — la eliminatoria** (último slide) |
 
 ### Paso 3 — Calificación
 
@@ -65,52 +61,40 @@ Opciones (exactas, ya existen en el campo):
 
 **Q3 · ¿Qué esperas encontrar en esta clase?** → **`contact.nivel_calificacion`** — la eliminatoria
 
-El texto de cada opción **es el valor exacto del campo**, para que el builder lo guarde tal cual.
-Si el desplegable permite separar etiqueta y valor, va la frase completa como etiqueta y el valor
-exacto (`Califica`) como valor. Si no lo permite, el texto visible debe ser literalmente
-`Califica` / `No califica` / `A educar`, y la frase explicativa se pone en el **texto de ayuda de
-la pregunta**:
+Es la última pregunta del survey. **Arrastrar el campo personalizado `Nivel calificacion`**: sus
+opciones ya vienen con el texto correcto y **el builder no deja editarlas desde el formulario**
+(se editan en el campo, cosa que ya está hecha).
 
-| Texto que ve la persona | Valor que se guarda |
+| Opción que ve el visitante | Qué significa internamente |
 |---|---|
-| Entender la causa emocional de mi síntoma y cómo abordarla | `Califica` |
-| Un medicamento o tratamiento médico para mi enfermedad | `No califica` |
-| Solo curiosidad, quiero mirar | `A educar` |
+| Entender por que mi cuerpo enfermo y como sanarlo | **Califica** → va al grupo |
+| Un medicamento o tratamiento medico | **No califica** → ruta educativa |
+| Solo tengo curiosidad | **A educar** → ruta educativa |
 
-**Q4 · Si esta clase te muestra un camino claro, ¿estarías dispuesto/a a invertir en tu proceso?**
-→ **`contact.nivel_calificacion`** (el mismo campo)
+*(sin tildes: GHL las elimina y rompería la coincidencia con lo que lee WF2)*
 
-| Texto que ve la persona | Valor que se guarda |
-|---|---|
-| Sí | `Califica` |
-| Necesitaría saber más | `Califica` |
-| No, busco solo contenido gratuito | `A educar` |
+### Q4 se elimina
 
-### ⚠️ La condición del Slide 4 — sin esto el filtro se rompe
+La pregunta de inversión ("¿estarías dispuesto/a a invertir?") **no va en el formulario**.
 
-Las dos preguntas escriben en el mismo campo, así que **la última respondida gana**. Si alguien
-contesta Q3 = *"un medicamento o tratamiento médico"* y luego Q4 = *"Sí"*, **acaba calificado y
-entra al grupo** — justo el lead que hace perder el tiempo a Luca.
+Motivo: al arrastrar un campo personalizado, **cada pregunta muestra TODAS las opciones del campo**.
+Como Q3 y Q4 escribían en `nivel_calificacion`, el campo habría necesitado las 3 opciones de Q3 más
+las 2 de Q4, y ambas preguntas mostrarían las 5 mezcladas. Separarlas en dos campos tampoco
+resuelve: GHL no admite bifurcaciones anidadas ni encadenadas (verificado), así que WF2 solo puede
+rutear por una.
 
-En el engranaje del **Slide 4** → *Conditional Logic*:
-
-> Mostrar este slide **solo si** `Nivel calificacion` **es igual a** `Califica`
-
-**Q4 solo se muestra si Q3 calificó:**
-
-| Respuesta a Q3 | Qué pasa |
-|---|---|
-| Entender la causa emocional… (`Califica`) | **se muestra Q4** |
-| Un medicamento o tratamiento… (`No califica`) | **se salta Q4** → fin de la encuesta |
-| Solo curiosidad… (`A educar`) | **se salta Q4** → fin de la encuesta |
-
-Así Q4 solo puede degradar de `Califica` a `A educar` —que es su propósito: filtrar el
-"todo gratis" que describió Christie— y nunca puede rescatar a un descalificado.
+Q3 ya filtra lo que de verdad duele —el que busca pastillas y el curioso—, que es el dolor que
+describió Luca. El matiz "no quiero invertir" se recupera en Fase 2, cuando el asistente califique
+en conversación. Además el formulario queda más corto, que ayuda a la conversión.
 
 ### Cómo se escribe el resultado
 
-**`contact.nivel_calificacion`** lo escriben Q3 y Q4 directamente (decisión tomada). Es el campo por
-el que WF2 rutea todo el registro: `Califica` va al grupo, el resto a la ruta educativa.
+**`contact.nivel_calificacion`** lo escribe Q3 directamente. Es el campo por el que WF2 rutea todo
+el registro.
+
+⚠️ **WF2 compara contra la frase completa**, no contra la palabra `Califica`:
+`nivel_calificacion == "Entender por que mi cuerpo enfermo y como sanarlo"`.
+Si alguien edita el texto de esa opción en el campo, **hay que ajustar WF2 o el ruteo se cae**.
 
 **`contact.motivo_descalificacion`** queda **sin llenar en Fase 1**, a propósito.
 
@@ -142,9 +126,8 @@ guardadas**. Si al descalificar no se registra el contacto, la secuencia educati
 corre y **esos leads se pierden en silencio** — que es justo lo contrario del objetivo. Si eso
 pasa, avísame: hay un plan B (encuesta sin descalificación y que el ruteo lo haga entero WF2).
 
-⚠️ **Segunda prueba:** responder Q3 con la opción del medicamento y confirmar que **Q4 no aparece**
-y que `nivel_calificacion` queda en `No califica`. Si Q4 se muestra igual, la lógica de salto no
-quedó bien y el filtro es inservible.
+⚠️ **Comprobar el valor guardado:** tras enviar, abrir la ficha del contacto y verificar que
+`Nivel calificacion` contiene la frase completa. Es lo que compara WF2.
 
 ---
 

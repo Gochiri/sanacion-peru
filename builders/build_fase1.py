@@ -64,8 +64,12 @@ def wf1():
 def wf2():
     return [
         etiqueta("Marcar registrado", ["registrado"]),
+        # El campo guarda la frase que ve el visitante (el builder no permite
+        # separar etiqueta y valor al arrastrar un campo personalizado), asi que
+        # la condicion compara contra esa frase, no contra "Califica".
         *bifurcar("Califica para la escuela?",
-            [cond("contact.nivel_calificacion", "eq", "Califica")],
+            [cond("contact.nivel_calificacion", "eq",
+                  "Entender por que mi cuerpo enfermo y como sanarlo")],
             rama_si=[
                 mover("Mover a Registrado", "Registrado"),
                 whatsapp("Bienvenida con link del grupo", "bienvenida-registro",
