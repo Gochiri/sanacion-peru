@@ -65,6 +65,17 @@ Es la última pregunta del survey. **Arrastrar el campo personalizado `Nivel cal
 opciones ya vienen con el texto correcto y **el builder no deja editarlas desde el formulario**
 (se editan en el campo, cosa que ya está hecha).
 
+**Título de la pregunta (label):** `¿Qué esperas encontrar en esta clase?`
+Al arrastrar el campo, GHL pone como label su nombre interno (*"Nivel calificacion"*) — hay que
+sobrescribirlo, o el visitante lee una etiqueta de sistema.
+
+**Texto de ayuda:** `Queremos asegurarnos de que esta clase sea para ti.`
+Hace que elegir la opción del medicamento no se sienta como un descarte. Importa: el público lleva
+años buscando solución y llega sensible.
+
+**El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
+ficha del contacto y en los reportes, y lo que lee WF2.
+
 | Opción que ve el visitante | Qué significa internamente |
 |---|---|
 | Entender por que mi cuerpo enfermo y como sanarlo | **Califica** → va al grupo |
