@@ -17,7 +17,14 @@
       "verificar": "GHL no valida el tipo de trigger: hay que abrir WF2 en la UI y confirmar que aparece como 'Survey Submitted' con F01 seleccionado. Si aparece vacio o con otro nombre, el identificador es otro."
     }
   ],
-  "pendientes": [
-    "F03 · Postulacion (para WF4B)"
+  "pendientes": [],
+  "forms": [
+    {
+      "nombre": "F03 · Postulación a la escuela",
+      "id": "DTwkB4aTiEIqUGNI9Qjo",
+      "tipo": "form",
+      "estado": "creado en UI el 18-ago",
+      "dispara": "WF4B — trigger pendiente de crear en la UI"
+    }
   ]
 }

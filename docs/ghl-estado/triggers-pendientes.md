@@ -38,7 +38,7 @@ corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 | WF2 | `survey_submission` + F01 | ✅ (se le quitó un filtro que rompía el flujo, ver abajo) |
 | WF3 | `pipeline_stage_updated` → Lanzamiento/Registrado | ✅ corregido en UI |
 | WF4A | Trigger Link Clicked | **espera la página del evento** (falta el dominio) |
-| WF4B | Form Submitted (F03) | **espera F03** |
+| WF4B | Form Submitted (F03 `DTwkB4aTiEIqUGNI9Qjo`) | F03 ✅ creado — **falta el trigger, se hace en UI** |
 | WF4C | `customer_appointment` → calendario de cierre | ✅ corregido en UI |
 | WF5 | `contact_tag` → `pago-manual` | ✅ |
 
