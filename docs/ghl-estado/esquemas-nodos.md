@@ -68,6 +68,22 @@ crean como `sms` marcados `[PENDIENTE-WA]`. Falta confirmar cómo se marca canal
 referencia la plantilla aprobada de Meta — y eso **sí requiere ver un nodo hecho en la UI**, que desde
 este entorno no es alcanzable.
 
+## Reglas de las ramas (descubiertas a golpes)
+
+- El condition-node **necesita exactamente 2 ramas**: con una sola,
+  *"If/else condition node needs at least 2 branches, found 1"*.
+- **Ninguna rama puede estar vacía**: *"Add at least one branch."* Si la definición
+  no da rama "no", `bifurcar()` la rellena con un tag inocuo.
+- Los pasos **dentro** de una rama ya vienen enlazados: si el ensamblador los vuelve a
+  encadenar, GHL responde *"Node has 2 incoming edges"*. Van marcados `_en_rama`.
+
+## Listar carpetas
+
+`GET /workflow/{loc}` devuelve **solo workflows**. Las carpetas aparecen únicamente en
+`GET /workflow/{loc}/directory` → `{count, rows}`. Buscar la carpeta en el endpoint
+equivocado hacía que nunca se encontrara y se creara una nueva en cada corrida
+(se limpiaron 2 carpetas huérfanas que quedaron en la cuenta del cliente).
+
 ## `order` y enlazado
 
 - Todo nodo necesita `order`, `parentKey` y `next`.

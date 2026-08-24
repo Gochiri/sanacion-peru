@@ -1,44 +1,51 @@
 [
   {
     "nombre": "WF1 - Captacion y atribucion",
-    "id": "89b3665f-8c80-4c6f-87a3-b1184da394b6",
-    "pasos": 8,
-    "whatsapp_pendientes": 1
+    "id": "0ddebd14-d855-455c-9e66-90bd3c7b60b7",
+    "pasos": 15,
+    "bifurcaciones": 1,
+    "whatsapp_pendientes": 2
   },
   {
     "nombre": "WF2 - Registro y calificacion",
-    "id": "89e2a0db-1e49-4712-b81e-1b68f5a278ad",
-    "pasos": 6,
+    "id": "9687e1c0-0d71-42c3-99bf-aa8e7454e555",
+    "pasos": 11,
+    "bifurcaciones": 1,
     "whatsapp_pendientes": 2
   },
   {
     "nombre": "WF3 - Recordatorios de evento",
-    "id": "810146a1-bc9d-4047-b65c-ef26deb774e1",
-    "pasos": 10,
+    "id": "45167ab6-bc70-467c-9800-69f968a1a97a",
+    "pasos": 13,
+    "bifurcaciones": 1,
     "whatsapp_pendientes": 4
   },
   {
     "nombre": "WF4A - Asistencia",
-    "id": "1f581b9f-48c5-401b-92ae-f3f2be346f8b",
-    "pasos": 1,
+    "id": "e6de3deb-e0e0-43a6-90ea-c88080418b40",
+    "pasos": 2,
+    "bifurcaciones": 0,
     "whatsapp_pendientes": 0
   },
   {
     "nombre": "WF4B - Postulacion",
-    "id": "cc3b35b3-0969-45a4-b4cf-c556ee95c154",
-    "pasos": 2,
+    "id": "cf0e36cf-51b4-4377-899e-17c896b65b8f",
+    "pasos": 6,
+    "bifurcaciones": 1,
     "whatsapp_pendientes": 2
   },
   {
     "nombre": "WF4C - Cita agendada",
-    "id": "ceb21e53-d9be-4945-8ef3-34d44e22746c",
-    "pasos": 5,
+    "id": "a7827654-c510-4e19-b38b-272fe8dfc842",
+    "pasos": 6,
+    "bifurcaciones": 0,
     "whatsapp_pendientes": 3
   },
   {
     "nombre": "WF5 - Cobro confirmado",
-    "id": "388a4e7e-35dd-4d5d-b540-67e34542ca0a",
-    "pasos": 5,
+    "id": "2625536e-5791-4dfd-989a-7163b16ccebb",
+    "pasos": 10,
+    "bifurcaciones": 1,
     "whatsapp_pendientes": 0
   }
 ]

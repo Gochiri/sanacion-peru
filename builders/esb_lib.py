@@ -223,18 +223,29 @@ def bifurcar(nombre: str, condiciones: list[dict], rama_si: list[dict],
     marcadores = [s for s in rama_si + (rama_no or []) if es_marcador(s)]
     si = encadenar([s for s in rama_si if not es_marcador(s)], yid)
     no = encadenar([s for s in (rama_no or []) if not es_marcador(s)], nid)
+    for n in si + no:
+        n["_en_rama"] = True     # ensamblar() no debe re-encadenarlos
 
+    # GHL exige SIEMPRE dos ramas y que ninguna esté vacía. Si la definición no
+    # da rama "no", se rellena con un paso inocuo (tag) para satisfacer al canvas.
+    if not no:
+        relleno = etiqueta(f"{nombre} - sin accion", [f"rama-no-{cid[:8]}"])
+        relleno.update(parentKey=nid, next=None, _en_rama=True)
+        no = [relleno]
+    ramas_ids = [yid, nid]
     nodos = [
         {"id": cid, "type": "if_else", "name": nombre, "nodeType": "condition-node",
          "attributes": {"name": nombre, "operator": operador, "if": condiciones},
-         "next": [yid, nid], "parentKey": None},
+         "next": ramas_ids, "parentKey": None},
         {"id": yid, "type": "if_else", "name": f"{nombre} - Si", "nodeType": "branch-yes",
          "attributes": {"name": f"{nombre} - Si"},
          "next": si[0]["id"] if si else None, "parentKey": cid},
+    ]
+    nodos.append(
         {"id": nid, "type": "if_else", "name": f"{nombre} - No", "nodeType": "branch-no",
          "attributes": {"name": f"{nombre} - No"},
-         "next": no[0]["id"] if no else None, "parentKey": cid},
-    ] + si + no
+         "next": no[0]["id"], "parentKey": cid})
+    nodos += si + no
 
     for i, n in enumerate(nodos):
         n["order"] = i
@@ -286,16 +297,27 @@ def whatsapp(nombre: str, plantilla: str, cuerpo: str) -> dict:
 
 # ── Despliegue ───────────────────────────────────────────────────────────
 
+def listar_todo(c: InternalGHLClient) -> list[dict]:
+    """Workflows Y carpetas de la subcuenta.
+
+    Ojo: `GET /workflow/{loc}` devuelve SOLO workflows — las carpetas no
+    aparecen. Para verlas hay que usar `/workflow/{loc}/directory`, que
+    responde {count, rows}.
+    """
+    r = c.request("GET", f"/workflow/{c.location_id}/directory") or {}
+    return r.get("rows", []) if isinstance(r, dict) else []
+
+
 def carpeta(c: InternalGHLClient, nombre: str) -> str | None:
-    """Reutiliza la carpeta si ya existe; si no, la crea."""
-    listado = c.request("GET", f"/workflow/{c.location_id}") or []
-    if isinstance(listado, dict):
-        listado = listado.get("workflows") or listado.get("data") or []
-    for w in listado:
-        if not isinstance(w, dict):
-            continue
-        if w.get("name") == nombre and w.get("type") == "directory":
-            return w.get("id") or w.get("_id")
+    """Devuelve el id de la carpeta, reutilizándola si ya existe.
+
+    Antes se buscaba en `GET /workflow/{loc}`, que no lista carpetas: nunca la
+    encontraba y creaba una nueva en cada corrida, dejando duplicados en la
+    cuenta del cliente.
+    """
+    for f in listar_todo(c):
+        if f.get("type") == "directory" and f.get("name") == nombre:
+            return f.get("id") or f.get("_id")
     r = c.request("POST", f"/workflow/{c.location_id}",
                   {"name": nombre, "type": "directory"})
     return r.get("id") if r else None
@@ -322,6 +344,10 @@ def ensamblar(steps: list[dict]) -> list[dict]:
                     paso["parentKey"] = anterior["id"]
                 anterior = None       # tras ramificar ya no hay cadena plana
             salida.append(paso)
+            continue
+
+        if paso.pop("_en_rama", False):
+            salida.append(paso)      # ya enlazado por bifurcar()
             continue
 
         # paso plano
