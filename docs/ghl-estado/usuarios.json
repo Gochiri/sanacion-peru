@@ -26,10 +26,17 @@
       "id": "nEVI8WGKSdfvkR9FUyXM",
       "permisos": "contactos, conversaciones, oportunidades, citas y dashboard. SIN configuracion, workflows, funnels ni campañas.",
       "nota": "Creado el 18-ago. GHL le envio invitacion por email a esa direccion."
+    },
+    {
+      "nombre": "Joaquin Vargas",
+      "email": "jmvargas.sal@gmail.com",
+      "rol": "user",
+      "equipo": "Cliente",
+      "permisos": "operacion + REPORTES (adwords, facebook ads, atribucion): es quien corre los ads y lee de donde vienen los leads. Sin configuracion, workflows, funnels ni campañas.",
+      "nota": "Creado el 18-ago. GHL le envio invitacion por email."
     }
   ],
   "pendientes": [
-    "Christie Salvatierra",
-    "Joaquin Vargas"
+    "Christie Salvatierra (falta su email)"
   ]
 }
