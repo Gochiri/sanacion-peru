@@ -4,3 +4,4 @@ tools/ghl-cli/.env
 tools/ghl-cli/.venv/
 tools/ghl-cli/**/__pycache__/
 tools/ghl-cli/*.egg-info/
+builders/.token-cache.json

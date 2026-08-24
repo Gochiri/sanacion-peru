@@ -1,0 +1,354 @@
+"""Librería compartida para construir los workflows de la Escuela de Sanación Biológica.
+
+Encapsula todo lo verificado contra la subcuenta real el 16-ago
+(ver docs/ghl-estado/api-interno-hallazgos.md):
+
+  - PUT con versionado optimista: SIEMPRE leer la versión antes de guardar.
+  - Los steps necesitan order/parentKey/next (link_steps).
+  - GHL valida el `type` contra una lista blanca de 53, pero NO valida attributes.
+  - No existe tipo `whatsapp`  -> los envíos van como `sms` (esquema por confirmar en UI).
+  - No existe cambio de etapa  -> se usa `create_opportunity` con el stageId destino.
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+import uuid
+from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "ghl-cli"))
+
+from cli_anything.gohighlevel.utils.ghl_internal_client import (  # noqa: E402
+    InternalGHLClient, TokenManager,
+)
+from cli_anything.gohighlevel.utils.workflow_builder import link_steps  # noqa: E402
+
+ESTADO = Path(__file__).resolve().parents[1] / "docs" / "ghl-estado"
+CARPETA = "Escuela Sanacion - Fase 1"
+
+# Marca los nodos que quedan a la espera del esquema real de WhatsApp.
+WHATSAPP_PENDIENTE = "[PENDIENTE-WA]"
+
+
+def uid() -> str:
+    return str(uuid.uuid4())
+
+
+# ── Estado de la subcuenta ───────────────────────────────────────────────
+
+def cargar_estado() -> dict:
+    """IDs y fieldKeys reales de la subcuenta (volcados por el CLI)."""
+    pipe = json.loads((ESTADO / "pipeline.json").read_text())
+    campos = json.loads((ESTADO / "custom-fields.json").read_text())
+    valores = json.loads((ESTADO / "custom-values.json").read_text())
+    return {
+        "pipelineId": pipe["pipelineId"],
+        "etapas": {e["nombre"]: e["stageId"] for e in pipe["etapas"]},
+        "campos": {c["fieldKey"]: c for c in campos},
+        "valores": {v["fieldKey"] for v in valores},
+    }
+
+
+CACHE_TOKEN = Path(__file__).resolve().parent / ".token-cache.json"
+
+
+class TokenCacheado(TokenManager):
+    """TokenManager con caché en disco.
+
+    Firebase aplica rate limit al endpoint de refresh y cada proceso nuevo pedía
+    un token nuevo, lo que tumbaba la sesión tras unas pocas ejecuciones. El
+    id_token dura ~1 h: se guarda en disco y se reutiliza mientras siga fresco.
+    """
+
+    def get_token(self) -> str:
+        import time
+        if not self._token and CACHE_TOKEN.exists():
+            try:
+                d = json.loads(CACHE_TOKEN.read_text())
+                if time.time() - d.get("t", 0) < 3000:
+                    self._token, self._token_time = d["token"], d["t"]
+            except Exception:
+                pass
+        token = super().get_token()
+        try:
+            CACHE_TOKEN.write_text(json.dumps({"token": token, "t": self._token_time}))
+        except Exception:
+            pass
+        return token
+
+
+def cliente() -> InternalGHLClient:
+    loc = os.environ.get("GHL_LOCATION_ID", "").strip()
+    if not loc:
+        sys.exit("Falta GHL_LOCATION_ID (source tools/ghl-cli/.env)")
+    return InternalGHLClient(TokenCacheado(), loc)
+
+
+# ── Constructores de nodos (solo tipos verificados) ──────────────────────
+
+_META_CAMPOS: dict[str, dict] = {}
+
+
+def campo(nombre: str, asignaciones: list[tuple[str, str]]) -> dict:
+    """update_contact_field — escribe uno o más campos del contacto.
+
+    Cada entrada necesita `title` y `type` además de `field`/`value`: sin ellos
+    GHL responde "Title is required., Type is required.". Se resuelven desde el
+    volcado real de la subcuenta (docs/ghl-estado/custom-fields.json).
+    """
+    global _META_CAMPOS
+    if not _META_CAMPOS:
+        _META_CAMPOS = cargar_estado()["campos"]
+
+    fields = []
+    for f, v in asignaciones:
+        meta = _META_CAMPOS.get(f, {})
+        if not meta:
+            raise ValueError(f"Campo desconocido: {f} (¿está en custom-fields.json?)")
+        fields.append({
+            "field": f, "value": v,
+            "title": meta["nombre"],
+            "type": meta["dataType"],
+        })
+    return {
+        "id": uid(), "type": "update_contact_field", "name": nombre,
+        "attributes": {"fields": fields},
+    }
+
+
+def etiqueta(nombre: str, tags: list[str], quitar: bool = False) -> dict:
+    """add_contact_tag / remove_contact_tag."""
+    return {
+        "id": uid(), "type": "remove_contact_tag" if quitar else "add_contact_tag",
+        "name": nombre, "attributes": {"tags": tags},
+    }
+
+
+ETAPA_PENDIENTE = "[PENDIENTE-OPP]"
+
+
+def mover_a_etapa(nombre: str, pipeline_id: str, stage_id: str,
+                  status: str = "open") -> dict:
+    """MARCADOR de movimiento de etapa — no se despliega.
+
+    ⚠️ En GHL no existe una acción de "cambiar etapa": se usa `create_opportunity`
+    (hace upsert sobre la oportunidad del contacto). El tipo es válido, pero sus
+    attributes NO son los que parecen: con {pipelineId, stageId, status, name}
+    GHL responde "Pipeline is required., Opportunity Name is required." — los
+    nombres reales de los campos son otros y hay que copiarlos de un nodo hecho
+    en la UI.
+
+    Hasta entonces se reporta como pendiente en vez de desplegarse mal.
+    """
+    return {
+        "_marcador": ETAPA_PENDIENTE, "name": nombre,
+        "ramas": [{"nombre": f"-> etapa {stage_id[:8]}… status={status}",
+                   "condiciones": []}],
+    }
+
+
+CAPI_PENDIENTE = "[PENDIENTE-CAPI]"
+
+
+def capi(nombre: str, evento: str) -> dict:
+    """MARCADOR de evento CAPI — no se despliega todavía.
+
+    ⚠️ Bloqueado por dependencia del cliente, no por esquema: el nodo exige
+    "Event Type, Access Token y Pixel" y los tres salen del Business Manager de
+    Meta, que sigue sin administrador resuelto (llave A1 del checklist).
+
+    En cuanto A1 se resuelva, estos nodos se despliegan con el píxel y el token.
+    Recordar el reparto exclusivo: el píxel del navegador solo PageView/ViewContent;
+    estos 4 eventos van SOLO server-side o Meta los cuenta doble.
+    """
+    return {
+        "_marcador": CAPI_PENDIENTE, "name": nombre,
+        "ramas": [{"nombre": f"evento {evento} (requiere pixel + token de Meta)",
+                   "condiciones": []}],
+    }
+
+
+def notificar(nombre: str, asunto: str, cuerpo: str) -> dict:
+    """internal_notification — aviso al equipo, no al contacto."""
+    return {
+        "id": uid(), "type": "internal_notification", "name": nombre,
+        "attributes": {"type": "email", "subject": asunto, "body": cuerpo},
+    }
+
+
+def esperar(nombre: str, valor: int, unidad: str = "days") -> dict:
+    """wait — ojo: GHL usa 'hour' en singular y 'days'/'minutes' en plural."""
+    api_unidad = {"minutes": "minutes", "hours": "hour", "hour": "hour",
+                  "days": "days"}.get(unidad, unidad)
+    return {
+        "id": uid(), "type": "wait", "name": nombre,
+        "attributes": {
+            "type": "time",
+            "startAfter": {"type": api_unidad, "value": valor, "when": "after"},
+            "name": nombre, "cat": "", "isHybridAction": True,
+            "hybridActionType": "wait", "convertToMultipath": False,
+            "transitions": [],
+        }, "cat": "",
+    }
+
+
+BIFURCACION_PENDIENTE = "[PENDIENTE-IF]"
+
+
+def bifurcar(nombre: str, ramas: list[tuple[str, list[dict]]]) -> dict:
+    """MARCADOR de bifurcación — no se despliega.
+
+    ⚠️ El `if_else` de GHL no es un paso lineal: es un nodo de canvas con ramas
+    (`nodeType` condition-node / branch-yes / branch-no) cuyas salidas son las
+    ramas, no un `next`. Verificado: un if_else aislado pasa el PUT, pero
+    encadenado con link_steps lo rechaza.
+
+    Hasta copiar el esquema real de un if_else hecho en la UI, estas
+    bifurcaciones NO se despliegan: el builder las salta y las reporta para
+    insertarlas a mano. Los workflows quedan en borrador, así que no se ejecutan
+    a medias.
+    """
+    return {
+        "_marcador": BIFURCACION_PENDIENTE, "name": nombre,
+        "ramas": [{"nombre": n, "condiciones": c} for n, c in ramas],
+    }
+
+
+def es_marcador(step: dict) -> bool:
+    return "_marcador" in step
+
+
+def cond(field: str, operator: str, value: Any) -> dict:
+    return {"field": field, "operator": operator, "value": value}
+
+
+def email(nombre: str, asunto: str, cuerpo_html: str) -> dict:
+    return {
+        "id": uid(), "type": "email", "name": nombre,
+        "attributes": {
+            "subject": asunto, "body": cuerpo_html, "html": cuerpo_html,
+            "fromName": "{{custom_values.firma_luca}}", "attachments": [],
+            "conditions": [],
+            "trackingOptions": {"hasTrackingLinks": False,
+                                "hasUtmTracking": False, "hasTags": False},
+        },
+    }
+
+
+def whatsapp(nombre: str, plantilla: str, cuerpo: str) -> dict:
+    """Envío de WhatsApp.
+
+    ⚠️ PENDIENTE: no existe un tipo `whatsapp` en GHL (verificado: rechaza
+    whatsapp/wa/whatsapp_message/send_whatsapp con "corrupted type"). Se
+    construye como `sms` y GHL enruta por canal, pero falta confirmar en la UI
+    cómo se marca canal=WhatsApp y cómo se referencia la plantilla aprobada.
+
+    Hasta confirmarlo, el nodo se crea como `sms` con el nombre marcado
+    [PENDIENTE-WA] y la plantilla anotada en los attributes, para localizarlos
+    y corregirlos en bloque después.
+    """
+    return {
+        "id": uid(), "type": "sms", "name": f"{WHATSAPP_PENDIENTE} {nombre}",
+        "attributes": {
+            "body": cuerpo, "attachments": [],
+            "_plantilla_meta": plantilla,   # anotación nuestra, GHL la ignora
+            "_canal_pendiente": "whatsapp",
+        },
+    }
+
+
+# ── Despliegue ───────────────────────────────────────────────────────────
+
+def carpeta(c: InternalGHLClient, nombre: str) -> str | None:
+    """Reutiliza la carpeta si ya existe; si no, la crea."""
+    listado = c.request("GET", f"/workflow/{c.location_id}") or []
+    if isinstance(listado, dict):
+        listado = listado.get("workflows") or listado.get("data") or []
+    for w in listado:
+        if not isinstance(w, dict):
+            continue
+        if w.get("name") == nombre and w.get("type") == "directory":
+            return w.get("id") or w.get("_id")
+    r = c.request("POST", f"/workflow/{c.location_id}",
+                  {"name": nombre, "type": "directory"})
+    return r.get("id") if r else None
+
+
+def guardar(c: InternalGHLClient, wid: str, nombre: str, steps: list[dict]) -> tuple[bool, Any]:
+    """PUT leyendo la versión actual primero.
+
+    Imprescindible: GHL usa versionado optimista y el builder de la CLI manda
+    version:1 fijo, por eso su --update está roto.
+    """
+    actual = c.request("GET", f"/workflow/{c.location_id}/{wid}") or {}
+    r = c.request("PUT", f"/workflow/{c.location_id}/{wid}", {
+        "name": nombre, "version": actual.get("version", 1),
+        "workflowData": {"templates": link_steps(steps)},
+    })
+    return bool(r and not r.get("_error")), r
+
+
+def desplegar(c: InternalGHLClient, nombre_wf: str, steps: list[dict],
+              folder_id: str, dry_run: bool = False) -> dict:
+    """Crea el workflow (draft) y guarda sus pasos."""
+    reales = [s for s in steps if not es_marcador(s)]
+    bifurcaciones = [s for s in steps if es_marcador(s)]
+    pendientes = [s["name"] for s in reales if WHATSAPP_PENDIENTE in s.get("name", "")]
+
+    detalle = []
+    for s in steps:
+        if es_marcador(s):
+            ramas = " | ".join(r["nombre"] for r in s["ramas"])
+            detalle.append(f'   {s["_marcador"]} {s["name"]}  ->  {ramas}')
+        else:
+            detalle.append(f'   [{s["type"]}] {s["name"]}')
+
+    if dry_run:
+        return {"workflow": nombre_wf, "pasos": len(reales),
+                "pendientes_wa": len(pendientes), "bifurcaciones": len(bifurcaciones),
+                "dry_run": True, "detalle": detalle}
+
+    r = c.request("POST", f"/workflow/{c.location_id}",
+                  {"name": nombre_wf, "parentId": folder_id})
+    wid = r.get("id") if r else None
+    if not wid:
+        return {"workflow": nombre_wf, "error": f"no se pudo crear: {r}"}
+
+    # El backend de GHL falla de forma intermitente al guardar varios workflows
+    # seguidos (mismo payload pasa al reintentar). Hasta 3 intentos con pausa.
+    import time
+    ok, resp = False, None
+    for intento in range(3):
+        ok, resp = guardar(c, wid, nombre_wf, reales)
+        if ok:
+            break
+        time.sleep(1.5 * (intento + 1))
+
+    return {"workflow": nombre_wf, "id": wid, "pasos": len(reales),
+            "pendientes_wa": len(pendientes), "bifurcaciones": len(bifurcaciones),
+            "guardado": ok, "error": (None if ok else str(resp)[:200])}
+
+
+def resumen(resultados: list[dict]) -> None:
+    print("\n" + "=" * 66)
+    total = sum(r.get("pasos", 0) for r in resultados)
+    wa = sum(r.get("pendientes_wa", 0) for r in resultados)
+    bif = sum(r.get("bifurcaciones", 0) for r in resultados)
+    for r in resultados:
+        if r.get("error"):
+            print(f"  ✗ {r['workflow']:44} {r['error'][:60]}")
+        else:
+            estado = "DRY-RUN" if r.get("dry_run") else ("OK" if r.get("guardado") else "FALLÓ")
+            print(f"  {'✓' if estado != 'FALLÓ' else '✗'} {r['workflow']:44} "
+                  f"{r['pasos']:2} pasos  ({r['pendientes_wa']} WA, "
+                  f"{r.get('bifurcaciones',0)} IF)  {estado}")
+    print("=" * 66)
+    print(f"  {len(resultados)} workflows · {total} pasos desplegados")
+    print(f"  PENDIENTES DE ESQUEMA: {wa} nodos WhatsApp · {bif} bifurcaciones")
+    if wa:
+        print(f'\n  WhatsApp: creados como `sms` marcados "{WHATSAPP_PENDIENTE}".')
+    if bif:
+        print(f'  Bifurcaciones: NO desplegadas (marcadas "{BIFURCACION_PENDIENTE}" arriba).')
+        print("  Ambas esperan copiar el esquema real de un nodo hecho en la UI.")
