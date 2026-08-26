@@ -33,7 +33,12 @@
    resolvió — hay que **asignarlo en la UI** (Calendarios → Llamada de cierre - Perú → Team members).
 3. El horario 9-18 lun-vie es **provisional**: falta la disponibilidad real de Luca (checklist B5).
 
-Usuarios de la subcuenta en `usuarios.json`. Christie y Joaquín siguen sin crear.
+Usuarios de la subcuenta en `usuarios.json`. Los tres del cliente ya están creados.
+
+⚠️ **Christie quedó con rol `admin`**, a diferencia de Luca y Joaquín (`user`). Un admin puede
+modificar workflows, funnels y configuración — y ya vimos lo fácil que es romper algo sin querer
+(el filtro de más en el trigger de WF2 dejaba fuera a todos los descalificados). Decidir si se deja
+así por ser co-dueña del negocio, o se baja a `user`.
 
 ## Producto de cobro — Escuela NCA Academy
 

@@ -23,20 +23,22 @@
       "email": "stefanizziluca274@gmail.com",
       "rol": "user",
       "equipo": "Cliente",
-      "id": "nEVI8WGKSdfvkR9FUyXM",
-      "permisos": "contactos, conversaciones, oportunidades, citas y dashboard. SIN configuracion, workflows, funnels ni campañas.",
-      "nota": "Creado el 18-ago. GHL le envio invitacion por email a esa direccion."
+      "permisos": "operacion (contactos, conversaciones, oportunidades, citas, dashboard). Sin configuracion ni workflows."
     },
     {
       "nombre": "Joaquin Vargas",
       "email": "jmvargas.sal@gmail.com",
       "rol": "user",
       "equipo": "Cliente",
-      "permisos": "operacion + REPORTES (adwords, facebook ads, atribucion): es quien corre los ads y lee de donde vienen los leads. Sin configuracion, workflows, funnels ni campañas.",
-      "nota": "Creado el 18-ago. GHL le envio invitacion por email."
+      "permisos": "operacion + reportes de ads y atribucion: es quien corre las campañas."
+    },
+    {
+      "nombre": "Christie Salvatierra",
+      "email": "salvatierrachristie@gmail.com",
+      "rol": "admin",
+      "equipo": "Cliente",
+      "alerta": "Creada como ADMIN, a diferencia de Luca y Joaquin. Un admin puede modificar workflows, funnels y configuracion. Decidir si se deja asi (es co-dueña del negocio) o se baja a 'user' como los otros."
     }
   ],
-  "pendientes": [
-    "Christie Salvatierra (falta su email)"
-  ]
+  "pendientes": []
 }
