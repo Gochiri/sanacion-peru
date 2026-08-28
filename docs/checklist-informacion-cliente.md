@@ -11,7 +11,22 @@ Logos (vertical + horizontal) · nombre de negocio (Salud Consciente) y de la es
 
 ---
 
-## A · Llaves que bloquean el arranque — pedir HOY, con fecha límite 48 h
+## A · Llaves que bloquean el arranque
+
+> **✅ A1, A2 y A3 destrabadas en la llamada del 28-ago** (reportado por Oliver, pendiente de
+> verificar por API):
+> **A1 Meta** — ya tenemos acceso al portafolio. **A2 WhatsApp** — el número quedó **conectado**.
+> **A3 Dominio** — configurado al 100 %.
+>
+> Con eso cae la cadena entera de bloqueos técnicos. Lo que se abre, en orden de valor:
+> los **13 mensajes de WhatsApp** marcados `[PENDIENTE-WA]` en los workflows pueden pasar a
+> canal real · los **4 eventos CAPI** ya se pueden crear · la **página del evento** se puede
+> publicar, y con su trigger link WF4A por fin tiene disparador.
+>
+> **Sigue pendiente A5**: la fecha exacta del primer jueves. Es la que destraba los 13 custom
+> values que siguen vacíos — sin ella los recordatorios de WF3 no tienen a qué anclarse.
+
+## A · Llaves que bloquean el arranque — detalle original
 
 | # | Qué | Para qué / qué bloquea |
 |---|---|---|

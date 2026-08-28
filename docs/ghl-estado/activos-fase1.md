@@ -64,3 +64,37 @@ no el video del evento).
 
 Los 16 restantes esperan: dominio (para las páginas), fecha del evento, links de los grupos,
 Stripe, y los datos de cobro manual.
+
+
+---
+
+## Destrabe del 28-ago — las tres llaves técnicas
+
+Reportado por Oliver tras la llamada con el cliente. **Aún no verificado contra la subcuenta**:
+el contenedor arranca limpio y no hay credenciales cargadas en esta sesión.
+
+| Llave | Estado | Qué abre |
+|---|---|---|
+| **Meta** | Acceso al portafolio concedido | Los 4 eventos CAPI dejan de estar bloqueados por permisos |
+| **Dominio** | Configurado al 100 % | Publicar las páginas; con la del evento y su trigger link, **WF4A deja de estar sin disparador** |
+| **WhatsApp** | Número **conectado** | Los **13 nodos `[PENDIENTE-WA]`** pueden pasar a canal real |
+
+### Los 13 nodos de WhatsApp
+
+Se crearon como `sms` con el nombre marcado `[PENDIENTE-WA]` y la plantilla anotada en
+`attributes._plantilla_meta` (ver `whatsapp()` en `builders/esb_lib.py`), justo para poder
+localizarlos y corregirlos en bloque cuando hubiera canal. Ese momento llegó.
+
+Reparto: WF1 lleva 2 · WF2 lleva 2 · WF3 lleva 4 · WF4B lleva 2 · WF4C lleva 3.
+
+**Primer paso al retomar**: leer por API cómo quedó el canal de WhatsApp en la subcuenta —
+qué `type` acepta el nodo y cómo se referencia la plantilla aprobada. Eso es lo que nunca se
+pudo confirmar (GHL rechaza `whatsapp`, `wa`, `whatsapp_message` y `send_whatsapp` con
+*corrupted type*).
+
+### Sigue pendiente
+
+- **Fecha del primer jueves** — destraba los 13 custom values vacíos.
+- **WF4B sin disparador** — se crea en la UI: *Form submitted* → F03 `DTwkB4aTiEIqUGNI9Qjo`.
+- **Asignar a Luca al calendario** en la UI (`teamMembers` es limitación del API).
+- **La etapa «Calificado» está huérfana** — eliminarla o darle uso.
