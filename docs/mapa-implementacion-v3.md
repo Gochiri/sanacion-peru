@@ -2,7 +2,7 @@
 
 **Marca:** Salud Consciente (ES) / dominio `lanuovacoscienza.com` · **Escuela:** NCA Academy · **Empresa fiscal:** Nueva Conciencia Formación SAC
 **Subcuenta:** creada, en la agencia GHL de Jaime · **Estado:** Fase 1 en ejecución con ~5 días de retraso · **Compromiso:** el sistema debe soportar un lanzamiento en agosto (K5)
-**Fuentes:** handoff (`fuentes/00-handoff.md`) + deltas de las tres llamadas (`fuentes/01-deltas-llamadas.md`) + form de onboarding (`fuentes/02-form-onboarding.md`).
+**Fuentes:** handoff (`fuentes/00-handoff.md`) + deltas de las tres llamadas (`fuentes/01-deltas-llamadas.md`) + form de onboarding (`fuentes/02-form-onboarding.md`) + **deltas de la llamada técnica del 28-ago (`fuentes/03-deltas-llamada-28ago.md`) — manda sobre lo anterior donde contradiga**.
 **Regla:** donde este mapa contradiga al handoff, manda este mapa. Los puntos abiertos están numerados `P-01…P-14` (§18) para iterar. Los compromisos con el cliente se citan como `K1…K9` (deltas §2).
 
 ---
@@ -276,20 +276,20 @@ Nuevos:
 
 | # | Punto | Recomendación | Decide |
 |---|---|---|---|
-| P-01 | Cadencia: semanal (Joaquín) vs quincenal (Christie) | Técnicamente indiferente (custom values absorben ambas). Cerrar **antes del primer copy de recordatorios**. Dato: su mejor asistencia fue un sábado 17:00 | Cliente |
+| P-01 ✅ | **RESUELTO 28-ago (K12):** el evento vende y cae en día distinto por mercado — **sábado en italiano** (venta sáb→mar) y **jueves en español** (venta jue→lun), con dos pases diarios (mediodía y 20:00). Confirmar por escrito: la transcripción está entrecortada | Técnicamente indiferente (custom values absorben ambas). Cerrar **antes del primer copy de recordatorios**. Dato: su mejor asistencia fue un sábado 17:00 | Cliente |
 | P-02 | 1 vs 2 números WhatsApp API | **Verificar primero en la subcuenta si LC WhatsApp soporta más de un número** (históricamente NO: un número por subcuenta). Caso probable: **1 número con enrutamiento por `idioma`**. El +39 solo se promete si la plataforma lo soporta — no antes | Equipo (verificación técnica) |
 | P-03 | Q4 de inversión en la encuesta | Incluir la **versión suave** — filtra el "todos quieren gratis, gratis, gratis" que Christie describió en la llamada de mapeo (delta 11) sin matar la conversión de una clase gratuita. Valida Luca (B4) | Equipo, valida Luca |
 | P-04 | Pipeline único F1 | Mantener. Dividir por mercado solo si el full day de Lima (7.5) lo exige en F2 | Equipo |
-| P-05 | Destino del no-califica | `/comienza-aqui` con video gratuito + link al checkout **existente** del 21 días. No construir funnel nuevo en F1 | Equipo |
+| P-05 ⚠️ | **CAMBIA 28-ago (K14):** el no-calificado ya no va solo a contenido educativo + 21 Días — se le ofrece el **pack VIP de videos**. Reflexología y Dispersión del dolor no le sirven: van dirigidos a operadores, no a personas enfermas | `/comienza-aqui` con video gratuito + link al checkout **existente** del 21 días. No construir funnel nuevo en F1 | Equipo |
 | P-06 | Replay en F1 | No — F2. El grupo comparte el link como hoy; la página con caducidad llega con SP08 | Equipo |
 | P-07 | Inglés | F3. No construir; solo convención de nombres preparada | Henry (comercial) |
 | P-08 | ¿Qué se facturó: F1 sola o paquete completo? | ✅ **RESUELTO (15-ago): cobrado el 50% de F1; F2 en horizonte sin facturar.** Ver plan en §15: F2 se estructura (opción 2 de fábrica) antes de cobrarla, y se cierra contra el éxito del primer lanzamiento | Henry ✅ |
-| P-09 | Moneda de cobro | **Restricción de plataforma, no preferencia: una moneda por subcuenta (D10).** Recomendado USD (coincide con el form). EUR-Italia solo vía links directos de Stripe + inbound webhook, o F2 | Equipo comunica, cliente acepta |
-| P-10 | Evento del jueves: ¿webinar (sin venta) o masterclass (con venta)? | Preguntar en checklist A5 — cambia el CTA de la página del evento y el copy de recordatorios | Cliente |
+| P-09 ⚠️ | **SE AGRAVA 28-ago:** con lanzamiento simultáneo (K10), el problema de moneda única (D10) deja de ser de Fase 2 y es de ahora. Decidir ya cómo cobra Italia | **Restricción de plataforma, no preferencia: una moneda por subcuenta (D10).** Recomendado USD (coincide con el form). EUR-Italia solo vía links directos de Stripe + inbound webhook, o F2 | Equipo comunica, cliente acepta |
+| P-10 ✅ | **RESUELTO 28-ago (K12): es masterclass, vende.** Cambia el CTA de la página del evento y el copy de recordatorios | Preguntar en checklist A5 — cambia el CTA de la página del evento y el copy de recordatorios | Cliente |
 | P-11 | Marca por mercado: el form dice **Salud Consciente**, pero el dominio/email es **lanuovacoscienza.com** | Preguntar qué marca y logo van en las páginas italianas antes de la réplica IT | Cliente |
 | P-12 | Sesiones 1-a-1 con precios de pack ($70/$180/$299) vivas y fuera del estimado | **No entran en F1.** Escalón de la escalera en F2 solo si el cliente lo pide — y es conversación comercial, no cortesía | Henry (comercial) |
 | P-13 | Quién escribe el copy IT de páginas y emails (T7: "sin dueño formal"; la traducción está fuera de alcance del estimado) | **Luca lo produce/traduce con IA (como hace con su contenido); nosotros maquetamos y él valida.** Pedirle horas reservadas en semana de lanzamiento (B4) | Cliente acepta la propuesta |
-| P-14 | ¿El primer lanzamiento es PE, IT o ambos? ¿Y Perú cierra por llamada mientras no haya full day? | Preguntar en A5. Si solo PE: la réplica IT sale del camino crítico y B4 pierde urgencia. El mapa asume cierre PE por llamada de 30 min — confirmarlo | Cliente |
+| P-14 ✅ | **RESUELTO 28-ago (K10): AMBOS a la vez.** Se cae el «Perú primero»: la réplica IT vuelve al camino crítico y **B4 (validación de Luca) vuelve a ser urgente**. Y **K11: Luca cierra en italiano, Joaquín en español** → hacen falta **dos calendarios** | Preguntar en A5. Si solo PE: la réplica IT sale del camino crítico y B4 pierde urgencia. El mapa asume cierre PE por llamada de 30 min — confirmarlo | Cliente |
 
 ---
 
