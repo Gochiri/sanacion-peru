@@ -84,3 +84,51 @@ oportunidades del contacto.
 | "Update Opportunity Stage → X" en WF2/WF3/WF4/WF5 | `create_opportunity` con el `stageId` destino |
 | "Send WhatsApp Template" en WF1–WF5 | paso tipo `sms` (canal por verificar en UI) |
 | Etapas Ganado/Perdido | `status` de la oportunidad (`won`/`lost`), no etapas |
+
+
+---
+
+## 28-ago · Dos hallazgos que cambian cómo se despliega
+
+### 1 · `next: null` ya no se acepta — hay que omitir la clave
+
+Al reguardar workflows que llevaban semanas sin tocarse, GHL respondió:
+
+> `Action validation failed for sms (…): Next is invalid. Please provide a valid value.`
+
+El nodo terminal llevaba `"next": null`, que es lo que siempre se había mandado.
+Probadas tres variantes sobre un workflow real: **omitir la clave funciona**; cadena vacía y
+lista vacía no hicieron falta. Corregido con un barrido al final de `ensamblar()`, que cubre
+también los nodos que llegan ya enlazados desde `bifurcar()` (sus ramas y su relleno también
+ponían `next=None`).
+
+### 2 · Un workflow tocado en la UI ya no se puede reescribir desde el builder
+
+Es el hallazgo importante. Cuando alguien edita un workflow en la UI, GHL lo reescribe al
+**formato rico del canvas** y deja de aceptar el nuestro.
+
+| | Formato del builder | Formato tras pasar por la UI |
+|---|---|---|
+| Condición | `attributes.if = [{field, operator, value}]` | `attributes.branches[].segments[].conditions[]` |
+| Campo | `"contact.nivel_calificacion"` | `conditionSubType: "F4n43YBwtdya1dyJYdzO"` (**id** del campo) |
+| Operador | `"eq"` | `conditionOperator: "=="` |
+| Extra | — | `currentRecipeType`, `sibling`, `cat`, `advanceCanvasMeta` con posiciones |
+
+A partir de ahí, un PUT con el formato antiguo se rechaza con *"Action validation failed for
+if_else"* o *"Add at least one branch"*.
+
+**Y aunque se aceptara, no habría que hacerlo**: reescribir borra las correcciones hechas a mano
+en la UI, que son las buenas — los triggers de esta cuenta se arreglaron ahí.
+
+Se comprobó en vivo: `WF3-IT`, creado por API y nunca tocado en la UI, **sí** acepta el formato
+del builder. `WF1`, `WF2`, `WF3-ES`, `WF4B` y `WF5`, todos tocados en la UI, lo rechazan.
+
+**Regla de trabajo que queda:**
+
+- Workflow **nuevo** o que nadie tocó → `completar.py` (reescritura completa).
+- Workflow **ya tocado en la UI** → `retocar.py`: lee sus templates, sustituye solo la cadena
+  que cambia y los devuelve. No toca la estructura ni las condiciones.
+
+Aplicado así el 28-ago, con verificación posterior: los 8 workflows conservan sus pasos y sus
+condiciones, `fecha_evento_vigente` ya no aparece en ninguno, WF3-ES usa `fecha_evento_es` y
+WF3-IT `fecha_evento_it`.
