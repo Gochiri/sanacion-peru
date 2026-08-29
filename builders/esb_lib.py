@@ -400,6 +400,14 @@ def ensamblar(steps: list[dict]) -> list[dict]:
         salida.append(paso)
         anterior = paso
 
+    # GHL dejó de aceptar `next: null` — responde "Next is invalid. Please
+    # provide a valid value." La clave hay que **omitirla** en los nodos
+    # terminales. Se barre aquí al final para cubrir también los nodos que
+    # vienen ya enlazados desde bifurcar().
+    for s in salida:
+        if s.get("next", "sin-clave") is None:
+            s.pop("next", None)
+
     for i, s in enumerate(salida):
         s["order"] = i
     return salida
