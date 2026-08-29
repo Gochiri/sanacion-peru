@@ -75,9 +75,14 @@ def wf2():
                 whatsapp("Bienvenida con link del grupo", "bienvenida-registro",
                          f"Hola {{{{contact.first_name}}}}! Ya estas registrado. Unete al grupo "
                          f"para recibir el acceso: {CV('link_grupo_whatsapp_es')}"),
+                # Sin fecha a propósito: desde K12 cada mercado tiene su día
+                # (sábado IT / jueves ES) y WF2 **no** bifurca por mercado, así
+                # que aquí no se puede saber cuál toca. El día y la hora los
+                # lleva el recordatorio de WF3-ES / WF3-IT, que sí es por mercado.
                 email("Confirmacion de registro", "Tu lugar esta confirmado",
-                      f"<p>Te esperamos el {CV('fecha_evento_vigente')} a las "
-                      f"{CV('hora_evento_pe')}.</p>"),
+                      f"<p>Tu lugar quedo confirmado. Te enviamos el recordatorio "
+                      f"con el dia y la hora, y el acceso por el grupo: "
+                      f"{CV('link_grupo_whatsapp_es')}</p>"),
                 capi("CAPI: Registro", "CompleteRegistration"),
             ],
             rama_no=[
@@ -94,30 +99,73 @@ def wf2():
 
 
 # ── WF3 · Recordatorios de evento + no-show (SP02) ───────────────────────
-def wf3():
+def _wf3(fecha, hora, link_evento, t):
+    """Cadena de recordatorios de un mercado.
+
+    **Va uno por mercado, no uno con bifurcación**, por dos razones:
+
+    1. GHL **rechaza las bifurcaciones anidadas** ("Add at least one branch",
+       ver `encadenar()` en esb_lib) y el chequeo de no-show ya es una.
+    2. Desde el 28-ago (K12) el evento cae en **día distinto por mercado**
+       — sábado en italiano, jueves en español — así que ni las fechas ni el
+       copy se comparten. El italiano lo produce y valida Luca (P-13/B4).
+    """
     return [
         esperar("Esperar hasta T-24h del evento", 1, "days"),
         whatsapp("Recordatorio 24 h", "recordatorio-24h",
-                 f"Manana es la clase: {CV('fecha_evento_vigente')} a las {CV('hora_evento_pe')}."),
-        email("Email recordatorio 24 h", "Manana nos vemos",
-              f"<p>Manana a las {CV('hora_evento_pe')}.</p>"),
+                 t["24h"].format(fecha=fecha, hora=hora)),
+        email("Email recordatorio 24 h", t["asunto_24h"],
+              f"<p>{t['email_24h'].format(hora=hora)}</p>"),
         esperar("Esperar hasta T-3h", 21, "hours"),
-        whatsapp("Recordatorio 3 h", "recordatorio-3h",
-                 "Hoy es el dia. En 3 horas comenzamos."),
+        whatsapp("Recordatorio 3 h", "recordatorio-3h", t["3h"]),
         esperar("Esperar hasta T-15min", 3, "hours"),
         whatsapp("Estamos en vivo (trigger link 1:1)", "en-vivo",
-                 f"Estamos comenzando. Entra aqui: {CV('link_evento_es')}"),
-        email("Email en vivo", "Estamos en vivo",
-              f"<p>Entra ahora: {CV('link_evento_es')}</p>"),
+                 t["vivo"].format(link=link_evento)),
+        email("Email en vivo", t["asunto_vivo"],
+              f"<p>{t['email_vivo'].format(link=link_evento)}</p>"),
         esperar("Esperar 2 h tras el evento", 2, "hours"),
         # `asistio_evento` es CHECKBOX: GHL espera boolean, no array/cadena.
         *bifurcar("No asistio al evento?",
             [cond("contact.asistio_evento", "eq", False)],
             rama_si=[
                 whatsapp("Recuperacion de no-show (copy suave)", "no-show",
-                         "Te perdiste la clase de hoy, pero te dejamos lo esencial."),
+                         t["noshow"]),
             ]),
     ]
+
+
+COPY_ES = {
+    "24h": "Manana es la clase: {fecha} a las {hora}.",
+    "asunto_24h": "Manana nos vemos",
+    "email_24h": "Manana a las {hora}.",
+    "3h": "Hoy es el dia. En 3 horas comenzamos.",
+    "vivo": "Estamos comenzando. Entra aqui: {link}",
+    "asunto_vivo": "Estamos en vivo",
+    "email_vivo": "Entra ahora: {link}",
+    "noshow": "Te perdiste la clase de hoy, pero te dejamos lo esencial.",
+}
+
+# Copy italiano PROVISIONAL: lo produce y valida Luca (P-13/B4).
+COPY_IT = {
+    "24h": "Domani e la lezione: {fecha} alle {hora}.",
+    "asunto_24h": "Domani ci vediamo",
+    "email_24h": "Domani alle {hora}.",
+    "3h": "Oggi e il giorno. Tra 3 ore iniziamo.",
+    "vivo": "Stiamo iniziando. Entra qui: {link}",
+    "asunto_vivo": "Siamo in diretta",
+    "email_vivo": "Entra ora: {link}",
+    "noshow": "Ti sei perso la lezione di oggi, ma ti lasciamo l'essenziale.",
+}
+
+
+def wf3_es():
+    return _wf3(CV("fecha_evento_es"), CV("hora_evento_pe"),
+                CV("link_evento_es"), COPY_ES)
+
+
+def wf3_it():
+    return _wf3(CV("fecha_evento_it"), CV("hora_evento_it"),
+                CV("link_evento_it"), COPY_IT)
 
 
 # ── WF4 · Asistencia / postulación / agenda (SP03+SP04+SP05) ─────────────
@@ -138,7 +186,7 @@ def wf4b():
             rama_si=[whatsapp("Enviar calendario Italia", "postulacion-agenda",
                               f"Prenota la tua chiamata: {CV('link_calendario_cierre_it')}")],
             rama_no=[whatsapp("Enviar calendario Peru", "postulacion-agenda",
-                              f"Agenda tu llamada con Luca: {CV('link_calendario_cierre_pe')}")]),
+                              f"Agenda tu llamada de cierre: {CV('link_calendario_cierre_pe')}")]),
     ]
 
 
@@ -149,11 +197,15 @@ def wf4c():
                  "Tu llamada quedo agendada. Te esperamos."),
         esperar("Esperar hasta 24 h antes de la cita", 1, "days"),
         whatsapp("Recordatorio cita 24 h", "recordatorio-cita-24h",
-                 "Manana es tu llamada con Luca."),
+                 "Manana es tu llamada de cierre."),
         esperar("Esperar hasta 1 h antes", 23, "hours"),
+        # El link de Zoom CAMBIA en cada llamada (confirmado por Christie el
+        # 28-ago): sale de la propia cita, no de un custom value global.
+        # `appointment.address` es donde GHL deja la ubicación/enlace.
+        # ⚠️ VERIFICAR con una reserva real antes del lanzamiento.
         whatsapp("Recordatorio cita 1 h + Zoom", "recordatorio-cita-1h",
-                 f"En 1 hora es tu llamada. Enlace: {CV('link_zoom_llamada')} "
-                 f"(instala Zoom antes para no perder tiempo)."),
+                 "En 1 hora es tu llamada. Enlace: {{appointment.address}} "
+                 "(instala Zoom antes para no perder tiempo)."),
     ]
 
 
@@ -197,7 +249,8 @@ def wf5():
 WORKFLOWS = [
     ("WF1 - Captacion y atribucion", wf1),
     ("WF2 - Registro y calificacion", wf2),
-    ("WF3 - Recordatorios de evento", wf3),
+    ("WF3-ES - Recordatorios de evento", wf3_es),
+    ("WF3-IT - Promemoria evento", wf3_it),
     ("WF4A - Asistencia", wf4a),
     ("WF4B - Postulacion", wf4b),
     ("WF4C - Cita agendada", wf4c),

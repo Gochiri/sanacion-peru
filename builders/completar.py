@@ -6,6 +6,7 @@ workflows seguidos (rate limit no documentado: el mismo payload pasa al
 reintentar más tarde). Este script va de uno en uno, con pausas largas, y es
 idempotente: se puede relanzar hasta que todo quede completo.
 """
+import argparse
 import sys, time
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -16,6 +17,16 @@ PAUSA = 8          # segundos entre workflows
 INTENTOS = 6
 
 def main():
+    # La idempotencia por número de pasos no detecta cambios de CONTENIDO
+    # (mismo conteo, distinto copy o distinto custom value). Para esos casos
+    # está --forzar, que reescribe aunque el conteo coincida.
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--forzar", nargs="*", default=None,
+                    metavar="NOMBRE",
+                    help="reescribe estos workflows aunque el conteo cuadre "
+                         "(sin argumentos, reescribe todos)")
+    args = ap.parse_args()
+
     c = cliente(); loc = c.location_id
     fid = carpeta(c, CARPETA)
 
@@ -34,7 +45,10 @@ def main():
         steps = [s for s in fn() if not es_marcador(s)]
         wid, pasos = existentes.get(nombre, (None, 0))
 
-        if wid and pasos == len(steps):
+        forzado = args.forzar is not None and (
+            not args.forzar or any(f.lower() in nombre.lower() for f in args.forzar))
+
+        if wid and pasos == len(steps) and not forzado:
             print(f"  = {nombre:34} ya completo ({pasos} pasos)")
             continue
 
@@ -52,6 +66,7 @@ def main():
                 break
             time.sleep(PAUSA)
         print(f"  {'✓' if ok else '✗'} {nombre:34} {len(steps)} pasos"
+              f"{' (forzado)' if forzado else ''}"
               f"{'' if ok else '  ' + str(r.get('message', r))[:80]}")
         time.sleep(PAUSA)
 

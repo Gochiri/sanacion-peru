@@ -98,3 +98,66 @@ pudo confirmar (GHL rechaza `whatsapp`, `wa`, `whatsapp_message` y `send_whatsap
 - **WF4B sin disparador** — se crea en la UI: *Form submitted* → F03 `DTwkB4aTiEIqUGNI9Qjo`.
 - **Asignar a Luca al calendario** en la UI (`teamMembers` es limitación del API).
 - **La etapa «Calificado» está huérfana** — eliminarla o darle uso.
+
+
+---
+
+## Reconstrucción del 28-ago tras la llamada
+
+### Calendarios — ahora son dos (K11)
+
+| Calendario | id | Cierra | Link cargado en |
+|---|---|---|---|
+| Llamada de cierre - Espanol | `yCYC1PwGWrYRxifCIvBX` | **Joaquín** | `link_calendario_cierre_pe` |
+| Llamada de cierre - Italiano | `rQxxtyI3yf2BxWUiF07s` | **Luca** | `link_calendario_cierre_it` |
+
+Se **reutilizó** el que ya existía como el de español en vez de crear uno nuevo, porque su link
+ya estaba cargado en el custom value y en los pasos de WF4B.
+
+> **Hallazgo:** el calendario existente tenía `openHours: {}` — es decir, **no era reservable**.
+> El 9-18 L-V que figuraba como provisional en la documentación nunca llegó a aplicarse. Ahora
+> los dos llevan 5 entradas (una por día, como exige el API).
+
+⚠️ Siguen pendientes dos cosas en la UI: **asignar a Joaquín y a Luca** a su calendario
+(`teamMembers` es limitación del API) y **poner las franjas reales** cuando el cliente las dé.
+Ojo con las 7 h de diferencia entre mercados.
+
+### WF3 se partió en dos (K12)
+
+`WF3 - Recordatorios de evento` pasó a ser **`WF3-ES - Recordatorios de evento`** (renombrado
+sobre el mismo id `45167ab6-…`, **para no perder su disparador**) y se creó
+**`WF3-IT - Promemoria evento`**.
+
+**Por qué dos workflows y no uno con bifurcación:** GHL **rechaza las bifurcaciones anidadas**
+(`encadenar()` en `esb_lib.py` lo documenta: *"Add at least one branch"*), y el chequeo de
+no-show ya es una. Al necesitar además bifurcar por mercado, la única forma válida era separar.
+Y encaja con el negocio: distinto día, distinto idioma, distinto closer.
+
+⚠️ **`WF3-IT` nace sin disparador.** Hay que crearlo en la UI igual que el de WF3-ES
+(`pipeline_stage_updated` → etapa Registrado) **más un filtro de mercado = Italia**, y añadir el
+filtro simétrico al de WF3-ES. Es el único caso donde un filtro en el trigger es correcto —
+no confundirlo con el filtro de más que rompió WF2.
+
+### Custom values
+
+- `Fecha evento es` y `Fecha evento it` **creados** (K12: jueves ES / sábado IT).
+  `Fecha evento vigente` queda **en desuso**.
+- Los dos links de calendario, cargados.
+
+### El link de Zoom ya no es un custom value
+
+Confirmado por Christie: **cambia en cada llamada**. WF4C pasó a usar `{{appointment.address}}`,
+que es donde GHL deja la ubicación/enlace de la reunión.
+⚠️ **Verificar con una reserva real** antes del lanzamiento — no está confirmado por API.
+
+### Nota sobre WF2 — hueco conocido
+
+WF2 bifurca por **calificación**, no por mercado, así que un registrado italiano recibe hoy el
+grupo y el contenido educativo **en español**. Mientras el arranque era solo Perú daba igual;
+con lanzamiento simultáneo (K10) ya no.
+
+Se quitó de su email la referencia a `fecha_evento_vigente` (que ya no existe como dato único):
+la fecha y la hora las lleva ahora el recordatorio de WF3-ES / WF3-IT, que sí son por mercado.
+
+**Decisión pendiente:** partir WF2 en ES/IT como se hizo con WF3. Implica además crear la
+encuesta **F02 en italiano** (los formularios no se pueden crear por API, van a UI).
