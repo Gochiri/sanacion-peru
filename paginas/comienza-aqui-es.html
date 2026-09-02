@@ -1,0 +1,261 @@
+<!--
+  Salud Consciente · Comienza aquí (mercado ES)
+  Destino de quien NO califica para la escuela. Para pegar en GHL:
+  Funnels > nueva página > elemento Custom Code/HTML.
+
+  Quien llega aquí acaba de responder que busca "un medicamento o tratamiento
+  médico" o que "solo tiene curiosidad". NO es un rechazo y el copy no debe
+  sonar a eso: es una redirección hacia lo que sí le sirve hoy.
+
+  Variables (custom values):
+   · embed_video_educativo_es -> https://www.youtube.com/embed/XXXXXXXXXXX
+   · link_educativo_es        -> checkout de 21 Días (ya cargado, Hotmart)
+
+  Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
+  mensaje de WF2 del no-calificado, que hoy manda directo al checkout.
+-->
+
+<style>
+/* ── A1 · Reset del builder de GHL ───────────────────────────────────── */
+html, body {
+  background:#0E0C0A !important;
+  margin:0 !important; padding:0 !important;
+  overflow-x:clip !important;
+  width:100% !important; max-width:100% !important;
+}
+#app, .hl_page-preview, .c-section, .c-row, .c-column, .c-wrapper,
+.container, .content, .fullSection, .innerSection,
+[class*="c-section"], [class*="c-row"], [class*="c-column"] {
+  background:transparent !important; background-color:transparent !important;
+  padding:0 !important; margin-left:0 !important; margin-right:0 !important;
+  max-width:100% !important; width:100% !important; border:0 !important;
+}
+
+.sc-page {
+  --sc-negro:#0E0C0A; --sc-negro-2:#171310;
+  --sc-oro:#D4A24C; --sc-oro-claro:#E8C77E; --sc-oro-tenue:#8A6B2F;
+  --sc-hueso:#F2EDE4; --sc-mudo:#A8A093; --sc-linea:#2C251D;
+
+  --sc-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --sc-cuerpo:'Manrope',system-ui,-apple-system,sans-serif;
+  --sc-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sc-s3:12px; --sc-s4:16px; --sc-s5:24px;
+  --sc-s6:32px; --sc-s8:64px;
+  --sc-pad-x:clamp(20px,5vw,64px);
+  --sc-maxw:820px;
+
+  width:100vw; max-width:100vw;
+  margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+  background:var(--sc-negro); color:var(--sc-hueso);
+  font-family:var(--sc-cuerpo); font-size:clamp(16px,1.02vw,17px);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.sc-page *, .sc-page *::before, .sc-page *::after { box-sizing:border-box; }
+.sc-page img { max-width:100%; height:auto; display:block; }
+.sc-wrap { max-width:var(--sc-maxw); margin:0 auto; }
+
+.sc-page h1, .sc-page h2, .sc-page h3 {
+  font-family:var(--sc-display); font-style:normal; font-weight:600;
+  margin:0; overflow-wrap:anywhere; min-width:0; text-wrap:balance;
+}
+.sc-page p { margin:0; max-width:60ch; }
+.sc-etiqueta { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--sc-oro); }
+
+.sc-barra { padding:var(--sc-s5) var(--sc-pad-x); border-bottom:1px solid var(--sc-linea); }
+.sc-page .sc-barra img {
+  width:clamp(140px,18vw,180px); aspect-ratio:3/1; height:auto;
+  object-fit:cover; object-position:center;
+}
+
+.sc-cuerpo { padding:clamp(40px,6vw,80px) var(--sc-pad-x) 0; }
+.sc-h1 { font-size:clamp(1.9rem,4.4vw,3rem); line-height:1.05;
+  letter-spacing:-.014em; margin-top:var(--sc-s4); }
+.sc-lead { color:var(--sc-mudo); margin-top:var(--sc-s5);
+  font-size:clamp(1.02rem,1.5vw,1.15rem); }
+
+/* ── Video ───────────────────────────────────────────────────────────── */
+.sc-video-zona { margin-top:var(--sc-s8); }
+.sc-video {
+  position:relative; width:100%; aspect-ratio:16/9;
+  background:var(--sc-negro-2); border:1px solid var(--sc-linea);
+}
+.sc-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.sc-video-espera {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:var(--sc-s3);
+  text-align:center; padding:var(--sc-s6);
+}
+.sc-video-marca { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--sc-oro-tenue); }
+.sc-video-espera p { color:var(--sc-mudo); max-width:38ch; }
+.sc-video-pie { color:var(--sc-mudo); font-size:.9rem; margin-top:var(--sc-s4); }
+
+/* ── Prosa ───────────────────────────────────────────────────────────── */
+.sc-prosa { margin-top:var(--sc-s8); max-width:58ch; }
+.sc-prosa h2 { font-size:clamp(1.4rem,2.6vw,1.9rem); line-height:1.1; }
+.sc-prosa p { margin-top:var(--sc-s5); }
+.sc-prosa p:first-of-type::first-letter {
+  font-family:var(--sc-display); font-size:3.4em; line-height:.82;
+  float:left; padding:.06em .12em 0 0; color:var(--sc-oro);
+}
+
+/* ── Oferta ──────────────────────────────────────────────────────────── */
+.sc-oferta {
+  margin-top:var(--sc-s8); border-top:1px solid var(--sc-oro-tenue);
+  background:var(--sc-negro-2); padding:clamp(28px,4vw,44px);
+}
+.sc-oferta h2 { font-size:clamp(1.3rem,2.4vw,1.75rem); margin-top:var(--sc-s3); }
+.sc-oferta p { color:var(--sc-mudo); margin-top:var(--sc-s4); }
+.sc-lista { list-style:none; padding:0; margin:var(--sc-s5) 0 0; }
+.sc-lista li {
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s4);
+  padding:var(--sc-s3) 0; max-width:56ch; font-size:.97rem;
+}
+.sc-lista li::before { content:"—"; color:var(--sc-oro); font-family:var(--sc-display); }
+
+.sc-cta {
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--sc-cuerpo); font-weight:700; font-size:1.02rem;
+  color:var(--sc-negro); background:var(--sc-oro);
+  padding:var(--sc-s4) var(--sc-s6); border:1px solid var(--sc-oro);
+  text-decoration:none; margin-top:var(--sc-s6);
+  transition:background .18s ease, transform .18s ease;
+}
+.sc-cta:hover { background:var(--sc-oro-claro); border-color:var(--sc-oro-claro); }
+.sc-cta:active { transform:translateY(1px); }
+.sc-cta:focus-visible { outline:3px solid var(--sc-oro-claro); outline-offset:3px; }
+
+/* ── Nota sobre la medicina ──────────────────────────────────────────── */
+.sc-nota {
+  margin-top:var(--sc-s8); border-left:2px solid var(--sc-oro-tenue);
+  padding:var(--sc-s4) var(--sc-s5);
+}
+.sc-nota p { color:var(--sc-mudo); font-size:.95rem; }
+
+.sc-pie { padding:var(--sc-s8) var(--sc-pad-x) calc(var(--sc-s8) + 8px);
+  color:var(--sc-mudo); font-size:.85rem; }
+.sc-pie a { color:var(--sc-oro); }
+.sc-regla { height:1px; background:linear-gradient(90deg, transparent,
+  var(--sc-oro-tenue) 20%, var(--sc-oro-tenue) 80%, transparent); margin-bottom:var(--sc-s6); }
+
+@media (prefers-reduced-motion: reduce){
+  .sc-page *, .sc-page *::before, .sc-page *::after {
+    transition:none !important; animation:none !important;
+  }
+}
+@media print { .sc-page { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<div class="sc-page">
+
+  <header class="sc-barra">
+    <div class="sc-wrap"><img src="{{custom_values.logo_url}}" alt="Salud Consciente"></div>
+  </header>
+
+  <main class="sc-cuerpo">
+    <div class="sc-wrap">
+
+      <span class="sc-etiqueta">Comienza aquí</span>
+      <h1 class="sc-h1">Por dónde empezar, sin comprometerte con nada.</h1>
+      <p class="sc-lead">
+        Por lo que nos contaste, la escuela no es lo que necesitas ahora mismo —
+        y está bien. Es un proceso largo y exigente, y no todo el mundo llega en
+        ese momento. Lo que sí tenemos para hoy es esto.
+      </p>
+
+      <!-- ══ VIDEO ══ -->
+      <section class="sc-video-zona">
+        <div class="sc-video" id="sc-video">
+          <div class="sc-video-espera" id="sc-video-espera">
+            <span class="sc-video-marca">Salud Consciente</span>
+            <p>El video estará disponible en unos días. Te avisamos por WhatsApp cuando esté.</p>
+          </div>
+        </div>
+        <p class="sc-video-pie">Son unos minutos. No hace falta saber nada del tema para entenderlo.</p>
+      </section>
+
+      <!-- ══ PROSA ══ -->
+      <section class="sc-prosa">
+        <h2>Una cosa que conviene decir antes.</h2>
+        <p>
+          Esto no reemplaza a tu médico, y no queremos que lo haga. Si estás en un
+          tratamiento, síguelo. Lo que hacemos aquí va por otro lado: mirar qué estaba
+          pasando en tu vida cuando el síntoma apareció, y qué relación puede tener con él.
+        </p>
+        <p>
+          Las dos cosas conviven. De hecho, la gente que mejor le saca provecho a esto suele
+          ser justamente la que está bien acompañada por su médico.
+        </p>
+      </section>
+
+      <!-- ══ OFERTA ══ -->
+      <section class="sc-oferta">
+        <span class="sc-etiqueta">Si quieres seguir</span>
+        <h2>21 Días</h2>
+        <p>
+          Es lo más parecido a probar esto por dentro sin meterte en un programa largo.
+          Un ejercicio corto cada día, durante tres semanas.
+        </p>
+        <ul class="sc-lista">
+          <li><span>Vas a tu ritmo: cada día se hace en pocos minutos.</span></li>
+          <li><span>Empieza por lo tuyo, no por teoría general.</span></li>
+          <li><span>Al terminar sabes si esto te interesa de verdad o no era para ti.</span></li>
+        </ul>
+        <a class="sc-cta" href="{{custom_values.link_educativo_es}}" target="_blank" rel="noopener">
+          Quiero empezar los 21 Días
+        </a>
+      </section>
+
+      <!-- ══ NOTA ══ -->
+      <div class="sc-nota">
+        <p>
+          Y si más adelante cambia tu momento, la escuela sigue ahí. Te vamos a avisar
+          cuando abramos la siguiente. Sin insistir.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="sc-pie">
+    <div class="sc-wrap">
+      <div class="sc-regla"></div>
+      <p>
+        <strong style="color:var(--sc-hueso)">Salud Consciente</strong> · Nueva Conciencia Formación SAC ·
+        <a href="mailto:info@lanuovacoscienza.com">info@lanuovacoscienza.com</a>
+      </p>
+      <p style="margin-top:var(--sc-s4)">
+        Este contenido es educativo y de acompañamiento. No constituye diagnóstico ni
+        tratamiento médico, y no sustituye la consulta con un profesional de la salud.
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // Mismo criterio que en la sala del evento: el iframe solo se monta si la URL
+  // es de verdad un embed. Si no, se queda el cartel en vez de una caja rota.
+  var embed = "{{custom_values.embed_video_educativo_es}}";
+  if (!/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(embed)) return;
+
+  var marco = document.createElement('iframe');
+  marco.src = embed;
+  marco.title = 'Contenido educativo · Salud Consciente';
+  marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                'gyroscope; picture-in-picture; web-share';
+  marco.referrerPolicy = 'strict-origin-when-cross-origin';
+  marco.allowFullscreen = true;
+
+  var caja = document.getElementById('sc-video');
+  var espera = document.getElementById('sc-video-espera');
+  if (caja) { caja.appendChild(marco); if (espera) espera.remove(); }
+})();
+</script>

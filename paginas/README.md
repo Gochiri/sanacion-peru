@@ -11,7 +11,7 @@ Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento
 | Evento ES | `evento-es.html` | ✅ lista para revisar |
 | Gracias ES | `gracias-es.html` | ✅ lista para revisar |
 | Postulación ES | `postulacion-es.html` | ✅ lista para revisar |
-| Comienza aquí ES | — | pendiente |
+| Comienza aquí ES | `comienza-aqui-es.html` | ✅ lista para revisar |
 | Réplicas IT (5) | — | pendientes · copy lo produce y valida Luca (P-13/B4) |
 
 ## Hallazgo al empezar
@@ -195,3 +195,38 @@ fecha inventada.
 
 ⚠️ La duración por defecto es **90 minutos** — es una suposición, está marcada en el script y se
 cambia en una línea cuando el cliente confirme cuánto dura la clase.
+
+
+## Comienza aquí ES — el destino del que no califica
+
+Es la página más delicada de escribir del funnel. Quien llega acaba de responder que busca
+**«un medicamento o tratamiento médico»** o que **«solo tiene curiosidad»**. No es un rechazo, y
+el copy no puede sonar a eso.
+
+El encuadre elegido: *«la escuela no es lo que necesitas ahora mismo — y está bien»*. Se atribuye
+al momento de la persona, no a su valía, y se pasa enseguida a lo que sí sirve hoy.
+
+**Hay un párrafo que no es relleno:** el que dice que esto no reemplaza al médico y que si está
+en tratamiento lo siga. La mitad de quien llega aquí marcó justamente que busca tratamiento
+médico — desdeñar eso sería el error más caro de toda la página, y encima es nicho salud.
+
+### El paso concreto: 21 Días
+
+Es el low ticket que **ya existe** (checkout de Hotmart en `link_educativo_es`, ya cargado). En
+Fase 1 no se construyen funnels de low ticket: se enlaza el checkout actual.
+
+Reflexología y Dispersión del dolor **no** se ofrecen aquí a propósito: Joaquín señaló en la
+llamada del 28-ago que van dirigidos a **operadores**, no a personas que quieren sanarse. A este
+público no le sirven.
+
+⚠️ **Cuando exista el pase VIP** (K13/K14), su sitio natural es esta página — es el otro producto
+que sí encaja con este público. Hoy no se puede enlazar porque no existe.
+
+### Cambio pendiente en WF2
+
+Hoy el mensaje del no-calificado en WF2 manda **directo al checkout de Hotmart**, sin página de
+por medio: cero contexto, cero confianza, y le pide dinero a alguien que acaba de decir que solo
+tenía curiosidad.
+
+Al publicar esta página: cargar `link_comienza_aqui_es` con su URL y apuntar ahí el mensaje de
+WF2. **WF2 está tocado en la UI**, así que ese cambio va con `retocar.py`, no con `completar.py`.
