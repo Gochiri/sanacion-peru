@@ -124,3 +124,16 @@ recortado, se puede volver a `object-fit:contain` y quitar el `aspect-ratio`.
 ⚠️ La regla va prefijada como `.sc-page .sc-logo` **a propósito**: `.sc-page img` tiene más
 especificidad que `.sc-logo` a secas y anulaba la altura, dejando el logo a tamaño natural.
 Si se añaden más reglas sobre imágenes, respetar ese prefijo.
+
+
+## La sala del evento sin video cargado
+
+El reproductor **no monta el iframe si `embed_youtube_es` no apunta a un video de verdad**. El
+script comprueba que la URL tenga forma de embed de YouTube (`youtube.com/embed/…`); si vale
+`PENDIENTE`, o GHL no sustituye el valor, deja en su lugar un cartel:
+
+> *La clase se abre aquí unos minutos antes de empezar. Deja esta página abierta.*
+
+Es a propósito: quien entra media hora antes —o el día que a alguien se le olvide cargar el
+valor— ve un mensaje con sentido en vez de una caja rota. Y como el mensaje es cierto (el falso
+en vivo se publica poco antes), sirve igual de bien cuando todo está correcto.

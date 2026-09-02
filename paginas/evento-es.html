@@ -75,7 +75,7 @@ html, body {
 }
 
 /* estado: cuenta atrás o EN VIVO */
-.sc-estado { display:flex; align-items:center; gap:var(--sc-s3); }
+.sc-estado { display:flex; align-items:center; gap:var(--sc-s3); min-width:0; }
 .sc-punto {
   width:9px; height:9px; border-radius:50%; background:var(--sc-vivo); flex:none;
   animation:sc-latido 2s ease-in-out infinite;
@@ -85,6 +85,7 @@ html, body {
   font-family:var(--sc-mono); font-size:.76rem; letter-spacing:.14em;
   text-transform:uppercase; color:var(--sc-hueso);
   font-variant-numeric:tabular-nums;
+  min-width:0; overflow-wrap:anywhere; text-align:right;
 }
 .sc-estado--espera .sc-punto { background:var(--sc-oro); animation:none; }
 .sc-estado--espera .sc-estado-txt { color:var(--sc-mudo); }
@@ -96,6 +97,17 @@ html, body {
   background:var(--sc-negro-2); border:1px solid var(--sc-linea);
 }
 .sc-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.sc-video-espera {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:var(--sc-s3);
+  text-align:center; padding:var(--sc-s6);
+}
+.sc-video-marca {
+  font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--sc-oro-tenue);
+}
+.sc-video-espera p { color:var(--sc-mudo); max-width:38ch; font-size:1rem; }
+.sc-video-espera .sc-video-nota { color:var(--sc-oro); font-size:.9rem; }
 
 /* ── Bloque de acción bajo el video ──────────────────────────────────── */
 .sc-accion { padding:clamp(32px,5vw,64px) var(--sc-pad-x) 0; }
@@ -182,15 +194,14 @@ html, body {
   <!-- ══ REPRODUCTOR ══ -->
   <div class="sc-video-zona">
     <div class="sc-wrap">
-      <div class="sc-video">
-        <!-- Video NO listado. La URL va en el custom value embed_youtube_es,
-             en formato https://www.youtube.com/embed/XXXXXXXXXXX -->
-        <iframe
-          src="{{custom_values.embed_youtube_es}}"
-          title="Clase en vivo · Salud Consciente"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen></iframe>
+      <div class="sc-video" id="sc-video">
+        <!-- Cartel de espera. Se ve mientras no haya un embed valido; el script
+             de abajo mete el iframe solo si la URL apunta de verdad a un video. -->
+        <div class="sc-video-espera" id="sc-video-espera">
+          <span class="sc-video-marca">Salud Consciente</span>
+          <p>La clase se abre aquí unos minutos antes de empezar.</p>
+          <p class="sc-video-nota">Deja esta página abierta.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -285,6 +296,25 @@ html, body {
 </div>
 
 <script>
+(function () {
+  // El embed llega como custom value. Mientras valga PENDIENTE —o GHL no lo
+  // sustituya— NO se monta el iframe: se deja el cartel de espera en vez de
+  // una caja rota, que es lo que veria quien entre antes de tiempo.
+  var embed = "{{custom_values.embed_youtube_es}}";
+  if (/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(embed)) {
+    var marco = document.createElement('iframe');
+    marco.src = embed;
+    marco.title = 'Clase en vivo · Salud Consciente';
+    marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                  'gyroscope; picture-in-picture; web-share';
+    marco.referrerPolicy = 'strict-origin-when-cross-origin';
+    marco.allowFullscreen = true;
+    var caja = document.getElementById('sc-video');
+    var espera = document.getElementById('sc-video-espera');
+    if (caja) { caja.appendChild(marco); if (espera) espera.remove(); }
+  }
+})();
+
 (function () {
   // El inicio llega como custom value en ISO. Si aún no está cargado (o dice
   // PENDIENTE) NO se inventa una cuenta atrás: se deja el estado de espera.
