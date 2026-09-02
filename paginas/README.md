@@ -10,7 +10,7 @@ Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento
 | Registro ES | `registro-es.html` | ✅ lista para revisar |
 | Evento ES | `evento-es.html` | ✅ lista para revisar |
 | Gracias ES | — | pendiente |
-| Postulación ES | — | pendiente |
+| Postulación ES | `postulacion-es.html` | ✅ lista para revisar |
 | Comienza aquí ES | — | pendiente |
 | Réplicas IT (5) | — | pendientes · copy lo produce y valida Luca (P-13/B4) |
 
@@ -137,3 +137,30 @@ script comprueba que la URL tenga forma de embed de YouTube (`youtube.com/embed/
 Es a propósito: quien entra media hora antes —o el día que a alguien se le olvide cargar el
 valor— ve un mensaje con sentido en vez de una caja rota. Y como el mensaje es cierto (el falso
 en vivo se publica poco antes), sirve igual de bien cuando todo está correcto.
+
+
+## Postulación ES
+
+Página corta a propósito: quien llega ya vio la clase y ya decidió. Aquí no se vuelve a vender
+— se baja la fricción y se fija la expectativa.
+
+**El encabezado es la pieza que trabaja:** «No se compra. Se postula.» Encuadra el paso como
+una candidatura y no como un checkout, que es lo que sostiene el precio de un programa de
+$1.000 y filtra a quien solo tiene curiosidad.
+
+Aloja el formulario **F03** (`DTwkB4aTiEIqUGNI9Qjo`), embebido como iframe de GHL. Igual que
+con la encuesta de registro: **su envío es el disparador de WF4B**, así que cambiarlo por un
+formulario propio dejaría el paso central de la Fase 1 sin trigger.
+
+### El calendario NO va en esta página
+
+Va aparte a propósito: lo manda **WF4B por WhatsApp, 1:1**, para que quede trazado quién agendó.
+Si se pusiera el enlace aquí, ese dato se pierde.
+
+Por eso los pasos dicen «te escribimos por WhatsApp para agendar» y no «elige tu horario». Y por
+eso mismo se corrigió la nota del CTA en `evento-es.html`, que prometía justo lo contrario.
+
+### Al publicarla
+
+Cargar **`link_postulacion_es`** con su URL: es el destino del botón de la sala del evento, que
+hoy apunta a `PENDIENTE`.
