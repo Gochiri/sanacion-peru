@@ -11,6 +11,7 @@ Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento
 | Evento ES | `evento-es.html` | ✅ lista para revisar |
 | Gracias ES | `gracias-es.html` | ✅ lista para revisar |
 | Postulación ES | `postulacion-es.html` | ✅ lista para revisar |
+| Agenda ES | `agenda-es.html` | ✅ lista para revisar |
 | Comienza aquí ES | `comienza-aqui-es.html` | ✅ lista para revisar |
 | Réplicas IT (5) | — | pendientes · copy lo produce y valida Luca (P-13/B4) |
 
@@ -230,3 +231,35 @@ tenía curiosidad.
 
 Al publicar esta página: cargar `link_comienza_aqui_es` con su URL y apuntar ahí el mensaje de
 WF2. **WF2 está tocado en la UI**, así que ese cambio va con `retocar.py`, no con `completar.py`.
+
+
+## Agenda ES — el paso que faltaba
+
+`/postulacion-es` → al enviar F03 → **`/agenda-es`**, con el calendario embebido.
+
+### Por qué se añadió
+
+La primera versión mandaba a la persona a esperar un WhatsApp para agendar. Oliver lo señaló y
+tenía razón: es el momento de **mayor intención de todo el embudo** —acaba de ver la clase y de
+postular— y mandarla a salir de la página para volver a entrar es donde se pierde gente.
+
+**El argumento de trazabilidad que se usó al principio estaba mal trasladado.** Es cierto para el
+link del evento, donde el trigger link 1:1 es lo único que permite medir asistencia. Pero al
+reservar, GHL registra la cita **contra el contacto** sin importar por dónde llegó al calendario:
+la trazabilidad no depende del canal del enlace.
+
+### Cómo se conecta
+
+En los ajustes del formulario **F03**: *On submit → Redirect to URL* → la URL de esta página.
+
+### El mensaje de WF4B cambia de papel
+
+Deja de ser el camino principal y pasa a ser **la red de seguridad de quien se fue sin agendar**.
+Conviene reescribirlo a algo como *«si aún no agendaste tu llamada, aquí tienes el enlace»*.
+WF4B está tocado en la UI, así que ese cambio va con `retocar.py`.
+
+### Por verificar con una reserva real
+
+GHL puede pasar los datos del formulario como parámetros en la redirección, y el widget del
+calendario los acepta para prellenar nombre, email y teléfono. **No está confirmado** — si no
+funciona, la persona vuelve a escribirlos, que es fricción menor pero conviene saberlo.
