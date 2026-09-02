@@ -1,0 +1,451 @@
+<!--
+  Salud Consciente · Página de registro a la clase en vivo (mercado ES)
+  Para pegar en GHL: Funnels > nueva página > elemento Custom Code/HTML.
+
+  Dirección: editorial sobre fondo oscuro · macro: promesa → a quién sirve →
+  problema (PAS) → qué verás → quién la dicta → registro → objeciones.
+
+  PLACEHOLDERS A REEMPLAZAR (ver README al final del archivo):
+   · URL_LOGO         -> subir el logo a Media de GHL y pegar su URL
+   · URL_FOTO_CHRISTIE / URL_FOTO_LUCA -> fotos reales, no stock
+  Las fechas y horas salen de custom values: se rellenan solas al cargarlos.
+-->
+
+<style>
+/* ── A1 · Reset del builder de GHL ──────────────────────────────────────
+   Adaptado: el fondo base es el negro de marca, no #fff, porque la página
+   es de tema oscuro (el logo trae el negro incrustado — checklist B8).    */
+html, body {
+  background:#0E0C0A !important;
+  margin:0 !important; padding:0 !important;
+  overflow-x:clip !important;
+  width:100% !important; max-width:100% !important;
+}
+#app, .hl_page-preview, .c-section, .c-row, .c-column, .c-wrapper,
+.container, .content, .fullSection, .innerSection,
+[class*="c-section"], [class*="c-row"], [class*="c-column"] {
+  background:transparent !important; background-color:transparent !important;
+  padding:0 !important; margin-left:0 !important; margin-right:0 !important;
+  max-width:100% !important; width:100% !important; border:0 !important;
+}
+
+/* ── Tokens ───────────────────────────────────────────────────────────── */
+.sc-page {
+  --sc-negro:#0E0C0A;        /* negro cálido, no #000 puro */
+  --sc-negro-2:#171310;      /* superficie elevada */
+  --sc-negro-3:#221C16;      /* bordes suaves */
+  --sc-oro:#D4A24C;          /* oro de marca — acento, <5% del viewport */
+  --sc-oro-claro:#E8C77E;
+  --sc-oro-tenue:#8A6B2F;
+  --sc-hueso:#F2EDE4;        /* texto principal, no #fff puro */
+  --sc-mudo:#A8A093;         /* texto secundario */
+  --sc-linea:#2C251D;
+
+  --sc-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --sc-cuerpo:'Manrope',system-ui,-apple-system,sans-serif;
+  --sc-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sc-s2:8px; --sc-s3:12px; --sc-s4:16px; --sc-s5:24px;
+  --sc-s6:32px; --sc-s7:48px; --sc-s8:64px;
+  --sc-pad-x:clamp(20px,5vw,72px);
+  --sc-pad-y:clamp(48px,7vw,96px);
+  --sc-maxw:1180px;
+
+  /* A2 · full-bleed dentro del builder */
+  width:100vw; max-width:100vw;
+  margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+  background:var(--sc-negro);
+  color:var(--sc-hueso);
+  font-family:var(--sc-cuerpo);
+  font-size:clamp(16px,1.05vw,18px);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.sc-page *, .sc-page *::before, .sc-page *::after { box-sizing:border-box; }
+.sc-page img { max-width:100%; height:auto; display:block; }
+
+/* A3 · sección full-width + wrap interno */
+.sc-sec { width:100%; padding:var(--sc-pad-y) var(--sc-pad-x); }
+.sc-wrap { max-width:var(--sc-maxw); margin:0 auto; }
+.sc-sec--alt { background:var(--sc-negro-2); }
+
+/* regla fina dorada: el separador editorial de toda la página */
+.sc-regla { height:1px; width:100%; background:linear-gradient(90deg,
+  transparent, var(--sc-oro-tenue) 20%, var(--sc-oro-tenue) 80%, transparent); }
+
+/* ── Tipografía ───────────────────────────────────────────────────────── */
+.sc-page h1, .sc-page h2, .sc-page h3 {
+  font-family:var(--sc-display); font-style:normal; font-weight:600;
+  margin:0; overflow-wrap:anywhere; min-width:0; text-wrap:balance;
+}
+.sc-h1 { font-size:clamp(2.1rem,5.4vw,4rem); line-height:1.04; letter-spacing:-.015em; }
+.sc-h2 { font-size:clamp(1.6rem,3.4vw,2.6rem); line-height:1.08; letter-spacing:-.01em; }
+.sc-h3 { font-size:clamp(1.15rem,1.8vw,1.4rem); line-height:1.2; }
+.sc-page p { margin:0; max-width:68ch; }
+.sc-lead { font-size:clamp(1.05rem,1.6vw,1.25rem); color:var(--sc-mudo); line-height:1.55; }
+
+.sc-etiqueta {
+  font-family:var(--sc-mono); font-size:.72rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--sc-oro);
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.sc-hero { padding-top:clamp(28px,4vw,48px); }
+.sc-logo { height:clamp(52px,6vw,74px); width:auto; margin-bottom:var(--sc-s7); }
+.sc-hero-grid { display:grid; gap:clamp(28px,4vw,56px); align-items:start; }
+@media (min-width:900px){ .sc-hero-grid { grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); } }
+
+.sc-hero h1 { margin:var(--sc-s5) 0 var(--sc-s5); }
+.sc-hero h1 em { font-style:normal; color:var(--sc-oro); }
+
+/* ficha de datos del evento: mono, alineada, sin caja con sombra */
+.sc-ficha { border-top:1px solid var(--sc-linea); margin-top:var(--sc-s7); }
+.sc-ficha-fila {
+  display:flex; flex-wrap:wrap; gap:var(--sc-s3) var(--sc-s5);
+  justify-content:space-between; align-items:baseline;
+  padding:var(--sc-s4) 0; border-bottom:1px solid var(--sc-linea);
+}
+.sc-ficha-k { font-family:var(--sc-mono); font-size:.72rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--sc-mudo); }
+.sc-ficha-v { font-family:var(--sc-display); font-size:clamp(1.05rem,1.7vw,1.3rem);
+  color:var(--sc-hueso); font-variant-numeric:tabular-nums; text-align:right; }
+
+/* ── CTA ──────────────────────────────────────────────────────────────── */
+.sc-cta {
+  display:inline-flex; align-items:center; gap:var(--sc-s3);
+  font-family:var(--sc-cuerpo); font-weight:700; font-size:1.02rem;
+  color:var(--sc-negro); background:var(--sc-oro);
+  padding:var(--sc-s4) var(--sc-s6); border:1px solid var(--sc-oro);
+  text-decoration:none; white-space:nowrap;
+  transition:background .18s ease, color .18s ease, transform .18s ease;
+}
+.sc-cta:hover { background:var(--sc-oro-claro); border-color:var(--sc-oro-claro); }
+.sc-cta:active { transform:translateY(1px); }
+.sc-cta:focus-visible { outline:3px solid var(--sc-oro-claro); outline-offset:3px; }
+.sc-cta-nota { font-size:.9rem; color:var(--sc-mudo); margin-top:var(--sc-s4); }
+
+/* ── Lista "¿es para ti?" — sin grid de 3 iconos ─────────────────────── */
+.sc-perfiles { display:grid; gap:0; margin-top:var(--sc-s7); }
+.sc-perfil {
+  display:grid; grid-template-columns:auto minmax(0,1fr);
+  gap:var(--sc-s5); align-items:baseline;
+  padding:var(--sc-s6) 0; border-bottom:1px solid var(--sc-linea);
+}
+.sc-perfil:first-child { border-top:1px solid var(--sc-linea); }
+.sc-num {
+  font-family:var(--sc-display); font-size:clamp(2.2rem,5vw,3.4rem);
+  line-height:.9; color:var(--sc-oro-tenue); font-variant-numeric:tabular-nums;
+}
+.sc-perfil p { margin-top:var(--sc-s2); color:var(--sc-mudo); }
+
+/* ── Bloque de prosa con capitular ───────────────────────────────────── */
+.sc-prosa { max-width:60ch; }
+.sc-prosa p + p { margin-top:var(--sc-s5); }
+.sc-prosa .sc-capitular::first-letter {
+  font-family:var(--sc-display); font-size:3.6em; line-height:.82;
+  float:left; padding:.06em .12em 0 0; color:var(--sc-oro);
+}
+
+/* ── Qué vas a ver ───────────────────────────────────────────────────── */
+.sc-puntos { list-style:none; padding:0; margin:var(--sc-s7) 0 0; }
+.sc-puntos li {
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s4);
+  padding:var(--sc-s5) 0; border-bottom:1px solid var(--sc-linea);
+  max-width:76ch;
+}
+.sc-puntos li::before {
+  content:"—"; color:var(--sc-oro); font-family:var(--sc-display);
+  line-height:1.5;
+}
+
+/* ── Quiénes ─────────────────────────────────────────────────────────── */
+.sc-personas { display:grid; gap:clamp(28px,4vw,48px); margin-top:var(--sc-s7); }
+@media (min-width:760px){ .sc-personas { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.sc-persona { display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s5); align-items:start; }
+.sc-retrato {
+  width:clamp(76px,11vw,104px); aspect-ratio:1; object-fit:cover;
+  border:1px solid var(--sc-oro-tenue); background:var(--sc-negro-3);
+}
+.sc-persona h3 { color:var(--sc-hueso); }
+.sc-persona .sc-rol { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--sc-oro); margin-top:var(--sc-s2); display:block; }
+.sc-persona p { color:var(--sc-mudo); margin-top:var(--sc-s3); font-size:.96rem; }
+
+/* ── Registro ────────────────────────────────────────────────────────── */
+.sc-registro { background:var(--sc-negro-2); border-top:1px solid var(--sc-oro-tenue); }
+.sc-form-caja { max-width:640px; margin:var(--sc-s7) auto 0;
+  background:var(--sc-negro); border:1px solid var(--sc-linea); }
+.sc-form-caja iframe { width:100%; border:0; display:block; min-height:640px; }
+
+/* ── Objeciones ──────────────────────────────────────────────────────── */
+.sc-faq { margin-top:var(--sc-s7); max-width:72ch; }
+.sc-faq details { border-bottom:1px solid var(--sc-linea); padding:var(--sc-s5) 0; }
+.sc-faq summary {
+  cursor:pointer; font-family:var(--sc-display); font-size:1.1rem;
+  color:var(--sc-hueso); list-style:none; display:flex; gap:var(--sc-s4);
+  align-items:center; justify-content:space-between;
+}
+.sc-faq summary::-webkit-details-marker { display:none; }
+.sc-faq summary::after { content:"+"; color:var(--sc-oro); font-family:var(--sc-mono); flex:none; }
+.sc-faq details[open] summary::after { content:"–"; }
+.sc-faq summary:focus-visible { outline:2px solid var(--sc-oro); outline-offset:4px; }
+.sc-faq p { color:var(--sc-mudo); margin-top:var(--sc-s4); font-size:.98rem; }
+
+/* ── Pie ─────────────────────────────────────────────────────────────── */
+.sc-pie { padding:var(--sc-s7) var(--sc-pad-x) calc(var(--sc-s8) + 8px);
+  color:var(--sc-mudo); font-size:.86rem; }
+.sc-pie p { max-width:74ch; }
+.sc-pie a { color:var(--sc-oro); }
+
+/* ── Sticky móvil (reserva su espacio en el body) ────────────────────── */
+.sc-page { padding-bottom:132px; }
+@media (min-width:768px){ .sc-page { padding-bottom:0; } }
+.sc-sticky {
+  position:fixed; left:0; right:0; bottom:0; z-index:100;
+  background:var(--sc-negro-2); border-top:2px solid var(--sc-oro);
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+  display:flex; align-items:center; gap:var(--sc-s4); justify-content:space-between;
+}
+.sc-sticky .sc-sticky-txt { font-family:var(--sc-mono); font-size:.68rem;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--sc-mudo); }
+.sc-sticky .sc-cta { padding:var(--sc-s3) var(--sc-s5); font-size:.95rem; }
+@media (min-width:768px){ .sc-sticky { display:none; } }
+
+@media (prefers-reduced-motion: reduce){
+  .sc-page *, .sc-page *::before, .sc-page *::after {
+    transition:none !important; animation:none !important; scroll-behavior:auto !important;
+  }
+}
+@media print { .sc-page { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<div class="sc-page">
+
+  <!-- ══ HERO ══ -->
+  <header class="sc-sec sc-hero">
+    <div class="sc-wrap">
+      <img class="sc-logo" src="URL_LOGO" alt="Salud Consciente">
+
+      <div class="sc-hero-grid">
+        <div>
+          <span class="sc-etiqueta">Clase en vivo · Sin costo</span>
+          <h1 class="sc-h1">Por qué tu cuerpo enfermó, y <em>qué puedes hacer</em> para sanarlo.</h1>
+          <p class="sc-lead">
+            Una clase en directo donde vas a entender qué está diciendo tu síntoma.
+            No se graba ni queda publicada: se ve en vivo, y ya.
+          </p>
+          <div style="margin-top:var(--sc-s7)">
+            <a class="sc-cta" href="#registro">Apartar mi lugar</a>
+            <p class="sc-cta-nota">Tomas 40 segundos en registrarte. Te mandamos el acceso por WhatsApp.</p>
+          </div>
+        </div>
+
+        <div class="sc-ficha">
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Fecha</span>
+            <span class="sc-ficha-v">{{custom_values.fecha_evento_es}}</span>
+          </div>
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Hora</span>
+            <span class="sc-ficha-v">{{custom_values.hora_evento_pe}}</span>
+          </div>
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Dónde</span>
+            <span class="sc-ficha-v">En línea, en directo</span>
+          </div>
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Costo</span>
+            <span class="sc-ficha-v">Sin costo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sc-regla"></div>
+
+  <!-- ══ ¿ES PARA TI? ══ -->
+  <section class="sc-sec">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">A quién le sirve</span>
+      <h2 class="sc-h2" style="margin-top:var(--sc-s4)">Si te reconoces en alguna de estas, esta clase es para ti.</h2>
+
+      <div class="sc-perfiles">
+        <article class="sc-perfil">
+          <span class="sc-num">01</span>
+          <div>
+            <h3 class="sc-h3">Llevas años con un síntoma que nadie te termina de explicar</h3>
+            <p>Te han dado nombres, estudios y tratamientos. Lo que nunca te dieron fue una respuesta al <em>por qué</em>.</p>
+          </div>
+        </article>
+
+        <article class="sc-perfil">
+          <span class="sc-num">02</span>
+          <div>
+            <h3 class="sc-h3">Sospechas que tu cuerpo está respondiendo a algo que viviste</h3>
+            <p>Notaste que el síntoma apareció después de una pérdida, una ruptura o un susto — y nadie le prestó atención a esa coincidencia.</p>
+          </div>
+        </article>
+
+        <article class="sc-perfil">
+          <span class="sc-num">03</span>
+          <div>
+            <h3 class="sc-h3">Quieres entender antes de decidir qué hacer</h3>
+            <p>No buscas otra receta. Buscas entender la lógica de lo que te está pasando para poder tomar decisiones con criterio propio.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EL PROBLEMA (PAS) ══ -->
+  <section class="sc-sec sc-sec--alt">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">Lo que casi nadie te dice</span>
+      <div class="sc-prosa" style="margin-top:var(--sc-s5)">
+        <h2 class="sc-h2">El síntoma no es el problema. Es el aviso.</h2>
+        <p class="sc-capitular" style="margin-top:var(--sc-s5)">
+          Durante años te enseñaron a callar lo que el cuerpo dice. Te duele, tomas algo y sigues.
+          Vuelve, tomas otra cosa y sigues. Y cada vez que lo silencias, aprendes un poco más a
+          desconfiar de la única señal que tu cuerpo tiene para hablarte.
+        </p>
+        <p>
+          El problema de esa lógica no es solo que el síntoma regrese. Es que te acostumbras a vivir
+          sin entender tu propio cuerpo, y con el tiempo eso se vuelve miedo: miedo al siguiente
+          estudio, al siguiente diagnóstico, a lo que venga después.
+        </p>
+        <p>
+          En esta clase invertimos el orden. En vez de preguntarnos cómo apagar la señal, nos
+          preguntamos qué está señalando — y qué cambia cuando por fin lo entiendes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ QUÉ VAS A VER ══ -->
+  <section class="sc-sec">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">En la clase</span>
+      <h2 class="sc-h2" style="margin-top:var(--sc-s4)">Qué te llevas de esta hora.</h2>
+
+      <ul class="sc-puntos">
+        <li><span>La diferencia entre tratar un síntoma y entenderlo, explicada con casos concretos y no con teoría.</span></li>
+        <li><span>Por qué el cuerpo elige un órgano y no otro, y qué tiene que ver eso con lo que estabas viviendo cuando apareció.</span></li>
+        <li><span>Cómo leer la línea de tiempo de tu propio síntoma para encontrar el momento en que empezó de verdad.</span></li>
+        <li><span>Qué se puede hacer desde ahí — y qué no —, dicho con honestidad y sin promesas mágicas.</span></li>
+        <li><span>Espacio para preguntas en vivo. Es una clase, no un video pregrabado.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="sc-regla"></div>
+
+  <!-- ══ QUIÉNES ══ -->
+  <section class="sc-sec">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">Quiénes la dan</span>
+      <h2 class="sc-h2" style="margin-top:var(--sc-s4)">Las personas detrás de Salud Consciente.</h2>
+
+      <div class="sc-personas">
+        <article class="sc-persona">
+          <img class="sc-retrato" src="URL_FOTO_CHRISTIE" alt="Christie Salvatierra">
+          <div>
+            <h3 class="sc-h3">Christie Salvatierra</h3>
+            <span class="sc-rol">Bioterapeuta</span>
+            <p>PENDIENTE_BIO_CHRISTIE — dos o tres líneas sobre su formación y a cuánta gente ha acompañado. Que lo escriba ella, con datos reales.</p>
+          </div>
+        </article>
+
+        <article class="sc-persona">
+          <img class="sc-retrato" src="URL_FOTO_LUCA" alt="Luca Stefanizzi">
+          <div>
+            <h3 class="sc-h3">Luca Stefanizzi</h3>
+            <span class="sc-rol">Salud Consciente</span>
+            <p>PENDIENTE_BIO_LUCA — dos o tres líneas sobre su formación y su trabajo. Que lo escriba él, con datos reales.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ REGISTRO ══ -->
+  <section class="sc-sec sc-registro" id="registro">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">Registro</span>
+      <h2 class="sc-h2" style="margin-top:var(--sc-s4)">Aparta tu lugar.</h2>
+      <p class="sc-lead" style="margin-top:var(--sc-s4)">
+        Son tres preguntas. La última nos dice qué buscas, para mandarte lo que de verdad
+        te sirve y no llenarte de mensajes que no pediste.
+      </p>
+
+      <div class="sc-form-caja">
+        <!-- Encuesta F01 de GHL. El envío dispara WF2 (registro y calificación):
+             NO reemplazar por un formulario propio o el flujo se queda sin trigger. -->
+        <iframe
+          src="https://api.leadconnectorhq.com/widget/survey/iheVfI7xkesInu8jKLKB"
+          id="iheVfI7xkesInu8jKLKB"
+          title="Registro a la clase en vivo"
+          scrolling="no"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ OBJECIONES ══ -->
+  <section class="sc-sec">
+    <div class="sc-wrap">
+      <span class="sc-etiqueta">Antes de que preguntes</span>
+      <h2 class="sc-h2" style="margin-top:var(--sc-s4)">Lo que más nos consultan.</h2>
+
+      <div class="sc-faq">
+        <details>
+          <summary>¿De verdad no tiene costo?</summary>
+          <p>No tiene costo. Es una clase en vivo abierta a quien se registre. Al final contamos qué más hacemos, y quien quiera seguir, sigue.</p>
+        </details>
+        <details>
+          <summary>¿Queda grabada?</summary>
+          <p>No. Se transmite en directo y no queda publicada. Por eso conviene apartar el horario cuando te registres.</p>
+        </details>
+        <details>
+          <summary>¿Esto reemplaza a mi médico?</summary>
+          <p>No, y no queremos que lo haga. Esto es acompañamiento para entender qué está pasando en tu cuerpo. No sustituye diagnóstico ni tratamiento médico, y no te vamos a pedir que dejes el tuyo.</p>
+        </details>
+        <details>
+          <summary>No sé nada del tema, ¿voy a entender?</summary>
+          <p>Sí. La clase está pensada para quien llega de cero. No hace falta formación previa ni conocer la terminología.</p>
+        </details>
+        <details>
+          <summary>¿Cómo me llega el acceso?</summary>
+          <p>Al registrarte te llega por WhatsApp el enlace del grupo, y ahí mandamos el acceso el día de la clase. Revisa que tu número esté bien escrito.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PIE ══ -->
+  <footer class="sc-pie">
+    <div class="sc-wrap">
+      <div class="sc-regla" style="margin-bottom:var(--sc-s6)"></div>
+      <p>
+        <strong style="color:var(--sc-hueso)">Salud Consciente</strong> · Nueva Conciencia Formación SAC ·
+        <a href="mailto:info@lanuovacoscienza.com">info@lanuovacoscienza.com</a>
+      </p>
+      <p style="margin-top:var(--sc-s4)">
+        El contenido de esta clase es educativo y de acompañamiento. No constituye diagnóstico ni
+        tratamiento médico, y no sustituye la consulta con un profesional de la salud.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ══ STICKY MÓVIL ══ -->
+  <div class="sc-sticky">
+    <span class="sc-sticky-txt">{{custom_values.fecha_evento_es}}<br>En vivo</span>
+    <a class="sc-cta" href="#registro">Apartar mi lugar</a>
+  </div>
+
+</div>
+
+<script src="https://link.msgsndr.com/js/form_embed.js"></script>
