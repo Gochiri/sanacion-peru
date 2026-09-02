@@ -161,3 +161,19 @@ la fecha y la hora las lleva ahora el recordatorio de WF3-ES / WF3-IT, que sí s
 
 **Decisión pendiente:** partir WF2 en ES/IT como se hizo con WF3. Implica además crear la
 encuesta **F02 en italiano** (los formularios no se pueden crear por API, van a UI).
+
+
+### Limpieza de custom values (28-ago)
+
+Borrados los dos que quedaron muertos, tras comprobar que **ningún** workflow los referenciaba:
+
+- `fecha_evento_vigente` → lo sustituyen `fecha_evento_es` y `fecha_evento_it` (K12).
+- `link_zoom_llamada` → el enlace cambia en cada llamada, WF4C lo toma de `{{appointment.address}}`.
+
+Quedan **11 de 23** con valor real. Los 12 que faltan, por quién los desbloquea:
+
+| Depende de | Valores |
+|---|---|
+| **Cliente** | `fecha_evento_es`, `fecha_evento_it`, `hora_evento_pe`, `hora_evento_it`, `datos_pago_pe`, `datos_pago_it` |
+| **Nosotros** (páginas, ya hay dominio) | `link_evento_es`, `link_evento_it`, `link_registro_it` |
+| **Jaime** (conectar Stripe) | `link_pago_contado`, `link_pago_2cuotas`, `link_pago_3cuotas` |
