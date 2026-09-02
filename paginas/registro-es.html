@@ -89,9 +89,16 @@ html, body {
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
-.sc-hero { padding-top:clamp(28px,4vw,48px); }
-.sc-logo { height:clamp(52px,6vw,74px); width:auto; max-width:min(100%,320px);
-  object-fit:contain; margin-bottom:var(--sc-s7); }
+.sc-hero { padding-top:clamp(20px,3vw,32px); }
+/* Prefijado con .sc-page a proposito: `.sc-page img` (0,0,1,1) le gana a
+   `.sc-logo` (0,0,1,0) y anulaba la altura, dejando el logo a tamano natural.
+   El archivo es cuadrado con el logo centrado y mucho negro alrededor, asi que
+   se recorta esa franja con object-fit:cover en vez de mostrarla entera. */
+.sc-page .sc-logo {
+  width:clamp(186px,24vw,248px); aspect-ratio:3/1; height:auto;
+  object-fit:cover; object-position:center;
+  margin-bottom:var(--sc-s5);
+}
 .sc-hero-grid { display:grid; gap:clamp(28px,4vw,56px); align-items:start; }
 @media (min-width:900px){ .sc-hero-grid { grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); } }
 

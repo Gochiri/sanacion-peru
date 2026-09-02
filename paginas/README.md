@@ -110,3 +110,17 @@ mostrar un contador falso. Al llegar la hora cambia sola a «En vivo ahora» y p
 
 El aviso dice lo que de verdad pasa —la clase no queda grabada y la página se cierra al terminar
 el ciclo— sin poner una fecha límite que nadie ha confirmado.
+
+
+## El logo: por qué lleva recorte
+
+Los archivos que subió el cliente son **cuadrados, con el logo pequeño en el centro y mucho
+negro alrededor**. Puestos tal cual ocupaban media pantalla de relleno vacío.
+
+Las páginas lo muestran en una caja de proporción 3:1 con `object-fit:cover`, que **recorta esa
+franja negra** y deja solo la parte con el logo. Si algún día llega el vectorial o un PNG
+recortado, se puede volver a `object-fit:contain` y quitar el `aspect-ratio`.
+
+⚠️ La regla va prefijada como `.sc-page .sc-logo` **a propósito**: `.sc-page img` tiene más
+especificidad que `.sc-logo` a secas y anulaba la altura, dejando el logo a tamaño natural.
+Si se añaden más reglas sobre imágenes, respetar ese prefijo.
