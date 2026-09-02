@@ -48,9 +48,16 @@ el vectorial o el PNG transparente se puede replantear.
 
 | Placeholder | Qué poner |
 |---|---|
-| `URL_LOGO` | Subir el logo a Media de GHL y pegar su URL |
 | `URL_FOTO_CHRISTIE`, `URL_FOTO_LUCA` | **Fotos reales.** Sin foto del creador la conversión cae en LATAM, y poner stock es peor que no poner nada |
 | `PENDIENTE_BIO_CHRISTIE`, `PENDIENTE_BIO_LUCA` | Dos o tres líneas que escriban ellos, con datos reales |
+
+**El logo ya no es un placeholder.** Sale de `{{custom_values.logo_url}}`, así que se cambia en
+un solo sitio y se actualiza en todas las páginas a la vez. Los dos que subió el cliente están
+cargados: `logo_url` (el que se usa) y `logo_url_alt` (el otro). Si el que se ve no es el
+horizontal, se intercambian los dos valores y listo — sin tocar ningún HTML.
+
+⚠️ Los dos llegaron en **JPEG**, que no admite transparencia: el fondo negro sigue incrustado.
+El tema oscuro se mantiene por eso.
 
 **Fechas y horas se rellenan solas** desde `{{custom_values.fecha_evento_es}}` y
 `{{custom_values.hora_evento_pe}}`: al cargar esos valores, la página queda completa.

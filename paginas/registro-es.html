@@ -6,7 +6,6 @@
   problema (PAS) → qué verás → quién la dicta → registro → objeciones.
 
   PLACEHOLDERS A REEMPLAZAR (ver README al final del archivo):
-   · URL_LOGO         -> subir el logo a Media de GHL y pegar su URL
    · URL_FOTO_CHRISTIE / URL_FOTO_LUCA -> fotos reales, no stock
   Las fechas y horas salen de custom values: se rellenan solas al cargarlos.
 -->
@@ -91,7 +90,8 @@ html, body {
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 .sc-hero { padding-top:clamp(28px,4vw,48px); }
-.sc-logo { height:clamp(52px,6vw,74px); width:auto; margin-bottom:var(--sc-s7); }
+.sc-logo { height:clamp(52px,6vw,74px); width:auto; max-width:min(100%,320px);
+  object-fit:contain; margin-bottom:var(--sc-s7); }
 .sc-hero-grid { display:grid; gap:clamp(28px,4vw,56px); align-items:start; }
 @media (min-width:900px){ .sc-hero-grid { grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); } }
 
@@ -228,7 +228,7 @@ html, body {
   <!-- ══ HERO ══ -->
   <header class="sc-sec sc-hero">
     <div class="sc-wrap">
-      <img class="sc-logo" src="URL_LOGO" alt="Salud Consciente">
+      <img class="sc-logo" src="{{custom_values.logo_url}}" alt="Salud Consciente">
 
       <div class="sc-hero-grid">
         <div>
