@@ -1,0 +1,298 @@
+<!--
+  Salud Consciente · Confirmación de registro (mercado ES)
+  Para pegar en GHL: Funnels > nueva página > elemento Custom Code/HTML.
+
+  Es el destino de la encuesta F01 al enviarse. En los ajustes de la encuesta
+  hay que poner esta URL como redirección.
+
+  ⚠️ NO lleva el botón del grupo de WhatsApp, a propósito. Ver README:
+  el grupo lo manda WF2 y solo a quien califica.
+
+  Variables (custom values):
+   · fecha_evento_es      -> texto que se lee: "jueves 12 de septiembre"
+   · hora_evento_pe       -> "8:00 p. m. (hora de Perú)"
+   · fecha_evento_es_iso  -> 2026-09-12T20:00:00-05:00 (activa el botón de agenda)
+-->
+
+<style>
+/* ── A1 · Reset del builder de GHL ───────────────────────────────────── */
+html, body {
+  background:#0E0C0A !important;
+  margin:0 !important; padding:0 !important;
+  overflow-x:clip !important;
+  width:100% !important; max-width:100% !important;
+}
+#app, .hl_page-preview, .c-section, .c-row, .c-column, .c-wrapper,
+.container, .content, .fullSection, .innerSection,
+[class*="c-section"], [class*="c-row"], [class*="c-column"] {
+  background:transparent !important; background-color:transparent !important;
+  padding:0 !important; margin-left:0 !important; margin-right:0 !important;
+  max-width:100% !important; width:100% !important; border:0 !important;
+}
+
+.sc-page {
+  --sc-negro:#0E0C0A; --sc-negro-2:#171310;
+  --sc-oro:#D4A24C; --sc-oro-claro:#E8C77E; --sc-oro-tenue:#8A6B2F;
+  --sc-hueso:#F2EDE4; --sc-mudo:#A8A093; --sc-linea:#2C251D;
+  --sc-verde:#6E9E6A;
+
+  --sc-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --sc-cuerpo:'Manrope',system-ui,-apple-system,sans-serif;
+  --sc-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sc-s2:8px; --sc-s3:12px; --sc-s4:16px; --sc-s5:24px;
+  --sc-s6:32px; --sc-s7:48px; --sc-s8:64px;
+  --sc-pad-x:clamp(20px,5vw,64px);
+  --sc-maxw:760px;
+
+  width:100vw; max-width:100vw;
+  margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+  background:var(--sc-negro); color:var(--sc-hueso);
+  font-family:var(--sc-cuerpo); font-size:clamp(16px,1.02vw,17px);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.sc-page *, .sc-page *::before, .sc-page *::after { box-sizing:border-box; }
+.sc-page img { max-width:100%; height:auto; display:block; }
+.sc-wrap { max-width:var(--sc-maxw); margin:0 auto; }
+
+.sc-page h1, .sc-page h2, .sc-page h3 {
+  font-family:var(--sc-display); font-style:normal; font-weight:600;
+  margin:0; overflow-wrap:anywhere; min-width:0; text-wrap:balance;
+}
+.sc-page p { margin:0; max-width:58ch; }
+.sc-etiqueta { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--sc-oro); }
+
+.sc-barra { padding:var(--sc-s5) var(--sc-pad-x); border-bottom:1px solid var(--sc-linea); }
+.sc-page .sc-barra img {
+  width:clamp(140px,18vw,180px); aspect-ratio:3/1; height:auto;
+  object-fit:cover; object-position:center;
+}
+
+/* ── Confirmación ────────────────────────────────────────────────────── */
+.sc-cuerpo { padding:clamp(40px,6vw,80px) var(--sc-pad-x) 0; }
+.sc-marca-ok {
+  display:inline-flex; align-items:center; gap:var(--sc-s3);
+  font-family:var(--sc-mono); font-size:.72rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--sc-verde);
+}
+.sc-marca-ok::before {
+  content:""; width:22px; height:11px; flex:none;
+  border-left:2px solid var(--sc-verde); border-bottom:2px solid var(--sc-verde);
+  transform:rotate(-45deg) translate(2px,-3px);
+}
+.sc-h1 { font-size:clamp(2rem,4.6vw,3.1rem); line-height:1.04;
+  letter-spacing:-.014em; margin-top:var(--sc-s5); }
+.sc-lead { color:var(--sc-mudo); margin-top:var(--sc-s5);
+  font-size:clamp(1.02rem,1.5vw,1.15rem); }
+
+/* ── Lo primero que hay que hacer ────────────────────────────────────── */
+.sc-ahora {
+  margin-top:var(--sc-s7); background:var(--sc-negro-2);
+  border-left:2px solid var(--sc-oro); padding:var(--sc-s5) var(--sc-s6);
+}
+.sc-ahora h2 { font-size:clamp(1.15rem,2vw,1.45rem); }
+.sc-ahora p { color:var(--sc-mudo); margin-top:var(--sc-s3); font-size:.98rem; }
+
+/* ── Ficha del evento + agenda ───────────────────────────────────────── */
+.sc-ficha { margin-top:var(--sc-s7); border-top:1px solid var(--sc-linea); }
+.sc-ficha-fila {
+  display:flex; flex-wrap:wrap; gap:var(--sc-s3) var(--sc-s5);
+  justify-content:space-between; align-items:baseline;
+  padding:var(--sc-s4) 0; border-bottom:1px solid var(--sc-linea);
+}
+.sc-ficha-k { font-family:var(--sc-mono); font-size:.72rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--sc-mudo); }
+.sc-ficha-v { font-family:var(--sc-display); font-size:clamp(1.05rem,1.7vw,1.3rem);
+  color:var(--sc-hueso); font-variant-numeric:tabular-nums; text-align:right; }
+
+.sc-agenda { display:flex; flex-wrap:wrap; gap:var(--sc-s3); margin-top:var(--sc-s5); }
+.sc-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--sc-cuerpo); font-weight:600; font-size:.95rem;
+  color:var(--sc-oro); background:transparent;
+  padding:var(--sc-s3) var(--sc-s5); border:1px solid var(--sc-oro-tenue);
+  text-decoration:none;
+  transition:border-color .18s ease, color .18s ease;
+}
+.sc-btn:hover { border-color:var(--sc-oro); color:var(--sc-oro-claro); }
+.sc-btn:focus-visible { outline:3px solid var(--sc-oro-claro); outline-offset:3px; }
+
+/* ── Qué va a pasar ──────────────────────────────────────────────────── */
+.sc-pasos { margin-top:var(--sc-s8); }
+.sc-paso {
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s5);
+  align-items:baseline; padding:var(--sc-s5) 0; border-bottom:1px solid var(--sc-linea);
+}
+.sc-paso:first-of-type { border-top:1px solid var(--sc-linea); }
+.sc-num { font-family:var(--sc-display); font-size:clamp(1.5rem,3vw,2.1rem);
+  line-height:.9; color:var(--sc-oro-tenue); font-variant-numeric:tabular-nums; }
+.sc-paso h3 { font-size:1.05rem; }
+.sc-paso p { color:var(--sc-mudo); margin-top:var(--sc-s2); font-size:.95rem; }
+
+.sc-pie { padding:var(--sc-s8) var(--sc-pad-x) calc(var(--sc-s8) + 8px);
+  color:var(--sc-mudo); font-size:.85rem; }
+.sc-pie a { color:var(--sc-oro); }
+.sc-regla { height:1px; background:linear-gradient(90deg, transparent,
+  var(--sc-oro-tenue) 20%, var(--sc-oro-tenue) 80%, transparent); margin-bottom:var(--sc-s6); }
+
+@media (prefers-reduced-motion: reduce){
+  .sc-page *, .sc-page *::before, .sc-page *::after {
+    transition:none !important; animation:none !important;
+  }
+}
+@media print { .sc-page { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<div class="sc-page">
+
+  <header class="sc-barra">
+    <div class="sc-wrap"><img src="{{custom_values.logo_url}}" alt="Salud Consciente"></div>
+  </header>
+
+  <main class="sc-cuerpo">
+    <div class="sc-wrap">
+
+      <span class="sc-marca-ok">Registro confirmado</span>
+      <h1 class="sc-h1">Tu lugar está apartado.</h1>
+      <p class="sc-lead">
+        Ya estás en la lista. Ahora falta una cosa para que no te lo pierdas.
+      </p>
+
+      <!-- ══ LO PRIMERO ══ -->
+      <section class="sc-ahora">
+        <h2>Revisa tu WhatsApp</h2>
+        <p>
+          Te acabamos de escribir al número que dejaste. Ahí te mandamos el acceso y ahí
+          avisamos cuando la clase empieza — es el único sitio donde llega el enlace.
+          Si no ves nada en unos minutos, búscanos en archivados o en spam.
+        </p>
+      </section>
+
+      <!-- ══ CUÁNDO ══ -->
+      <section>
+        <div class="sc-ficha">
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Fecha</span>
+            <span class="sc-ficha-v">{{custom_values.fecha_evento_es}}</span>
+          </div>
+          <div class="sc-ficha-fila">
+            <span class="sc-ficha-k">Hora</span>
+            <span class="sc-ficha-v">{{custom_values.hora_evento_pe}}</span>
+          </div>
+        </div>
+
+        <!-- Se rellena por JS solo si hay fecha ISO cargada. -->
+        <div class="sc-agenda" id="sc-agenda" hidden></div>
+      </section>
+
+      <!-- ══ QUÉ VA A PASAR ══ -->
+      <section class="sc-pasos">
+        <span class="sc-etiqueta">De aquí al día de la clase</span>
+
+        <div style="margin-top:var(--sc-s5)">
+          <article class="sc-paso">
+            <span class="sc-num">01</span>
+            <div>
+              <h3>Vas a recibir material estos días</h3>
+              <p>Cosas cortas, para ir entrando en tema antes de la clase. Nada que te robe tiempo.</p>
+            </div>
+          </article>
+          <article class="sc-paso">
+            <span class="sc-num">02</span>
+            <div>
+              <h3>Te recordamos el día antes y un rato antes</h3>
+              <p>Para que no se te pase. La clase no queda grabada, así que el recordatorio importa.</p>
+            </div>
+          </article>
+          <article class="sc-paso">
+            <span class="sc-num">03</span>
+            <div>
+              <h3>Entras por el enlace que te llegue a ti</h3>
+              <p>Te mandamos uno propio. Es el que usamos para saber que entraste, así que mejor ese que el del grupo.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="sc-pie">
+    <div class="sc-wrap">
+      <div class="sc-regla"></div>
+      <p>
+        <strong style="color:var(--sc-hueso)">Salud Consciente</strong> · Nueva Conciencia Formación SAC ·
+        <a href="mailto:info@lanuovacoscienza.com">info@lanuovacoscienza.com</a>
+      </p>
+      <p style="margin-top:var(--sc-s4)">
+        El contenido de esta clase es educativo y de acompañamiento. No constituye diagnóstico ni
+        tratamiento médico, y no sustituye la consulta con un profesional de la salud.
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // Botones de agenda. Solo aparecen si hay una fecha ISO real cargada:
+  // sin ella no se inventa un evento de calendario.
+  var crudo = "{{custom_values.fecha_evento_es_iso}}";
+  var inicio = new Date(crudo);
+  var caja = document.getElementById('sc-agenda');
+  if (!caja || isNaN(inicio.getTime())) return;
+
+  // Duración por defecto: 90 min. Cambiar aquí si la clase dura otra cosa.
+  var MINUTOS = 90;
+  var fin = new Date(inicio.getTime() + MINUTOS * 60000);
+
+  var TITULO = 'Clase en vivo · Salud Consciente';
+  var DETALLE = 'Entra por el enlace que te llega a tu WhatsApp.';
+
+  function utc(d) {
+    return d.getUTCFullYear() +
+      String(d.getUTCMonth() + 1).padStart(2, '0') +
+      String(d.getUTCDate()).padStart(2, '0') + 'T' +
+      String(d.getUTCHours()).padStart(2, '0') +
+      String(d.getUTCMinutes()).padStart(2, '0') + '00Z';
+  }
+
+  var google = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent(TITULO) +
+    '&dates=' + utc(inicio) + '/' + utc(fin) +
+    '&details=' + encodeURIComponent(DETALLE);
+
+  var ics = [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Salud Consciente//ES',
+    'BEGIN:VEVENT',
+    'UID:' + utc(inicio) + '@lanuovacoscienza.com',
+    'DTSTAMP:' + utc(new Date()),
+    'DTSTART:' + utc(inicio),
+    'DTEND:' + utc(fin),
+    'SUMMARY:' + TITULO,
+    'DESCRIPTION:' + DETALLE,
+    'END:VEVENT', 'END:VCALENDAR'
+  ].join('\r\n');
+
+  function boton(href, texto, descarga) {
+    var a = document.createElement('a');
+    a.className = 'sc-btn';
+    a.href = href;
+    a.textContent = texto;
+    if (descarga) { a.download = descarga; }
+    else { a.target = '_blank'; a.rel = 'noopener'; }
+    return a;
+  }
+
+  caja.appendChild(boton(google, 'Agregar a Google Calendar'));
+  caja.appendChild(boton(
+    'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics),
+    'Agregar a otro calendario', 'clase-salud-consciente.ics'));
+  caja.hidden = false;
+})();
+</script>

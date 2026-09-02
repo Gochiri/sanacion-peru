@@ -9,7 +9,7 @@ Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento
 |---|---|---|
 | Registro ES | `registro-es.html` | ✅ lista para revisar |
 | Evento ES | `evento-es.html` | ✅ lista para revisar |
-| Gracias ES | — | pendiente |
+| Gracias ES | `gracias-es.html` | ✅ lista para revisar |
 | Postulación ES | `postulacion-es.html` | ✅ lista para revisar |
 | Comienza aquí ES | — | pendiente |
 | Réplicas IT (5) | — | pendientes · copy lo produce y valida Luca (P-13/B4) |
@@ -164,3 +164,34 @@ eso mismo se corrigió la nota del CTA en `evento-es.html`, que prometía justo 
 
 Cargar **`link_postulacion_es`** con su URL: es el destino del botón de la sala del evento, que
 hoy apunta a `PENDIENTE`.
+
+
+## Gracias ES
+
+Destino de la encuesta **F01** al enviarse. Hay que poner esta URL como redirección en los
+ajustes de la encuesta.
+
+### Por qué NO lleva el botón del grupo de WhatsApp
+
+El mapa (§8) lo pedía, pero choca con dos cosas que ya están construidas:
+
+1. **WF2 solo manda el grupo a quien califica.** Al descalificado le manda contenido educativo
+   y **sin** link de grupo. Si el botón estuviera en la página de gracias —que es la misma para
+   todos— el grupo se le filtraría igualmente y la separación dejaría de servir.
+2. Es el mismo criterio que ya se aplicó al calendario en la postulación: **lo que identifica a
+   una persona se manda 1:1, no se publica en una página**.
+
+Así que la página dice «revisa tu WhatsApp, te acabamos de escribir». El mensaje de WF2 sale en
+el mismo momento del envío, así que la espera es de segundos.
+
+**Si prefieren el botón igualmente**, es añadir un enlace a `{{custom_values.link_grupo_whatsapp_es}}`
+— pero conviene decidirlo sabiendo que el descalificado también lo vería.
+
+### Botones de agenda
+
+Se construyen por JS desde `fecha_evento_es_iso`: uno a Google Calendar y otro `.ics` para
+Apple/Outlook. **Si la fecha no está cargada, los botones no aparecen** en vez de agendar una
+fecha inventada.
+
+⚠️ La duración por defecto es **90 minutos** — es una suposición, está marcada en el script y se
+cambia en una línea cuando el cliente confirme cuánto dura la clase.
