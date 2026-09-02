@@ -8,7 +8,7 @@ Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento
 | Página | Archivo | Estado |
 |---|---|---|
 | Registro ES | `registro-es.html` | ✅ lista para revisar |
-| Evento ES | — | pendiente |
+| Evento ES | `evento-es.html` | ✅ lista para revisar |
 | Gracias ES | — | pendiente |
 | Postulación ES | — | pendiente |
 | Comienza aquí ES | — | pendiente |
@@ -68,3 +68,38 @@ el vectorial o el PNG transparente se puede replantear.
   único objetivo de la página, que es el registro. El grupo de WhatsApp llega después, al
   registrarse.
 - **Píxel y Open Graph no van en el HTML**: se configuran en los ajustes del funnel de GHL.
+
+
+---
+
+## Evento ES — notas propias
+
+Es una **sala**, no una página de venta: el video manda y todo lo demás se aparta. Barra fina
+arriba, reproductor a lo ancho, y bajo él una sola acción.
+
+### Se configura sola entre lanzamientos
+
+Nada de lo variable está escrito en el HTML. Cada ciclo solo se actualizan custom values:
+
+| Valor | Qué poner |
+|---|---|
+| `embed_youtube_es` | `https://www.youtube.com/embed/XXXXXXXXXXX` del video **no listado** |
+| `fecha_evento_es_iso` | `2026-09-12T20:00:00-05:00` — mueve la cuenta atrás |
+| `link_postulacion_es` | URL de la página de postulación (destino del CTA) |
+
+### La cuenta atrás no se inventa
+
+Lee `fecha_evento_es_iso`. Si el valor no está cargado —o dice `PENDIENTE`, o GHL no lo
+sustituye— la fecha no parsea y la página **se queda en «Preparando la transmisión»** en vez de
+mostrar un contador falso. Al llegar la hora cambia sola a «En vivo ahora» y para el reloj.
+
+### En los ajustes del funnel
+
+- **NOINDEX.** La página se reparte solo por el link 1:1 que manda WF3, y eso es lo que permite
+  medir quién asistió. Si se indexa, el link deja de significar nada.
+- Píxel y Open Graph van ahí también, no en el HTML.
+
+### Urgencia real, no inventada
+
+El aviso dice lo que de verdad pasa —la clase no queda grabada y la página se cierra al terminar
+el ciclo— sin poner una fecha límite que nadie ha confirmado.
