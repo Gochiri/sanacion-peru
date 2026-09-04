@@ -151,3 +151,45 @@ Los 5 tags de la Fase 1 están en `tags.json`.
 Guardar varios workflows seguidos falla de forma intermitente con errores genéricos; **el mismo payload
 pasa al reintentar más tarde**. `completar.py` despliega de uno en uno con pausas de 8 s y es
 idempotente (relanzable hasta que todo quede completo).
+
+
+---
+
+## `internal_notification` — formato real (4-sep)
+
+Sacado del nodo que Oliver configuró a mano en WF5. **Nada de esto era adivinable**: se intentó
+inferir primero y la UI seguía marcando error, porque GHL guardaba los atributos pero no los leía.
+
+```json
+{
+  "type": "email",
+  "email": {
+    "html": "<p style=\"…\">Primer párrafo</p><p style=\"…\">Segundo</p>",
+    "from_name": "La nueva conciencia",
+    "from_email": "mail@lanuovacoscienza.com",
+    "selectedUser": ["<id de usuario>"],
+    "userType": "user",
+    "subject": "Asunto · {{contact.name}}",
+    "attachments": []
+  }
+}
+```
+
+Lo que se había inferido mal:
+
+| Inferido | Real |
+|---|---|
+| todo en la raíz de `attributes` | todo cuelga de **`email`** |
+| `fromEmail` / `fromName` | **`from_email`** / **`from_name`** (snake_case) |
+| `users` | **`selectedUser`** |
+| `userType: "particularUser"` | **`userType: "user"`** |
+| `body` en texto plano | **`html`**, con estilos en línea |
+| — | **`attachments: []`** obligatorio |
+
+El editor de GHL envuelve cada párrafo en `<p>` con estilos en línea. `cuerpo_html()` en
+`builders/retocar.py` reproduce ese marcado para que los avisos escritos por API se vean igual
+que los escritos a mano.
+
+**La lección, otra vez la misma:** el API acepta cualquier forma y responde 200, pero la UI solo
+lee la suya. Cuando un tipo de nodo no está verificado, se configura uno a mano y se lee — sale
+más barato que adivinar dos veces.

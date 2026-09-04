@@ -82,42 +82,64 @@ RETOQUES_CAMPOS: list[tuple[str, str, list[dict], str]] = [
 
 LUCA     = "nEVI8WGKSdfvkR9FUyXM"
 CHRISTIE = "BrFbQVQSRj6Q7UDUlNiK"
-REMITENTE = {"fromEmail": "mail@lanuovacoscienza.com", "fromName": "La nueva conciencia"}
 
-# (workflow, nombre del nodo, attributes nuevos, por qué)
-#
-# ⚠️ El formato de `internal_notification` NO está verificado: los nombres de los
-# atributos de remitente y destinatario van inferidos. Si en la UI sigue saliendo
-# el aviso naranja, configurar UNO a mano, leerlo por API y replicar el formato
-# bueno aquí. No adivinar dos veces (ver triggers-pendientes.md).
+# Formato REAL de internal_notification, leído del nodo que Oliver configuró a
+# mano ("Avisar a Luca: cuota recibida"). Nada de esto era adivinable:
+#   · todo cuelga de `email`, no de la raíz de attributes
+#   · `from_name` / `from_email` en snake_case
+#   · `selectedUser` (array de ids), no `users`
+#   · `userType` vale "user", no "particularUser"
+#   · el cuerpo es `html`, no `body`, y GHL lo guarda con estilos en línea
+_P1 = ('margin:0px;font-family:verdana,geneva,sans-serif;font-size:16px; '
+       'padding-left: 0px!important;margin: 0px;font-family: '
+       'verdana,geneva,sans-serif;font-size: 16px;')
+_PN = ('margin:0px;font-family:verdana,geneva,sans-serif;font-size:16px; '
+       'padding-left: 0px!important;')
+
+
+def cuerpo_html(parrafos: list[str]) -> str:
+    """Mismo marcado que produce el editor de GHL, para que se vea igual."""
+    return "".join(f'<p style="{_P1 if i == 0 else _PN}">{t}</p>'
+                   for i, t in enumerate(parrafos))
+
+
+def aviso(remitente_nombre, remitente_email, usuarios, asunto, parrafos) -> dict:
+    return {"type": "email", "email": {
+        "html": cuerpo_html(parrafos),
+        "from_name": remitente_nombre,
+        "from_email": remitente_email,
+        "selectedUser": usuarios,
+        "userType": "user",
+        "subject": asunto,
+        "attachments": [],
+    }}
+
+
+DE_NOMBRE = "La nueva conciencia"
+DE_EMAIL  = "mail@lanuovacoscienza.com"
+
+# «Avisar a Luca: cuota recibida» NO está aquí: lo configuró Oliver y es la
+# fuente de la verdad. Solo se replican los otros dos.
 RETOQUES_AVISOS: list[tuple[str, str, dict, str]] = [
     ("WF5 - Cobro confirmado", "Avisar a Luca: dar de alta en System.io",
-     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [LUCA],
-      "subject": "Alta pendiente · {{contact.name}} ya pagó la escuela",
-      "body": ("{{contact.name}} completó el pago de la escuela.\n\n"
-               "Contacto:  {{contact.email}} · {{contact.phone}}\n"
-               "Producto:  {{contact.producto_comprado}}\n\n"
-               "Hay que crearle el acceso en System.io. Mientras no se haga, "
-               "el alumno pagó y no puede entrar.")},
+     aviso(DE_NOMBRE, DE_EMAIL, [LUCA],
+           "Alta pendiente · {{contact.name}} ya pagó la escuela",
+           ["{{contact.name}} completó el pago de la escuela.",
+            "Contacto: {{contact.email}} · {{contact.phone}}",
+            "Producto: {{contact.producto_comprado}}",
+            "Hay que crearle el acceso en System.io. Mientras no se haga, el "
+            "alumno pagó y no puede entrar."]),
      "primer pago: pide alta manual"),
 
     ("WF5 - Cobro confirmado", "Avisar a Christie: sesion bono de 40 min",
-     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [CHRISTIE],
-      "subject": "Bono por entregar · sesión de 40 min con {{contact.name}}",
-      "body": ("{{contact.name}} pagó la escuela al contado, así que le corresponde "
-               "la sesión de bienvenida de 40 minutos.\n\n"
-               "Contacto:  {{contact.email}} · {{contact.phone}}\n\n"
-               "Conviene escribirle en los próximos días, mientras la decisión "
-               "está fresca.")},
+     aviso(DE_NOMBRE, DE_EMAIL, [CHRISTIE],
+           "Bono por entregar · sesión de 40 min con {{contact.name}}",
+           ["{{contact.name}} pagó la escuela al contado, así que le corresponde "
+            "la sesión de bienvenida de 40 minutos.",
+            "Contacto: {{contact.email}} · {{contact.phone}}",
+            "Conviene escribirle en los próximos días, mientras la decisión está "
+            "fresca."]),
      "pago de contado: agendar el bono"),
-
-    ("WF5 - Cobro confirmado", "Avisar a Luca: cuota recibida",
-     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [LUCA],
-      "subject": "Cuota recibida · {{contact.name}}",
-      "body": ("Entró una cuota más de {{contact.name}}.\n\n"
-               "No hay que hacer nada: la venta ya está registrada y el alumno ya "
-               "tiene su acceso. Es solo para que quede constancia del cobro.")},
-     "cuota posterior: NO pide accion"),
 ]
 
 
