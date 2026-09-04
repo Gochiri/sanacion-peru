@@ -36,8 +36,10 @@ CCI:     00219300740530202918
 ```
 
 ⚠ El cliente escribe **«Nueva Consciencia»** (con S). En el resto del proyecto la razón
-social figura como **«Nueva Conciencia»** (handoff, invoice, K1). El titular tiene que
-coincidir letra por letra con el del banco o la transferencia rebota: **confirmar cuál es**.
+social figura como **«Nueva Conciencia»** (handoff, invoice, K1). **No bloquea el cobro**: una
+transferencia por CCI encamina por el número de cuenta, y el titular es solo lo que ve el que
+paga al confirmar. Pero ese nombre queda escrito dentro de la plantilla `datos_pago_es`, que
+una vez aprobada por Meta **no se edita** — así que hay que resolverlo antes de mandarla.
 
 **Italia**:
 
@@ -46,9 +48,11 @@ Banca: Intesa Sanpaolo
 IBAN:  IT98L0306979654100000006623
 ```
 
-⚠ **Falta el intestatario.** Un bonifico sin nombre del beneficiario se devuelve. Por D10
-lo más probable es que la cuenta sea de Luca a título personal, pero eso no se supone: hay
-que preguntarlo antes de que este valor llegue a un cliente.
+⚠ **Falta el intestatario, y este sí bloquea.** Desde octubre de 2025 los bancos de la UE
+tienen que verificar que el nombre del beneficiario coincida con el IBAN antes de ejecutar un
+bonifico: sin él, al comprador le salta un aviso de discrepancia justo cuando está pagando
+$1.000. Hace falta **antes del 26-sep**, que es cuando vende Italia. Por D10 lo más probable
+es que la cuenta sea de Luca a título personal, pero un dato bancario no se supone.
 
 ## Disponibilidad de cierre — **una hora por cliente**
 

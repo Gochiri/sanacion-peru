@@ -47,10 +47,17 @@ CICLOS = {
     },
 }
 
-# El cliente escribió «Nueva Consciencia» (con S) en los datos bancarios, y en
-# el resto del proyecto la razón social figura como «Nueva Conciencia». Aquí va
-# tal cual lo mandó: el titular tiene que coincidir con el del banco o la
-# transferencia rebota. Confirmarlo antes de que salga a un cliente.
+# Estos valores son para **copiar y pegar**, no para meterlos en un mensaje
+# automático: WhatsApp rechaza los parámetros de plantilla que traen saltos de
+# línea, y estos son bloques de varias líneas. Las plantillas `datos_pago_es` y
+# `datos_pago_it` llevan los datos escritos en el cuerpo por esa razón.
+#
+# El cliente escribió «Nueva Consciencia» (con S) y en el resto del proyecto la
+# razón social figura como «Nueva Conciencia». Va tal cual lo mandó. **No
+# bloquea el cobro**: una transferencia por CCI encamina por el número de
+# cuenta, y el titular es solo lo que ve el que paga al confirmar. Igual hay que
+# resolverlo, porque ese nombre queda escrito en una plantilla de Meta que
+# después no se puede editar.
 FIJOS = {
     "datos_pago_pe": (
         "Transferencia bancaria (Perú)\n"
@@ -59,8 +66,11 @@ FIJOS = {
         "Cuenta: 1937405302029\n"
         "CCI: 00219300740530202918"
     ),
-    # ⚠ Falta el titular de la cuenta italiana. Un bonifico sin intestatario se
-    # devuelve. Completar antes de darlo a nadie.
+    # ⚠ Falta el intestatario, y este sí bloquea: desde octubre de 2025 los
+    # bancos de la UE tienen que verificar que el nombre del beneficiario
+    # coincida con el IBAN antes de un bonifico. Sin él, al comprador le salta
+    # un aviso de discrepancia justo cuando está pagando. Hace falta antes del
+    # 26-sep, que es cuando vende Italia.
     "datos_pago_it": (
         "Bonifico bancario (Italia)\n"
         "Banca: Intesa Sanpaolo\n"
