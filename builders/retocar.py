@@ -34,6 +34,11 @@ from esb_lib import cliente  # noqa: E402
 # (workflow, texto viejo, texto nuevo, por qué)
 RETOQUES: list[tuple[str, str, str, str]] = [
     ("WF3-ES - Recordatorios de evento",
+     "{{custom_values.link_evento_es}}",
+     "{{trigger_link.zsM5LP4jGLvvLbNG8hXy}}",
+     "el enlace del evento va como trigger link, o WF4A no sabe quien entro"),
+
+    ("WF3-ES - Recordatorios de evento",
      "{{custom_values.fecha_evento_vigente}}",
      "{{custom_values.fecha_evento_es}}",
      "K12: cada mercado tiene su dia (jueves ES / sabado IT)"),

@@ -79,9 +79,17 @@ Es el que marca **quién asistió al evento**. Va en dos partes.
 
 **b) Usarlo en los dos sitios:**
 
-1. En **WF3-ES**, el mensaje *«Estamos en vivo»* debe llevar **ese trigger link**, no la URL
-   directa. Es lo único que permite saber quién entró.
-2. En **WF4A**, crear el trigger **Trigger Link Clicked** apuntando a ese link.
+1. ✅ **Hecho el 4-sep.** En **WF3-ES**, el mensaje *«Estamos en vivo»* y su email espejo ya llevan
+   el trigger link `{{trigger_link.zsM5LP4jGLvvLbNG8hXy}}` en vez de la URL.
+2. En **WF4A**, crear el trigger **Trigger Link Clicked** apuntando a `evento-es-en-vivo`.
+
+> ⚠️ **El trigger link es un campo de combinación, no una URL.** GHL devuelve
+> `{{trigger_link.<id>}}`, no un enlace tipo `link.msgsndr.com`. Y **va escrito en el mensaje**,
+> no dentro de un custom value: los merge fields **no se resuelven anidados**, así que un
+> `{{custom_values.x}}` que contenga `{{trigger_link.y}}` se enviaría como texto literal.
+>
+> Por eso `link_evento_es` guarda la **URL normal de la página**
+> (`https://eventos.lanuovacoscienza.com/evento-es`) y el trigger link vive dentro del mensaje.
 
 > **Por qué importa:** el link del grupo de WhatsApp es el mismo para todos y **no marca a nadie**.
 > Solo el trigger link enviado 1:1 identifica a la persona. Por eso el mensaje del grupo debe decir
