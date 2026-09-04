@@ -107,11 +107,16 @@ def main() -> None:
             print(f"  · {nombre:34} {n} sustitucion(es)  ({motivo})  DRY-RUN")
             continue
 
-        r = c.request("PUT", f"/workflow/{loc}/{wid}", {
+        # `status` se reenvía a propósito: un PUT sin él lo deja en null y el
+        # workflow queda DESPUBLICADO en silencio. Pasó con WF2, WF3-ES y WF4B.
+        cuerpo = {
             "name": nombre,
             "version": actual.get("version", 1),
             "workflowData": {**wd, "templates": templates},
-        })
+        }
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es)  ({motivo})"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")

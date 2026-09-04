@@ -132,3 +132,27 @@ del builder. `WF1`, `WF2`, `WF3-ES`, `WF4B` y `WF5`, todos tocados en la UI, lo 
 Aplicado así el 28-ago, con verificación posterior: los 8 workflows conservan sus pasos y sus
 condiciones, `fecha_evento_vigente` ya no aparece en ninguno, WF3-ES usa `fecha_evento_es` y
 WF3-IT `fecha_evento_it`.
+
+
+---
+
+## 4-sep · Un PUT sin `status` despublica el workflow
+
+Al revisar antes de lanzar aparecieron cuatro workflows que **no corren**. Tres de ellos —WF2,
+WF3-ES y WF4B— son **exactamente los tres que se retocaron con `retocar.py`**.
+
+La causa: el PUT enviaba `{name, version, workflowData}` **sin `status`**, y GHL lo deja en `null`.
+No da error, no avisa: el workflow simplemente deja de estar publicado. Es el mismo patrón que el
+de `workflowData` (un PUT sin él borra todos los pasos), aplicado a otro campo.
+
+`retocar.py` ya reenvía el `status` que tenía el workflow. **Regla general para esta API: en un
+PUT hay que reenviar todo lo que no se quiera perder, porque lo que no se manda se borra.**
+
+### Cómo comprobarlo
+
+```python
+got = c.request("GET", f"/workflow/{loc}/{wid}")
+print(got.get("status"))   # published / draft / None
+```
+
+`None` y `draft` significan lo mismo de cara al lanzamiento: **no corre**.
