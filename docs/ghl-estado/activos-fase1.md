@@ -177,3 +177,43 @@ Quedan **11 de 23** con valor real. Los 12 que faltan, por quién los desbloquea
 | **Cliente** | `fecha_evento_es`, `fecha_evento_it`, `hora_evento_pe`, `hora_evento_it`, `datos_pago_pe`, `datos_pago_it` |
 | **Nosotros** (páginas, ya hay dominio) | `link_evento_es`, `link_evento_it`, `link_registro_it` |
 | **Jaime** (conectar Stripe) | `link_pago_contado`, `link_pago_2cuotas`, `link_pago_3cuotas` |
+
+
+---
+
+## 4-sep · Corrección: `teamMembers` NO era limitación del API
+
+Este documento decía que `teamMembers` era una limitación del API tras probar seis formas. **Era
+un diagnóstico equivocado.** Lo señaló Oliver al buscar dónde asignar el usuario en la UI y no
+encontrarlo.
+
+**La causa real es el TIPO de calendario.** Los dos se habían creado como `calendarType: "event"`,
+que no admite miembros de equipo — ni por API ni por UI. Y el tipo **no se puede cambiar después**:
+un PUT con `calendarType: "round_robin"` responde **200 pero lo ignora en silencio**, dejando el
+tipo y el equipo como estaban. Es el peor tipo de fallo: parece que funcionó.
+
+Verificado creando uno nuevo: `calendarType: "round_robin"` **sí acepta `teamMembers` en el POST**.
+
+### Cómo quedaron
+
+| Calendario | id | tipo | dueño |
+|---|---|---|---|
+| Llamada de cierre - Español | `befuzgaXYSmsD2qUZdkl` | `round_robin` | Joaquín |
+| Chiamata di chiusura - Italiano | `MNg4SJeHdqjOfoGjJpKQ` | `round_robin` | Luca |
+
+Los dos antiguos (`yCYC1PwG…`, `rQxxtyI3…`) se borraron, y `link_calendario_cierre_pe` / `_it`
+apuntan a los nuevos. WF4B lee esos custom values, así que sigue el cambio sin tocarlo.
+
+### De paso
+
+- El italiano pasó a llamarse **en italiano**: el nombre lo lee el visitante en el widget.
+- **`calendarTimezone` no existe** como propiedad (422 *property should not exist*). En un
+  round robin la zona sale del **perfil del usuario asignado** — que es lo correcto, y resuelve
+  que el calendario de Luca estuviera heredando GMT-5. **Verificar que el perfil de Luca esté en
+  horario de Italia.**
+
+### Regla que queda
+
+**El tipo de calendario se elige al crear y no se corrige después.** Para llamadas 1-a-1 con
+dueño, `round_robin` (aunque sea una sola persona). `event` sirve solo para calendarios sin
+responsable asignado.
