@@ -57,6 +57,29 @@ RETOQUES: list[tuple[str, str, str, str]] = [
 ]
 
 
+# (workflow, nombre del nodo, fields nuevos, por qué)
+#
+# El builder escribía `field` como fieldKey y `type` como el dataType del API en
+# mayúsculas. La UI no resuelve eso: el desplegable sale vacío y el nodo da error.
+# El formato bueno se sacó del nodo que Oliver recreó a mano en WF4A:
+#     {"field": "<id>", "value": ["Si"], "title": "...", "type": "multiselect", "date": ""}
+# o sea: **id** del campo, valor en array donde el campo admite varios, y el tipo
+# de la UI en minúsculas.
+RETOQUES_CAMPOS: list[tuple[str, str, list[dict], str]] = [
+    ("WF5 - Cobro confirmado", "Activar bono si pago de contado",
+     [{"field": "7YhSYFuz89u6Vf05Fk4u", "value": ["Si"],
+       "title": "Bono llamada christie", "type": "multiselect", "date": ""}],
+     "CHECKBOX -> multiselect (verificado contra WF4A)"),
+
+    ("WF5 - Cobro confirmado", "Registrar datos de la venta",
+     [{"field": "nHjHVOUlxUefgbhI9v5J", "value": ["Escuela"],
+       "title": "Producto comprado", "type": "multiselect", "date": ""},
+      {"field": "zSvMgseoMi5Zub9tQr3i", "value": "Al dia",
+       "title": "Estado pago", "type": "singleselect", "date": ""}],
+     "INFERIDO para MULTIPLE_OPTIONS y SINGLE_OPTIONS — verificar en la UI"),
+]
+
+
 def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
     """Recorre listas y diccionarios sustituyendo en cualquier cadena."""
     if isinstance(valor, str):
@@ -119,6 +142,41 @@ def main() -> None:
         r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es)  ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
+
+    aplicar_campos(c, loc, ids, args.dry_run)
+
+
+def aplicar_campos(c, loc, ids, dry_run: bool) -> None:
+    """Reescribe por completo los `fields` de un nodo, localizado por su nombre."""
+    for nombre, nodo, campos, motivo in RETOQUES_CAMPOS:
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = [dict(t) for t in (wd.get("templates") or [])]
+
+        tocados = 0
+        for t in templates:
+            if t.get("name") != nodo:
+                continue
+            t["attributes"] = {**(t.get("attributes") or {}), "fields": campos}
+            tocados += 1
+
+        if not tocados:
+            print(f"  = {nodo:34} no encontrado en {nombre}"); continue
+        if dry_run:
+            print(f"  · {nodo:34} {len(campos)} campo(s)  ({motivo})  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nodo:34} {len(campos)} campo(s)  ({motivo})"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 

@@ -102,15 +102,31 @@ def campo(nombre: str, asignaciones: list[tuple[str, str]]) -> dict:
     if not _META_CAMPOS:
         _META_CAMPOS = cargar_estado()["campos"]
 
+    # El nodo tiene que hablar el idioma de la UI, no el del API:
+    #   · `field` va con el **id** del campo, no con el fieldKey. Con el fieldKey
+    #     el desplegable sale vacío y el nodo queda con error (pasó en WF5).
+    #   · `value` va en **array** en los campos que admiten varios valores.
+    #   · `type` va en **minúsculas** con el nombre de la UI, no el dataType.
+    # Verificado contra el nodo que se recreó a mano en WF4A.
+    TIPOS_UI = {
+        "CHECKBOX": ("multiselect", True),
+        "MULTIPLE_OPTIONS": ("multiselect", True),
+        "SINGLE_OPTIONS": ("singleselect", False),
+    }
+
     fields = []
     for f, v in asignaciones:
         meta = _META_CAMPOS.get(f, {})
         if not meta:
             raise ValueError(f"Campo desconocido: {f} (¿está en custom-fields.json?)")
+        tipo_ui, es_lista = TIPOS_UI.get(meta["dataType"],
+                                         (meta["dataType"].lower(), False))
         fields.append({
-            "field": f, "value": v,
+            "field": meta["id"],
+            "value": ([v] if not isinstance(v, list) else v) if es_lista else v,
             "title": meta["nombre"],
-            "type": meta["dataType"],
+            "type": tipo_ui,
+            "date": "",
         })
     return {
         "id": uid(), "type": "update_contact_field", "name": nombre,
