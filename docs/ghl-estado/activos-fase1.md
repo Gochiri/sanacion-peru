@@ -217,3 +217,57 @@ apuntan a los nuevos. WF4B lee esos custom values, así que sigue el cambio sin 
 **El tipo de calendario se elige al crear y no se corrige después.** Para llamadas 1-a-1 con
 dueño, `round_robin` (aunque sea una sola persona). `event` sirve solo para calendarios sin
 responsable asignado.
+
+
+---
+
+## Carga de los datos del cliente — 4-sep
+
+Fuente: `docs/fuentes/04-datos-cliente-4sep.md`. Todo lo de abajo ya está escrito en la
+subcuenta y verificado leyéndolo de vuelta.
+
+### Custom values — 9 salieron de `PENDIENTE`
+
+`builders/valores.py`. Dos comandos, porque hay dos clases de valor:
+
+- **`ciclo 1|2`** — fecha y hora del webinar por mercado, más `nombre_lanzamiento_vigente`.
+  Cambian entre los dos webinars. **El ciclo 2 se carga el 25-sep.**
+- **`fijos`** — `datos_pago_pe` y `datos_pago_it`. No cambian.
+
+Siguen en `PENDIENTE` y no dependen de nosotros: los 3 `link_pago_*` (esperan Stripe),
+`embed_video_educativo_es` (falta la URL de System.io) y todo el bloque `_it` de páginas
+(esperan que Luca valide los textos).
+
+### Calendarios — cómo funciona de verdad la disponibilidad
+
+`builders/agendas.py`. Comprobado contra `/calendars/{id}/free-slots`, que es la única
+fuente de verdad: leer el objeto del calendario no basta, porque guarda cosas que después
+no se reservan.
+
+| Mecánica | Qué pasa |
+|---|---|
+| `openHours` | Patrón **semanal**. Es lo que abre los días. No es opcional. |
+| `availabilities` | Excepciones **por fecha**. Con `hours: []` esa fecha queda cerrada aunque el patrón la abra. |
+| `deleted: true` | **No borra** la entrada: le vacía las horas. O sea, cierra ese día. |
+| `timezone` en el calendario | **422 «property timezone should not exist»**. Hereda el de la subcuenta (`America/Bogota`, UTC-5). Por eso el horario italiano de Luca va cargado en hora de Perú: 15-19 Italia = **08-12 Perú**. |
+| `/free-slots` | Rechaza rangos de **más de 31 días**. Hay que preguntar por tramos o parece que el calendario está vacío. |
+
+**Callejón sin salida que costó dos intentos:** con `openHours: []` y solo `availabilities`,
+las fechas entre semana sí aparecen pero **los sábados no**, por más que estén cargados.
+El patrón semanal hace falta.
+
+Estado actual de los dos: **60 min por turno**, sin colchón, patrón semanal + las 13 (ES)
+y 11 (IT) fechas de la ventana, y **cerradas una por una las 62/64 fechas del horizonte
+reservable que caen fuera**. Con eso no se puede reservar ni antes del 25-sep ni después
+del 10-oct. `allowBookingFor` subió de 30 a 45 días para que el 24-sep se vea la ventana
+entera.
+
+> ⚠ **Los sábados no dan turno y no se arregla por API.** Con el patrón semanal abriendo
+> el sábado y la fecha cargada, `/free-slots` sigue sin devolver nada — y una sonda con
+> `openHours` de lunes a domingo confirma que **GHL solo entrega lunes a viernes**. Es
+> configuración de disponibilidad **del usuario**, que el API público no expone. Se pierden
+> **26-sep, 3-oct y 10-oct de Joaquín** (9 turnos) y **10-oct de Luca** (4 turnos).
+> Se arregla en la UI, en la disponibilidad de cada usuario.
+
+⚠ **Joaquín también quedó con rol `admin`**, igual que Christie. De los tres del cliente,
+solo Luca es `user`.
