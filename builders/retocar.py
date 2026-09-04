@@ -80,6 +80,47 @@ RETOQUES_CAMPOS: list[tuple[str, str, list[dict], str]] = [
 ]
 
 
+LUCA     = "nEVI8WGKSdfvkR9FUyXM"
+CHRISTIE = "BrFbQVQSRj6Q7UDUlNiK"
+REMITENTE = {"fromEmail": "mail@lanuovacoscienza.com", "fromName": "La nueva conciencia"}
+
+# (workflow, nombre del nodo, attributes nuevos, por qué)
+#
+# ⚠️ El formato de `internal_notification` NO está verificado: los nombres de los
+# atributos de remitente y destinatario van inferidos. Si en la UI sigue saliendo
+# el aviso naranja, configurar UNO a mano, leerlo por API y replicar el formato
+# bueno aquí. No adivinar dos veces (ver triggers-pendientes.md).
+RETOQUES_AVISOS: list[tuple[str, str, dict, str]] = [
+    ("WF5 - Cobro confirmado", "Avisar a Luca: dar de alta en System.io",
+     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [LUCA],
+      "subject": "Alta pendiente · {{contact.name}} ya pagó la escuela",
+      "body": ("{{contact.name}} completó el pago de la escuela.\n\n"
+               "Contacto:  {{contact.email}} · {{contact.phone}}\n"
+               "Producto:  {{contact.producto_comprado}}\n\n"
+               "Hay que crearle el acceso en System.io. Mientras no se haga, "
+               "el alumno pagó y no puede entrar.")},
+     "primer pago: pide alta manual"),
+
+    ("WF5 - Cobro confirmado", "Avisar a Christie: sesion bono de 40 min",
+     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [CHRISTIE],
+      "subject": "Bono por entregar · sesión de 40 min con {{contact.name}}",
+      "body": ("{{contact.name}} pagó la escuela al contado, así que le corresponde "
+               "la sesión de bienvenida de 40 minutos.\n\n"
+               "Contacto:  {{contact.email}} · {{contact.phone}}\n\n"
+               "Conviene escribirle en los próximos días, mientras la decisión "
+               "está fresca.")},
+     "pago de contado: agendar el bono"),
+
+    ("WF5 - Cobro confirmado", "Avisar a Luca: cuota recibida",
+     {**REMITENTE, "type": "email", "userType": "particularUser", "users": [LUCA],
+      "subject": "Cuota recibida · {{contact.name}}",
+      "body": ("Entró una cuota más de {{contact.name}}.\n\n"
+               "No hay que hacer nada: la venta ya está registrada y el alumno ya "
+               "tiene su acceso. Es solo para que quede constancia del cobro.")},
+     "cuota posterior: NO pide accion"),
+]
+
+
 def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
     """Recorre listas y diccionarios sustituyendo en cualquier cadena."""
     if isinstance(valor, str):
@@ -145,6 +186,40 @@ def main() -> None:
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
     aplicar_campos(c, loc, ids, args.dry_run)
+    aplicar_avisos(c, loc, ids, args.dry_run)
+
+
+def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
+    """Reescribe por completo los `attributes` de una notificación interna."""
+    for nombre, nodo, attrs, motivo in RETOQUES_AVISOS:
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = [dict(t) for t in (wd.get("templates") or [])]
+
+        tocados = 0
+        for t in templates:
+            if t.get("name") != nodo:
+                continue
+            t["attributes"] = attrs
+            tocados += 1
+
+        if not tocados:
+            print(f"  = {nodo:38} no encontrado"); continue
+        if dry_run:
+            print(f"  · {nodo:38} ({motivo})  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nodo:38} ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
 def aplicar_campos(c, loc, ids, dry_run: bool) -> None:
