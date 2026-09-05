@@ -326,13 +326,14 @@ otra y volver a esperar. Se asume porque una cuenta bancaria no cambia en mitad 
 lanzamiento, y la alternativa —un CCI de 20 dígitos tipeado a mano en cada cierre— falla mucho
 más seguido.
 
-> 🚩 **Ninguna de las dos se manda a aprobación todavía.** La de Perú lleva el titular y la de
-> Italia el intestatario, y los dos están sin confirmar (ver *Antes de mandarlas*). Como no se
-> pueden editar después, se aprueban con el dato equivocado o no se aprueban.
+> **La italiana ya se puede mandar.** Joaquín confirmó el 4-sep que la cuenta es de Luca a
+> título personal. La peruana espera una sola cosa: si la razón social lleva S o no. Como el
+> nombre queda escrito dentro de la plantilla y después no se edita, se aprueba con el dato
+> bueno o no se aprueba.
 
 ### Datos de pago - Perú
 
-- **Nombre:** `datos_pago_es`
+- **Nombre:** `datos_pago_pe`
 - **Idioma:** Español (es)
 - **Categoría:** UTILITY
 - **¿Necesita plantilla?** **Sí** — sale fuera de la ventana de 24 h
@@ -343,7 +344,7 @@ más seguido.
 ```
 Hola {{1}}, estos son los datos para la transferencia:
 
-Titular: Nueva Consciencia Formación SAC
+Titular: Nueva Consciencia Formación
 Banco: BCP · cuenta en soles
 Cuenta: 1937405302029
 CCI: 00219300740530202918
@@ -355,10 +356,18 @@ Cuando la hagas, mándanos el comprobante por aquí y te confirmamos el acceso.
 |---|---|---|
 | `{{1}}` | `{{contact.first_name}}` | María |
 
-⚠️ El titular va **pendiente de confirmar**: el cliente escribió «Nueva **Cons**ciencia» y en
-el resto del proyecto la razón social es «Nueva Conciencia». No bloquea el cobro —una
-transferencia por CCI encamina por el número de cuenta— pero es lo que lee el comprador, y una
-vez aprobada la plantilla no se corrige.
+**Se llama `datos_pago_pe`, no `datos_pago_es`, a propósito.** Lleva la cuenta del BCP en soles
+escrita en el cuerpo, así que sirve para Perú y **solo** para Perú. Fuera de Perú el resto de
+Latinoamérica cobra por giro, y esos datos los escribe a mano el que cierra (ver
+`docs/sop-cierre.md`). El nombre del archivo es lo único que evita que alguien se la mande a un
+colombiano por descuido.
+
+⚠️ El titular sigue **pendiente de confirmar en un punto**: el 4-sep Joaquín cerró que la razón
+social es «Nueva Consciencia Formación» **sin «SAC»** —«sin saco», dijo—, y eso ya está aplicado.
+Lo que el transcript no distingue es la **S** de «Con**s**ciencia»: Fathom normaliza la ortografía.
+Va la grafía del mensaje escrito del cliente. No bloquea el cobro —el CCI encamina por el número
+de cuenta— pero una vez aprobada la plantilla no se corrige, así que conviene mirar el mensaje
+original antes de mandarla.
 
 ### Dati di pagamento - Italia
 
@@ -373,7 +382,7 @@ vez aprobada la plantilla no se corrige.
 ```
 Ciao {{1}}, questi sono i dati per il bonifico:
 
-Intestatario: PENDIENTE
+Intestatario: Luca Stefanizzi
 Banca: Intesa Sanpaolo
 IBAN: IT98L0306979654100000006623
 
@@ -384,10 +393,12 @@ Quando l'hai fatto, mandaci la ricevuta qui e ti confermiamo l'accesso.
 |---|---|---|
 | `{{1}}` | `{{contact.first_name}}` | Giulia |
 
-🚩 **No se manda así.** Falta el intestatario, y sin él el bonifico no sale: desde octubre de
-2025 los bancos de la UE verifican que el nombre del beneficiario coincida con el IBAN. Al
-comprador le salta un aviso de discrepancia justo cuando está pagando. Copy provisional además
-por P-13: lo valida Luca.
+El intestatario lo confirmó Joaquín el 4-sep: en Italia no hay empresa, la cuenta es de Luca a
+título personal. Ya estaba escrito desde el onboarding —`docs/fuentes/02-form-onboarding.md:40`
+dice «titular Luca Stefanizzi»— y no lo habíamos conectado. Importa que esté: desde octubre de
+2025 los bancos de la UE verifican el nombre del beneficiario contra el IBAN antes del bonifico.
+
+Copy provisional por P-13, como el resto del italiano: lo valida Luca.
 
 
 ---
@@ -402,11 +413,10 @@ por P-13: lo valida Luca.
   una acción de la persona.
 - **El copy italiano es provisional** — lo produce y valida Luca (P-13). Mejor no mandar esas a
   aprobación hasta que él las revise: **una plantilla aprobada no se edita**, hay que crear otra.
-- **Las dos de cobro esperan una respuesta del cliente**, y por eso la pregunta es de hoy y no
-  del 24-sep: llevan los datos bancarios escritos en el cuerpo, así que se aprueban bien o se
-  aprueban mal, no hay arreglo después.
+- **De las dos de cobro, la italiana ya está lista** (llamada del 4-sep: intestatario Luca
+  Stefanizzi). La peruana espera un solo dato, y por eso es pregunta de hoy: los datos bancarios
+  van escritos en el cuerpo, así que se aprueba bien o se aprueba mal, no hay arreglo después.
 
-  | Falta | Para qué plantilla | Sin eso |
+  | Falta | Plantilla | Sin eso |
   |---|---|---|
-  | Intestatario del IBAN italiano | `datos_pago_it` | El bonifico se frena en el banco |
-  | ¿«Consciencia» o «Conciencia»? | `datos_pago_es` | Cobra igual, pero el comprador lee un nombre que no es |
+  | ¿«Consciencia» o «Conciencia»? | `datos_pago_pe` | Cobra igual, pero el comprador lee un nombre que no es el del banco |

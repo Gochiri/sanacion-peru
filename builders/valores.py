@@ -52,27 +52,31 @@ CICLOS = {
 # línea, y estos son bloques de varias líneas. Las plantillas `datos_pago_es` y
 # `datos_pago_it` llevan los datos escritos en el cuerpo por esa razón.
 #
-# El cliente escribió «Nueva Consciencia» (con S) y en el resto del proyecto la
-# razón social figura como «Nueva Conciencia». Va tal cual lo mandó. **No
-# bloquea el cobro**: una transferencia por CCI encamina por el número de
-# cuenta, y el titular es solo lo que ve el que paga al confirmar. Igual hay que
-# resolverlo, porque ese nombre queda escrito en una plantilla de Meta que
-# después no se puede editar.
+# En la llamada del 4-sep Joaquín confirmó la razón social: «Nueva Consciencia
+# Formación», **sin «SAC»** («sin saco», dijo). El SAC ya está quitado.
+#
+# Lo que la llamada NO resuelve es la S de «Con*s*ciencia»: el transcript
+# normaliza la ortografía, así que las dos grafías salen iguales en el texto.
+# Va la del mensaje escrito del cliente, que es la única evidencia que se puede
+# leer. **No bloquea el cobro** —una transferencia por CCI encamina por el
+# número de cuenta— pero ese nombre queda escrito dentro de una plantilla de
+# Meta que después no se edita, así que hay que mirar el mensaje original.
 FIJOS = {
     "datos_pago_pe": (
         "Transferencia bancaria (Perú)\n"
-        "Titular: Nueva Consciencia Formación SAC\n"
+        "Titular: Nueva Consciencia Formación\n"
         "Banco: BCP · cuenta en soles\n"
         "Cuenta: 1937405302029\n"
         "CCI: 00219300740530202918"
     ),
-    # ⚠ Falta el intestatario, y este sí bloquea: desde octubre de 2025 los
-    # bancos de la UE tienen que verificar que el nombre del beneficiario
-    # coincida con el IBAN antes de un bonifico. Sin él, al comprador le salta
-    # un aviso de discrepancia justo cuando está pagando. Hace falta antes del
-    # 26-sep, que es cuando vende Italia.
+    # El intestatario lo confirmó Joaquín el 4-sep: la cuenta italiana es de
+    # Luca a título personal, porque en Italia no hay empresa. Y ya estaba
+    # escrito desde el onboarding — 02-form-onboarding.md:40 dice «titular Luca
+    # Stefanizzi». Importa que esté: desde octubre de 2025 los bancos de la UE
+    # verifican que el nombre del beneficiario coincida con el IBAN.
     "datos_pago_it": (
         "Bonifico bancario (Italia)\n"
+        "Intestatario: Luca Stefanizzi\n"
         "Banca: Intesa Sanpaolo\n"
         "IBAN: IT98L0306979654100000006623"
     ),

@@ -45,14 +45,19 @@ qué se acordó. Es el campo `contact.plan_pago`.
 
 **3 · Mandar la plantilla de cobro del mercado que corresponda.**
 
-| Mercado | Plantilla | Cierra |
-|---|---|---|
-| Perú / LATAM | `datos_pago_es` | Joaquín |
-| Italia | `datos_pago_it` | Luca |
+| De dónde es | Cómo paga | Qué se manda | Cierra |
+|---|---|---|---|
+| Perú | Transferencia al BCP | Plantilla `datos_pago_pe` | Joaquín |
+| Resto de LATAM | **Giro (Western Union)** | **A mano — no hay plantilla** | Joaquín |
+| Italia | Bonifico al IBAN de Luca | Plantilla `datos_pago_it` | Luca |
 
-Los datos van escritos dentro de la plantilla — no hay que copiarlos de ningún lado ni tipear
-el CCI. Si por lo que sea hace falta el bloque suelto, está en los custom values
-`datos_pago_pe` y `datos_pago_it`.
+Los datos van escritos dentro de la plantilla: no hay que copiarlos de ningún lado ni tipear el
+CCI. Si hace falta el bloque suelto, está en los custom values `datos_pago_pe` y `datos_pago_it`.
+
+> ⚠️ **`datos_pago_pe` es solo para Perú.** Lleva una cuenta del BCP en soles escrita en el
+> cuerpo. Mandársela a alguien de Colombia o México es darle una cuenta a la que no puede girar,
+> y no salta ningún error: la persona lo intenta, no puede, y desaparece. Fuera de Perú los datos
+> del giro se escriben a mano en la conversación.
 
 ### Si dijo que sí y no transfiere
 

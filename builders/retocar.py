@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import uuid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -82,6 +83,7 @@ RETOQUES_CAMPOS: list[tuple[str, str, list[dict], str]] = [
 
 LUCA     = "nEVI8WGKSdfvkR9FUyXM"
 CHRISTIE = "BrFbQVQSRj6Q7UDUlNiK"
+JOAQUIN  = "aKPs36EHpB9gaLMdNpHp"
 
 # Formato REAL de internal_notification, leído del nodo que Oliver configuró a
 # mano ("Avisar a Luca: cuota recibida"). Nada de esto era adivinable:
@@ -143,6 +145,43 @@ RETOQUES_AVISOS: list[tuple[str, str, dict, str]] = [
 ]
 
 
+# (workflow, nombre del nodo nuevo, después de qué nodo, attributes, por qué)
+#
+# Insertar es distinto de retocar: hay que coserlo a la cadena. Los nodos de
+# WF4C se encadenan con `parentKey` / `next` / `order`, en línea recta, así que
+# meter uno en medio es reapuntar el `next` del anterior y heredar el suyo.
+#
+# Solo vale para workflows en cadena simple. En uno con ramas (`if_else` en el
+# formato rico del canvas) esto no sirve: ahí las transiciones viven dentro de
+# las ramas y hay que hacerlo en la UI.
+#
+# ⚠ `{{appointment.start_time}}` va SIN verificar. `{{appointment.address}}` sí
+# está probado (lo usa el recordatorio de 1 h). Si en el primer aviso real sale
+# el texto literal en vez de la hora, es eso: se cambia y ya. Va igualmente
+# porque un aviso de cita que no dice cuándo es no sirve de mucho.
+INSERCIONES: list[tuple[str, str, str, dict, str]] = [
+    ("WF4C - Cita agendada", "Avisar al equipo: cita agendada",
+     "Mover a Llamada agendada",
+     aviso(DE_NOMBRE, DE_EMAIL, [JOAQUIN, LUCA],
+           "Cita agendada · {{contact.name}}",
+           ["{{contact.name}} acaba de reservar una llamada de cierre.",
+            "Cuándo: {{appointment.start_time}}",
+            "Contacto: {{contact.email}} · {{contact.phone}}",
+            "Su postulación está en la ficha del contacto. Conviene leerla antes "
+            "de entrar: ahí cuenta qué le pasa y qué ha intentado."]),
+     "Joaquin pidio enterarse al momento (llamada 4-sep); WF4C no avisaba a nadie"),
+
+    ("WF4C - Cita agendada", "Avisar al equipo: la cita es en 1 hora",
+     "Esperar hasta 1 h antes",
+     aviso(DE_NOMBRE, DE_EMAIL, [JOAQUIN, LUCA],
+           "En 1 hora · llamada con {{contact.name}}",
+           ["En una hora es la llamada de cierre con {{contact.name}}.",
+            "Contacto: {{contact.email}} · {{contact.phone}}",
+            "Enlace: {{appointment.address}}"]),
+     "Joaquin: «si me llega una hora antes yo lo agendo y lo tengo listo»"),
+]
+
+
 def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
     """Recorre listas y diccionarios sustituyendo en cualquier cadena."""
     if isinstance(valor, str):
@@ -167,7 +206,13 @@ def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    # Cada fase reescribe nodos enteros. Si una ya se aplicó y alguien la afinó
+    # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
+    # correr una sola: `--solo inserciones`.
+    ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones"],
+                    help="ejecutar solo una fase (por defecto, todas)")
     args = ap.parse_args()
+    fase = lambda n: args.solo in (None, n)  # noqa: E731
 
     c = cliente(); loc = c.location_id
     lst = c.request("GET", f"/workflow/{loc}") or []
@@ -176,7 +221,7 @@ def main() -> None:
     ids = {w.get("name"): (w.get("id") or w.get("_id")) for w in lst
            if isinstance(w, dict) and w.get("type") != "directory"}
 
-    for nombre, viejo, nuevo, motivo in RETOQUES:
+    for nombre, viejo, nuevo, motivo in (RETOQUES if fase("retoques") else []):
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe")
@@ -207,8 +252,12 @@ def main() -> None:
         print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es)  ({motivo})"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
-    aplicar_campos(c, loc, ids, args.dry_run)
-    aplicar_avisos(c, loc, ids, args.dry_run)
+    if fase("campos"):
+        aplicar_campos(c, loc, ids, args.dry_run)
+    if fase("avisos"):
+        aplicar_avisos(c, loc, ids, args.dry_run)
+    if fase("inserciones"):
+        aplicar_inserciones(c, loc, ids, args.dry_run)
 
 
 def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
@@ -241,6 +290,64 @@ def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
         r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nodo:38} ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
+
+
+def aplicar_inserciones(c, loc, ids, dry_run: bool) -> None:
+    """Cose un nodo nuevo justo detrás de otro, en un workflow de cadena simple.
+
+    Es idempotente por el nombre del nodo: si ya está, no lo duplica. Importa,
+    porque este script se corre varias veces mientras se afina un texto.
+    """
+    for nombre, nodo, detras_de, attrs, motivo in INSERCIONES:
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = [dict(t) for t in (wd.get("templates") or [])]
+
+        if any(t.get("name") == nodo for t in templates):
+            print(f"  = {nodo:38} ya estaba"); continue
+
+        pos = next((i for i, t in enumerate(templates)
+                    if t.get("name") == detras_de), None)
+        if pos is None:
+            print(f"  ✗ {nodo:38} no encuentro «{detras_de}»"); continue
+
+        anterior = templates[pos]
+        nuevo = {
+            "id": str(uuid.uuid4()),
+            "type": "internal_notification",
+            "name": nodo,
+            "parentKey": anterior["id"],
+            "order": 0,          # se renumera abajo
+            "attributes": attrs,
+        }
+        # Hereda el `next` del anterior; si era el último, el nuevo lo es.
+        if anterior.get("next"):
+            nuevo["next"] = anterior["next"]
+            siguiente = next((t for t in templates
+                              if t.get("id") == anterior["next"]), None)
+            if siguiente is not None:
+                siguiente["parentKey"] = nuevo["id"]
+        anterior["next"] = nuevo["id"]
+
+        templates.insert(pos + 1, nuevo)
+        for i, t in enumerate(templates):
+            t["order"] = i
+
+        if dry_run:
+            print(f"  · {nodo:38} tras «{detras_de}»  ({motivo})  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nodo:38} tras «{detras_de}»"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
