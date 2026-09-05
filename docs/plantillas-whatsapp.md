@@ -1,6 +1,19 @@
 # Plantillas de WhatsApp para aprobación de Meta
 
-Textos sacados **directamente de los workflows** de la subcuenta, no reescritos.
+Textos sacados de los workflows de la subcuenta y **repasados el 5-sep** en dos cosas.
+
+**Género.** Ningún mensaje asume si quien lo lee es hombre o mujer. Nada de «ya estás
+registrado», y tampoco «registrado/a» entre paréntesis, que se lee peor. De las 19 solo dos lo
+tenían: la bienvenida en español pasó a *«tu registro está listo»*, y el no-show italiano de
+*«ti sei perso»* a *«hai saltato»* — con *avere* el participio no concuerda, así que vale para
+cualquiera.
+
+**Acentos.** Los quince que salieron de nodos del builder venían sin ellos. Esto lo lee un
+cliente en su teléfono: «Manana es la clase» y «el sintoma» se ven como un descuido.
+
+> Los nodos de los workflows **siguen con el texto viejo** y no pasa nada: hoy son `sms` con el
+> texto dentro, y al convertirlos a WhatsApp pasarán a referenciar la plantilla aprobada. Manda
+> el texto de Meta. Al hacer esa conversión, copiar de aquí y no del nodo.
 
 ## Cómo funciona esto
 
@@ -48,7 +61,7 @@ Ciao {{1}}, iscriviti qui: {{2}}
 **Texto para Meta:**
 
 ```
-Hola {{1}}, registrate aqui: {{2}}
+Hola {{1}}, regístrate aquí: {{2}}
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -69,7 +82,7 @@ Hola {{1}}, registrate aqui: {{2}}
 **Texto para Meta:**
 
 ```
-Hola {{1}}! Ya estas registrado. Unete al grupo para recibir el acceso: {{2}}
+Hola {{1}}, tu registro está listo. Únete al grupo para recibir el acceso: {{2}}
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -87,7 +100,7 @@ Hola {{1}}! Ya estas registrado. Unete al grupo para recibir el acceso: {{2}}
 **Texto para Meta:**
 
 ```
-Gracias por escribirnos. Te dejamos este contenido para entender la causa emocional del sintoma: {{1}}
+Gracias por escribirnos. Te dejamos este contenido para entender la causa emocional del síntoma: {{1}}
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -107,7 +120,7 @@ Gracias por escribirnos. Te dejamos este contenido para entender la causa emocio
 **Texto para Meta:**
 
 ```
-Manana es la clase: {{1}} a las {{2}}.
+Mañana es la clase: {{1}} a las {{2}}.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -125,7 +138,7 @@ Manana es la clase: {{1}} a las {{2}}.
 **Texto para Meta:**
 
 ```
-Hoy es el dia. En 3 horas comenzamos.
+Hoy es el día. En 3 horas comenzamos.
 ```
 
 ### Estamos en vivo (trigger link 1:1)
@@ -138,7 +151,7 @@ Hoy es el dia. En 3 horas comenzamos.
 **Texto para Meta:**
 
 ```
-Estamos comenzando. Entra aqui: {{1}}
+Estamos comenzando. Entra aquí: {{1}}
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -171,7 +184,7 @@ Te perdiste la clase de hoy, pero te dejamos lo esencial.
 **Texto para Meta:**
 
 ```
-Domani e la lezione: {{1}} alle {{2}}.
+Domani è la lezione: {{1}} alle {{2}}.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -189,7 +202,7 @@ Domani e la lezione: {{1}} alle {{2}}.
 **Texto para Meta:**
 
 ```
-Oggi e il giorno. Tra 3 ore iniziamo.
+Oggi è il giorno. Tra 3 ore iniziamo.
 ```
 
 ### Estamos en vivo (trigger link 1:1)
@@ -219,7 +232,7 @@ Stiamo iniziando. Entra qui: {{1}}
 **Texto para Meta:**
 
 ```
-Ti sei perso la lezione di oggi, ma ti lasciamo l'essenziale.
+Hai saltato la lezione di oggi, ma ti lasciamo l'essenziale.
 ```
 
 
@@ -272,7 +285,7 @@ Agenda tu llamada de cierre: {{1}}
 **Texto para Meta:**
 
 ```
-Tu llamada quedo agendada. Te esperamos.
+Tu llamada quedó agendada. Te esperamos.
 ```
 
 ### Recordatorio cita 24 h
@@ -285,7 +298,7 @@ Tu llamada quedo agendada. Te esperamos.
 **Texto para Meta:**
 
 ```
-Manana es tu llamada de cierre.
+Mañana es tu llamada de cierre.
 ```
 
 ### Recordatorio cita 1 h + Zoom
