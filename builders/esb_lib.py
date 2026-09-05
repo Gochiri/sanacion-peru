@@ -130,7 +130,10 @@ def campo(nombre: str, asignaciones: list[tuple[str, str]]) -> dict:
         })
     return {
         "id": uid(), "type": "update_contact_field", "name": nombre,
-        "attributes": {"fields": fields},
+        # `actionType` lo llevan todos los nodos de campo de la cuenta,
+        # incluidos los que se configuraron a mano en la UI. Sin él el nodo se
+        # guarda igual, pero queda distinto a los demás.
+        "attributes": {"fields": fields, "actionType": "update_field_data"},
     }
 
 

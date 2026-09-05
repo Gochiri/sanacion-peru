@@ -437,7 +437,12 @@ def aplicar_campos(c, loc, ids, dry_run: bool) -> None:
         for t in templates:
             if t.get("name") != nodo:
                 continue
-            t["attributes"] = {**(t.get("attributes") or {}), "fields": campos}
+            # `actionType` lo llevan TODOS los nodos de campo de la cuenta,
+            # incluidos los que configuró Oliver a mano. Los dos de WF5 se
+            # quedaron sin él porque aquí solo se reemplazaba `fields`.
+            t["attributes"] = {**(t.get("attributes") or {}),
+                               "fields": campos,
+                               "actionType": "update_field_data"}
             tocados += 1
 
         if not tocados:
