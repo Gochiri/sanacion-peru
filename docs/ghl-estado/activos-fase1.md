@@ -310,7 +310,19 @@ enteros y volver a pasar una que ya se afinó a mano en la UI le escribe encima.
 
 ### Pendiente, por orden
 
-1. **El anclaje de WF3** — necesita el nodo de ejemplo en la UI
+1. **El anclaje de WF3** — necesita el nodo de ejemplo en la UI. Ya está montado el
+   workflow de sonda **«ZZ sonda - espera por fecha»** (`d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0`)
+   con un único nodo llamado *CAMBIAR ESTA ESPERA A FECHA CONCRETA*, para no tocar WF3 mientras
+   se averigua el formato. Se abre, se cambia esa espera a fecha, se guarda, y se lee con:
+
+   ```
+   python3 -c "import sys;sys.path.insert(0,'builders');import esb_lib,json;\
+   c=esb_lib.cliente();\
+   print(json.dumps(c.request('GET','/workflow/%s/d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0'%c.location_id),indent=1))"
+   ```
+
+   Sirve igual si el campo no acepta un custom value y hay que poner la fecha a mano: lo que
+   se busca es la **forma** del `startAfter`, no el valor. Al terminar, borrar la sonda.
 2. **Nutrición entre registro y evento** (K21) — depende de lo anterior
 3. **Pase VIP** (K13/K14) — espera el link de Hotmart y el contenido de Joaquín
 4. Enlace del Drive del curso → `embed_video_educativo_es`
