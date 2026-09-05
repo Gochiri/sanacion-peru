@@ -6,10 +6,12 @@ Hay dos clases de valor y por eso hay dos comandos:
                  lanzamiento). Son dos ciclos y hay que rotarlos: el ciclo 2 se
                  carga el 25-sep, en cuanto termina el primer webinar.
   · **fijos**  — lo que no cambia entre ciclos (datos de cobro manual).
+  · **personas** — fotos y biografías de la página de registro.
 
     python3 builders/valores.py ciclo 1
     python3 builders/valores.py ciclo 2 --aplicar
     python3 builders/valores.py fijos --aplicar
+    python3 builders/valores.py personas --aplicar
 
 El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
@@ -83,6 +85,39 @@ FIJOS = {
 }
 
 
+# Fotos y biografías de la sección «quiénes la dan» de registro-es. Eran
+# literales pegados en el HTML hasta el 5-sep; ahora son custom values para que
+# cambiar una foto no obligue a volver a pegar la página entera en GHL.
+#
+# ⚠ Las dos fotos llegaron a Media Storage como «3.png» y «4.png», sin nada que
+# diga cuál es cuál, y el CDN de GHL no se puede abrir desde aquí para mirarlas.
+# El reparto va por el orden en que el cliente mandó las biografías: Christie
+# primero, Luca después. **Hay que abrir la página y comprobarlo** — si están
+# cruzadas se arregla intercambiando estos dos valores, sin tocar el HTML.
+_MEDIA = "https://assets.cdn.filesafe.space/oszNQJYK0E15KB4S06nM/media/"
+
+PERSONAS = {
+    "foto_christie_url": _MEDIA + "6a9b51cf3dd2068ce69941a0.png",   # 3.png
+    "foto_luca_url":     _MEDIA + "6a9b51cfe29b3baf97c14427.png",   # 4.png
+    "bio_christie": (
+        "Christie Salvatierra es creadora de la Escuela Nueva Consciencia "
+        "Academy y experta en transformación personal, sanación cuántica y "
+        "espiritual. Su misión es acompañar a las personas a liberar bloqueos "
+        "emocionales, reprogramar su mente y cuerpo, y conectar con su "
+        "potencial interior para vivir con mayor bienestar, abundancia y "
+        "plenitud."
+    ),
+    "bio_luca": (
+        "Luca Stefanizzi es autor, mental coach y creador de la Academia Nueva "
+        "Consciencia, enfocado en ayudar a las personas a superar bloqueos, "
+        "miedos y limitaciones mentales. A través de su experiencia y trabajo "
+        "con la mente y las emociones, guía a las personas hacia una mayor "
+        "claridad, autenticidad y dirección para construir la vida que "
+        "realmente desean."
+    ),
+}
+
+
 def _indice() -> dict[str, dict]:
     cod, r = publico.pedir("GET", "/locations/%s/customValues" % os.environ["GHL_LOCATION_ID"])
     if cod != 200:
@@ -99,7 +134,17 @@ def cargar(valores: dict[str, str], escribir: bool) -> None:
     for clave, nuevo in valores.items():
         cv = indice.get(clave)
         if cv is None:
-            print("  ✗ %-28s no existe en la subcuenta" % clave)
+            # Crear en vez de rendirse: los valores de la landing nacieron aquí,
+            # no existían en la subcuenta.
+            print("  %s %-28s (nuevo) → %s"
+                  % ("+" if escribir else "·", clave,
+                     nuevo.replace("\n", " / ")[:46]))
+            if escribir:
+                cod, r = publico.pedir(
+                    "POST", "/locations/%s/customValues" % os.environ["GHL_LOCATION_ID"],
+                    {"name": clave.replace("_", " ").capitalize(), "value": nuevo})
+                if cod not in (200, 201):
+                    print("      ✗ %s %s" % (cod, r))
             continue
         actual = cv.get("value") or ""
         if actual == nuevo:
@@ -131,6 +176,9 @@ if __name__ == "__main__":
     elif args[:1] == ["fijos"]:
         print("Datos de cobro manual")
         cargar(FIJOS, escribir)
+    elif args[:1] == ["personas"]:
+        print("Fotos y biografías de la landing")
+        cargar(PERSONAS, escribir)
     else:
         raise SystemExit(__doc__)
 

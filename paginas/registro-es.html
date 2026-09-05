@@ -5,9 +5,15 @@
   Dirección: editorial sobre fondo oscuro · macro: promesa → a quién sirve →
   problema (PAS) → qué verás → quién la dicta → registro → objeciones.
 
-  PLACEHOLDERS A REEMPLAZAR (ver README al final del archivo):
-   · URL_FOTO_CHRISTIE / URL_FOTO_LUCA -> fotos reales, no stock
-  Las fechas y horas salen de custom values: se rellenan solas al cargarlos.
+  Ya no quedan placeholders en el HTML: todo sale de custom values y se rellena
+  solo al cargarlos. Las fotos y biografías eran literales pegados aquí hasta el
+  5-sep; ahora son `foto_christie_url`, `foto_luca_url`, `bio_christie` y
+  `bio_luca`, para que el próximo cambio de foto no obligue a volver a pegar la
+  página entera en GHL.
+
+  Mientras esos cuatro no tengan valor, un script deja la inicial en un recuadro
+  en vez de una imagen rota, y quita la biografía en vez de mostrar el texto de
+  relleno. Las fotos van cuadradas — el cliente las sube a 1080x1080.
 -->
 
 <style>
@@ -177,6 +183,15 @@ html, body {
 .sc-persona .sc-rol { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.14em;
   text-transform:uppercase; color:var(--sc-oro); margin-top:var(--sc-s2); display:block; }
 .sc-persona p { color:var(--sc-mudo); margin-top:var(--sc-s3); font-size:.96rem; }
+/* Retrato de reserva mientras no haya foto: la inicial en un recuadro, que se
+   lee como una decisión de diseño y no como una imagen que no cargó. */
+.sc-retrato-vacio {
+  width:clamp(76px,11vw,104px); aspect-ratio:1; flex:none;
+  border:1px solid var(--sc-oro-tenue); background:var(--sc-negro-2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--sc-display); font-size:clamp(1.6rem,3vw,2.1rem);
+  color:var(--sc-oro-tenue);
+}
 
 /* ── Registro ────────────────────────────────────────────────────────── */
 .sc-registro { background:var(--sc-negro-2); border-top:1px solid var(--sc-oro-tenue); }
@@ -359,20 +374,20 @@ html, body {
 
       <div class="sc-personas">
         <article class="sc-persona">
-          <img class="sc-retrato" src="URL_FOTO_CHRISTIE" alt="Christie Salvatierra">
+          <img class="sc-retrato" src="{{custom_values.foto_christie_url}}" alt="Christie Salvatierra" data-inicial="C">
           <div>
             <h3 class="sc-h3">Christie Salvatierra</h3>
             <span class="sc-rol">Bioterapeuta</span>
-            <p>PENDIENTE_BIO_CHRISTIE — dos o tres líneas sobre su formación y a cuánta gente ha acompañado. Que lo escriba ella, con datos reales.</p>
+            <p class="sc-bio">{{custom_values.bio_christie}}</p>
           </div>
         </article>
 
         <article class="sc-persona">
-          <img class="sc-retrato" src="URL_FOTO_LUCA" alt="Luca Stefanizzi">
+          <img class="sc-retrato" src="{{custom_values.foto_luca_url}}" alt="Luca Stefanizzi" data-inicial="L">
           <div>
             <h3 class="sc-h3">Luca Stefanizzi</h3>
             <span class="sc-rol">Salud Consciente</span>
-            <p>PENDIENTE_BIO_LUCA — dos o tres líneas sobre su formación y su trabajo. Que lo escriba él, con datos reales.</p>
+            <p class="sc-bio">{{custom_values.bio_luca}}</p>
           </div>
         </article>
       </div>
@@ -454,5 +469,31 @@ html, body {
   </div>
 
 </div>
+
+<script>
+(function () {
+  // Fotos y biografías llegan como custom values. Mientras no estén, GHL deja
+  // en el HTML el texto literal «{{custom_values.…}}» o la palabra PENDIENTE:
+  // la foto saldría rota y la bio sería una línea de relleno delante del
+  // visitante. Mismo criterio que el video del evento — antes nada que algo mal.
+  var sinValor = function (t) {
+    t = (t || "").trim();
+    return !t || t.indexOf("{{") === 0 || t.slice(0, 9) === "PENDIENTE";
+  };
+
+  Array.prototype.forEach.call(document.querySelectorAll(".sc-retrato"), function (img) {
+    if (/^https?:\/\//.test(img.getAttribute("src") || "")) return;
+    var caja = document.createElement("div");
+    caja.className = "sc-retrato-vacio";
+    caja.setAttribute("aria-hidden", "true");
+    caja.textContent = img.getAttribute("data-inicial") || "";
+    img.parentNode.replaceChild(caja, img);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll(".sc-bio"), function (p) {
+    if (sinValor(p.textContent)) p.remove();
+  });
+})();
+</script>
 
 <script src="https://link.msgsndr.com/js/form_embed.js"></script>

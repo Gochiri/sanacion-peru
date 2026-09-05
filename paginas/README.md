@@ -47,12 +47,21 @@ el vectorial o el PNG transparente se puede replantear.
 
 ## Lo que falta reemplazar antes de publicar
 
-| Placeholder | Qué poner |
-|---|---|
-| `URL_FOTO_CHRISTIE`, `URL_FOTO_LUCA` | **Fotos reales.** Sin foto del creador la conversión cae en LATAM, y poner stock es peor que no poner nada |
-| `PENDIENTE_BIO_CHRISTIE`, `PENDIENTE_BIO_LUCA` | Dos o tres líneas que escriban ellos, con datos reales |
+**Ya no queda ningún placeholder en el HTML.** Las fotos y biografías de Christie y Luca eran
+literales pegados en `registro-es.html` hasta el 5-sep; ahora son cuatro custom values
+—`foto_christie_url`, `foto_luca_url`, `bio_christie`, `bio_luca`— y están cargados. Se cambian
+con `python3 builders/valores.py personas --aplicar`, sin volver a pegar la página.
 
-**El logo ya no es un placeholder.** Sale de `{{custom_values.logo_url}}`, así que se cambia en
+Mientras alguno esté vacío, un script deja la inicial en un recuadro en vez de una imagen rota y
+quita la biografía en vez de mostrar el texto de relleno. Mismo criterio que el video del evento:
+antes nada que algo mal delante del visitante.
+
+> ⚠️ **Comprobar que las fotos no están cruzadas.** Llegaron a Media Storage como `3.png` y
+> `4.png`, sin nada que diga cuál es cuál, y el CDN de GHL no se puede abrir desde el entorno de
+> trabajo. El reparto va por el orden en que el cliente mandó las biografías. Si están al revés se
+> intercambian los dos valores y listo.
+
+**El logo tampoco es un placeholder.** Sale de `{{custom_values.logo_url}}`, así que se cambia en
 un solo sitio y se actualiza en todas las páginas a la vez. Los dos que subió el cliente están
 cargados: `logo_url` (el que se usa) y `logo_url_alt` (el otro). Si el que se ve no es el
 horizontal, se intercambian los dos valores y listo — sin tocar ningún HTML.
