@@ -193,3 +193,76 @@ que los escritos a mano.
 **La lección, otra vez la misma:** el API acepta cualquier forma y responde 200, pero la UI solo
 lee la suya. Cuando un tipo de nodo no está verificado, se configura uno a mano y se lee — sale
 más barato que adivinar dos veces.
+
+---
+
+## Anclar una espera a una fecha — el esquema completo (5-sep)
+
+El problema que resuelve: una espera normal cuenta **desde que el contacto entra al nodo**.
+En un workflow disparado por el registro, «esperar hasta 24 h antes del evento» acababa
+significando «un día después de registrarse», con el evento a dos semanas vista.
+
+Son **dos nodos** y hacen falta los dos.
+
+### 1 · `event_start_date` — fija a qué fecha se ancla
+
+```json
+{"type": "event_start_date",
+ "event_start_type": "custom_field",
+ "value": "{{custom_values.fecha_evento_es_ghl}}"}
+```
+
+Va como **primer paso** del workflow. Los `attributes` son solo esas tres claves: sin
+`name`, sin `cat`.
+
+⚠️ **No entiende ISO 8601.** Pide `MM-DD-YYYY HH:MM AM/PM` (o `DD-MMM-YYYY HH:MM`). Con un
+`2026-09-24T20:00:00-05:00` no parsea y no avisa. Por eso existe la variante `_ghl` de cada
+fecha, aparte de la `_iso` que necesitan la cuenta atrás y el botón de calendario de las
+páginas. Y como el formato no lleva zona horaria, la hora va en la de la subcuenta.
+
+### 2 · La espera — `type: "appointment"`
+
+```json
+{"type": "appointment",
+ "appointmentStartAfter": {"when": "before", "type": "minutes", "value": 1440,
+                           "distributed": {"months": 0, "days": 1, "hours": 0, "minutes": 0}},
+ "appointmentCondition": "skip",
+ "isHybridAction": true, "hybridActionType": "wait",
+ "convertToMultipath": false, "transitions": []}
+```
+
+- `startAfter` **desaparece**: si se queda, GHL conserva la espera vieja.
+- `value` son los minutos totales; `distributed` es el desglose que muestra la UI. Los dos
+  tienen que decir lo mismo.
+- `when` acepta `before` y `after`.
+- Dejan de ser acumulativas: cada una apunta a un instante absoluto respecto del evento.
+
+> El nombre de la opción en la UI engaña. **«Until a scheduled date/time»** es esta, y sirve
+> tanto para una cita como para un *event start date*. **«Until a specific date/time»** es
+> otra distinta, de fecha fija. Es fácil elegir la que no es.
+
+☠️ **`appointmentCondition: "skip"` es peligroso sin el nodo 1.** Una espera que no encuentra
+fecha a la que anclarse **se salta entera**, así que el contacto recibiría la secuencia
+completa de golpe. Al montarlo: **primero el nodo, después las esperas.**
+
+### 3 · Escribir un campo DATE del contacto
+
+```json
+{"field": "<id>", "value": "{{custom_values.fecha_evento_es_iso}}",
+ "title": "Fecha evento", "type": "date", "date": "customDate"}
+```
+
+Lo distinto es `date: "customDate"`, que en los demás tipos va vacío.
+
+### Dónde va cada cosa
+
+Las **esperas** se convierten por API sin riesgo: es reescribir atributos de un nodo que ya
+existe (`retocar.py --solo esperas`). El **`event_start_date` se añade en la UI**: los dos
+WF3 tienen ramas, sus `order` se repiten dentro de ellas, y meter un nodo en la cabecera
+obliga a renumerar — que es justo lo que rompe sin avisar.
+
+### Nodo de campo: `actionType`
+
+Todos los `update_contact_field` de la cuenta llevan `"actionType": "update_field_data"`,
+incluidos los configurados a mano en la UI. Los dos de WF5 se habían quedado sin él porque
+`retocar.py` solo reemplazaba `fields`. Corregido ahí y en `esb_lib.campo()`.

@@ -279,17 +279,37 @@ solo Luca es `user`.
 
 Fuente: `docs/fuentes/05-deltas-llamada-4sep.md`.
 
-### 🚨 Lo que bloquea el lanzamiento
+### ✅ Resuelto — el anclaje temporal (5-sep)
 
-**Las esperas de WF3 son relativas al registro, no a la fecha del evento.** Verificado
-leyendo los nodos: `{"type":"days","value":1,"when":"after"}`. Con los anuncios el 9-sep y
-el webinar el 24, todo el que se registre temprano recibe la secuencia completa de
-recordatorios en sus primeras 48 horas — y el trigger link de «estamos en vivo» dispara
-WF4A, así que además queda marcado como asistente.
+Las esperas de WF3 corrían desde el registro y no desde la fecha del evento. Con los anuncios
+el 9-sep y el webinar el 24, todo el que se registrara temprano habría recibido la secuencia
+completa en sus primeras 48 horas — y el trigger link de «estamos en vivo» dispara WF4A, así
+que además habría quedado marcado como asistente.
 
-Para arreglarlo hace falta **el esquema real de una espera anclada a fecha**, que no
-conocemos. Se resuelve como se resolvió `internal_notification`: alguien configura **un**
-nodo en la UI y se lee por API.
+**WF4C tenía el mismo fallo** y no lo sabíamos: sus dos esperas eran «1 día después» y «23
+horas después» de reservar, no 24 h y 1 h antes de la llamada. Apareció al leer el esquema.
+
+Los diez nodos están anclados y verificados:
+
+| Workflow | Esperas ancladas |
+|---|---|
+| WF3-ES · WF3-IT | T-24 h · T-3 h · T-15 min · T+2 h |
+| WF4C | 24 h y 1 h antes de la cita |
+
+El esquema completo —los dos nodos que hacen falta, el formato de fecha que GHL sí entiende y
+por qué `skip` es peligroso— está en `esquemas-nodos.md`. Las dos esperas que siguen siendo
+relativas lo son a propósito: la de 30 min de WF1 y el relleno de la rama vacía de WF3.
+
+> ⚠️ **Operativa de los dos ciclos.** El campo se fija al entrar al workflow, así que quien se
+> registre antes del 24 se queda con el webinar 1 y quien entre después con el 2, solo. Pero si
+> alguien se registra el 24 por la noche —ya terminado el webinar— y todavía no se cargó el
+> ciclo 2, su fecha objetivo queda en el pasado y GHL lo suelta de golpe con toda la cadena.
+> **`valores.py ciclo 2 --aplicar` se corre esa misma noche**, no a la mañana siguiente.
+
+> ⚠️ **Sin verificar: la zona horaria del italiano.** El formato que pide GHL no la lleva, así
+> que `fecha_evento_it_ghl` va convertido a hora de la subcuenta (las 18:00 de Italia son las
+> 11:00 de Bogotá). Si GHL lo leyera en la hora del contacto y no en la de la cuenta, los
+> recordatorios italianos saldrían siete horas antes. Se comprueba con un contacto de prueba.
 
 ### Hecho
 
@@ -310,19 +330,10 @@ enteros y volver a pasar una que ya se afinó a mano en la UI le escribe encima.
 
 ### Pendiente, por orden
 
-1. **El anclaje de WF3** — necesita el nodo de ejemplo en la UI. Ya está montado el
-   workflow de sonda **«ZZ sonda - espera por fecha»** (`d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0`)
-   con un único nodo llamado *CAMBIAR ESTA ESPERA A FECHA CONCRETA*, para no tocar WF3 mientras
-   se averigua el formato. Se abre, se cambia esa espera a fecha, se guarda, y se lee con:
-
-   ```
-   python3 -c "import sys;sys.path.insert(0,'builders');import esb_lib,json;\
-   c=esb_lib.cliente();\
-   print(json.dumps(c.request('GET','/workflow/%s/d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0'%c.location_id),indent=1))"
-   ```
-
-   Sirve igual si el campo no acepta un custom value y hay que poner la fecha a mano: lo que
-   se busca es la **forma** del `startAfter`, no el valor. Al terminar, borrar la sonda.
+1. **Borrar el workflow de sonda** «ZZ sonda - espera por fecha»
+   (`d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0`), que ya cumplió su función
+2. **Probar el anclaje con un contacto real**: meterlo en la etapa *Registrado* y comprobar
+   que no recibe nada al día siguiente. Es la prueba que cierra el asunto
 2. **Nutrición entre registro y evento** (K21) — depende de lo anterior
 3. **Pase VIP** (K13/K14) — espera el link de Hotmart y el contenido de Joaquín
 4. Enlace del Drive del curso → `embed_video_educativo_es`
