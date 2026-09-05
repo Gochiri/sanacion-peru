@@ -328,6 +328,37 @@ enteros y volver a pasar una que ya se afinó a mano en la UI le escribe encima.
 
 `valores.py` aprendió a **crear** los custom values que no existen, no solo a actualizarlos.
 
+### Auditoría de prelanzamiento
+
+`python3 builders/auditar.py` recorre el camino español de punta a punta —anuncio, registro,
+nutrición, recordatorios, evento, postulación, cita, cobro— y dice qué está conectado y qué no,
+**leyendo la subcuenta, no estos documentos**.
+
+Esa distinción es la lección del 5-sep: `forms-a-crear.md` llevaba una semana afirmando que los
+formularios italianos no hacían falta, y había dejado de ser cierto el 28-ago con K10. Un
+documento no se entera de que alguien tocó algo en la UI.
+
+Corrida del 5-sep: **el camino español está entero salvo tres cosas**, y las tres tienen dueño —
+WF6 sin publicar y sin trigger (Oliver), y `embed_video_educativo_es` esperando el enlace del
+Drive (Joaquín).
+
+### WF2 por mercado — por qué no se hizo
+
+No es que falte tiempo: **GHL rechaza las bifurcaciones anidadas** («Add at least one branch»,
+probado) y WF2 ya gasta su única bifurcación en la calificación. La salida correcta es partirlo
+en dos como se hizo con WF3, y eso exige la **encuesta italiana F02**, que no se puede crear por
+API y depende del copy de Luca.
+
+`wf2_it()` ya está escrito en `builders/build_fase1.py`, con el copy italiano marcado como
+provisional igual que `COPY_IT`. **No está en `WORKFLOWS`** a propósito, para que no se despliegue
+por descuido antes de tener trigger.
+
+☠️ Y de paso apareció una trampa que muerde el día que Italia arranque: **F01 estampa
+`mercado = Peru-LATAM` como campo oculto fijo y pisa lo que WF1 ya había decidido** mirando el
+prefijo `+39`. Un italiano en F01 queda marcado como Perú, WF3-IT no dispara para él y recibe los
+recordatorios en español con la fecha equivocada. Está documentado en `forms-a-crear.md`: al
+crear F02, su campo oculto tiene que estampar `Italia`.
+
 ### Pendiente, por orden
 
 1. **Borrar el workflow de sonda** «ZZ sonda - espera por fecha»

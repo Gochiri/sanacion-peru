@@ -3,8 +3,20 @@
 El API no permite crearlos (público: *"route not supported by the IAM Service"*; interno: 404/403),
 así que van a mano. Aquí está la especificación exacta.
 
-**Solo hacen falta los de español**: el cliente confirmó que arranca con Perú (`P-14`).
-La réplica italiana (F02) queda para cuando Italia entre al plan.
+> ⚠️ **Corregido el 5-sep.** Esta página decía que *«solo hacen falta los de español, porque el
+> cliente arranca con Perú (P-14)»*. **Eso dejó de ser cierto el 28-ago**: `K10` decidió lanzar
+> los dos mercados a la vez y `P-14` quedó revertido. Quien leyera lo anterior concluiría que
+> **F02 no hace falta**, que es justo lo contrario.
+
+**Hacen falta los dos.** El español ya existe: **F01** (`iheVfI7xkesInu8jKLKB`) y **F03**
+(`DTwkB4aTiEIqUGNI9Qjo`), comprobado por API. El italiano, **F02, no existe todavía** y es el
+bloqueante de más cosas de las que parece:
+
+- Sin F02 **no puede haber WF2-IT**, porque el trigger de WF2 filtra por `survey.id`. El código
+  ya está escrito y esperando (`wf2_it()` en `builders/build_fase1.py`), sin desplegar
+- Y sin WF2-IT, un registrado italiano recibe el grupo y el contenido educativo **en español**
+
+Depende del copy italiano, que produce y valida Luca (B4/P-13).
 
 > ⚠️ **Lo más importante:** cada pregunta debe mapear al campo personalizado que ya existe.
 > Los workflows leen esos campos por su `fieldKey` — si se crea un campo nuevo en vez de usar
@@ -72,6 +84,27 @@ sobrescribirlo, o el visitante lee una etiqueta de sistema.
 **Texto de ayuda:** `Queremos asegurarnos de que esta clase sea para ti.`
 Hace que elegir la opción del medicamento no se sienta como un descarte. Importa: el público lleva
 años buscando solución y llega sensible.
+
+---
+
+## ☠️ El campo oculto de mercado pisa lo que ya se decidió
+
+F01 estampa `contact.mercado = Peru-LATAM` como campo oculto de valor fijo. Y **WF1 ya había
+decidido el mercado antes**, mirando si el teléfono empieza por `+39`.
+
+Gana el formulario. Así que **un italiano que llegue a F01 queda marcado como Perú**, y a partir
+de ahí:
+
+- **WF3-IT no dispara para él** — su trigger exige `Mercado = Italia`
+- **WF3-ES sí**, así que recibe los recordatorios en español y con la fecha del webinar
+  equivocada, que además cae dos días antes que la suya
+
+Hoy no muerde porque no hay una sola página en italiano a la que mandar tráfico. Muerde el día
+que Italia arranque.
+
+**Al crear F02, su campo oculto tiene que estampar `Italia`**, no `Peru-LATAM`. Con las dos
+encuestas cada una marcando lo suyo, el problema desaparece solo y el prefijo `+39` de WF1 pasa a
+ser lo que debe ser: una red de seguridad para quien escribe por WhatsApp antes de registrarse.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.

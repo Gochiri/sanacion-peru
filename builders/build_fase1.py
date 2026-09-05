@@ -61,7 +61,39 @@ def wf1():
 
 
 # ── WF2 · Registro y calificación (LS03+SP01+eliminatoria D6) ────────────
-def wf2():
+# Fábrica por mercado, igual que _wf3(). Y por el mismo motivo: **GHL rechaza
+# las bifurcaciones anidadas** («Add at least one branch», probado — ver
+# esquemas-nodos.md), y WF2 ya gasta su única bifurcación en la calificación.
+# Para decidir además por mercado no queda otra que separar en dos workflows,
+# distinguidos por un filtro en el trigger, que es lo que ya se hizo con WF3.
+COPY_WF2_ES = {
+    "bienvenida_asunto": "Tu lugar esta confirmado",
+    "bienvenida_wa": ("Hola {{contact.first_name}}! Ya estas registrado. Unete "
+                      "al grupo para recibir el acceso: %s"),
+    "bienvenida_email": ("<p>Tu lugar quedo confirmado. Te enviamos el recordatorio "
+                         "con el dia y la hora, y el acceso por el grupo: %s</p>"),
+    "educativo_asunto": "Un primer paso para entender tu sintoma",
+    "educativo_wa": ("Gracias por escribirnos. Te dejamos este contenido para "
+                     "entender la causa emocional del sintoma: %s"),
+    "educativo_email": "<p>Te compartimos este material: %s</p>",
+}
+
+# Copy italiano PROVISIONAL: lo produce y valida Luca (P-13/B4), igual que
+# COPY_IT de WF3. No sale a producción sin su visto bueno.
+COPY_WF2_IT = {
+    "bienvenida_asunto": "Il tuo posto e confermato",
+    "bienvenida_wa": ("Ciao {{contact.first_name}}! Sei registrato. Entra nel "
+                      "gruppo per ricevere l'accesso: %s"),
+    "bienvenida_email": ("<p>Il tuo posto e confermato. Ti mandiamo il promemoria "
+                         "con il giorno e l'ora, e l'accesso dal gruppo: %s</p>"),
+    "educativo_asunto": "Un primo passo per capire il tuo sintomo",
+    "educativo_wa": ("Grazie per averci scritto. Ti lasciamo questo contenuto per "
+                     "capire la causa emotiva del sintomo: %s"),
+    "educativo_email": "<p>Ti condividiamo questo materiale: %s</p>",
+}
+
+
+def _wf2(grupo, educativo, t, sufijo=""):
     return [
         etiqueta("Marcar registrado", ["registrado"]),
         # El campo guarda la frase que ve el visitante (el builder no permite
@@ -72,30 +104,44 @@ def wf2():
                   "Entender por que mi cuerpo enfermo y como sanarlo")],
             rama_si=[
                 mover("Mover a Registrado", "Registrado"),
-                whatsapp("Bienvenida con link del grupo", "bienvenida-registro",
-                         f"Hola {{{{contact.first_name}}}}! Ya estas registrado. Unete al grupo "
-                         f"para recibir el acceso: {CV('link_grupo_whatsapp_es')}"),
+                whatsapp("Bienvenida con link del grupo" + sufijo, "bienvenida-registro",
+                         t["bienvenida_wa"] % grupo),
                 # Sin fecha a propósito: desde K12 cada mercado tiene su día
-                # (sábado IT / jueves ES) y WF2 **no** bifurca por mercado, así
-                # que aquí no se puede saber cuál toca. El día y la hora los
-                # lleva el recordatorio de WF3-ES / WF3-IT, que sí es por mercado.
-                email("Confirmacion de registro", "Tu lugar esta confirmado",
-                      f"<p>Tu lugar quedo confirmado. Te enviamos el recordatorio "
-                      f"con el dia y la hora, y el acceso por el grupo: "
-                      f"{CV('link_grupo_whatsapp_es')}</p>"),
+                # (sábado IT / jueves ES). Aunque este workflow ya sabe de qué
+                # mercado es, el día y la hora los lleva el recordatorio de
+                # WF3-ES / WF3-IT, para no tener la fecha escrita en dos sitios.
+                email("Confirmacion de registro" + sufijo, t["bienvenida_asunto"],
+                      t["bienvenida_email"] % grupo),
                 capi("CAPI: Registro", "CompleteRegistration"),
             ],
             rama_no=[
                 mover("Mover a No califica", "No califica"),
                 etiqueta("Etiquetar para remarketing", ["a-educar"]),
-                whatsapp("Contenido educativo (sin link de grupo)", "educativo-no-califica",
-                         f"Gracias por escribirnos. Te dejamos este contenido para "
-                         f"entender la causa emocional del sintoma: {CV('link_educativo_es')}"),
-                email("Email educativo no califica",
-                      "Un primer paso para entender tu sintoma",
-                      f"<p>Te compartimos este material: {CV('link_educativo_es')}</p>"),
+                whatsapp("Contenido educativo (sin link de grupo)" + sufijo,
+                         "educativo-no-califica", t["educativo_wa"] % educativo),
+                email("Email educativo no califica" + sufijo, t["educativo_asunto"],
+                      t["educativo_email"] % educativo),
             ]),
     ]
+
+
+def wf2():
+    """El de siempre. Conserva el nombre para no romper `--solo WF2`."""
+    return _wf2(CV("link_grupo_whatsapp_es"), CV("link_educativo_es"), COPY_WF2_ES)
+
+
+def wf2_it():
+    """Gemelo italiano. **Todavía no se puede desplegar.**
+
+    Su trigger sería `survey_submission` filtrado por la encuesta italiana, y
+    esa encuesta (F02) no existe: los formularios no se pueden crear por API
+    («route not supported by the IAM Service») y el copy depende de Luca (B4).
+
+    Queda escrito para que el día que exista F02 sea un comando y no una tarde.
+    No está en WORKFLOWS a propósito, para que no se despliegue por descuido.
+    """
+    return _wf2(CV("link_grupo_whatsapp_it"), CV("link_educativo_it"),
+                COPY_WF2_IT, sufijo=" IT")
 
 
 # ── WF3 · Recordatorios de evento + no-show (SP02) ───────────────────────
