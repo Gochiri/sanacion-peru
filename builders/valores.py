@@ -99,21 +99,20 @@ _MEDIA = "https://assets.cdn.filesafe.space/oszNQJYK0E15KB4S06nM/media/"
 PERSONAS = {
     "foto_christie_url": _MEDIA + "6a9b51cf3dd2068ce69941a0.png",   # 3.png
     "foto_luca_url":     _MEDIA + "6a9b51cfe29b3baf97c14427.png",   # 4.png
+    # Recortadas de las que mandó el cliente. En la tarjeta caben dos o tres
+    # líneas al lado del retrato; más largo desequilibra la sección y nadie lo
+    # lee. Se queda qué hacen y con qué trabajan, y se va la cola de promesa
+    # («bienestar, abundancia y plenitud», «la vida que realmente desean»), que
+    # en nicho salud además conviene no repetir.
     "bio_christie": (
-        "Christie Salvatierra es creadora de la Escuela Nueva Consciencia "
-        "Academy y experta en transformación personal, sanación cuántica y "
-        "espiritual. Su misión es acompañar a las personas a liberar bloqueos "
-        "emocionales, reprogramar su mente y cuerpo, y conectar con su "
-        "potencial interior para vivir con mayor bienestar, abundancia y "
-        "plenitud."
+        "Creadora de la Escuela Nueva Consciencia Academy y experta en "
+        "transformación personal y sanación cuántica. Acompaña a liberar "
+        "bloqueos emocionales y a reconectar con el propio potencial."
     ),
     "bio_luca": (
-        "Luca Stefanizzi es autor, mental coach y creador de la Academia Nueva "
-        "Consciencia, enfocado en ayudar a las personas a superar bloqueos, "
-        "miedos y limitaciones mentales. A través de su experiencia y trabajo "
-        "con la mente y las emociones, guía a las personas hacia una mayor "
-        "claridad, autenticidad y dirección para construir la vida que "
-        "realmente desean."
+        "Autor y mental coach, creador de la Academia Nueva Consciencia. "
+        "Trabaja con la mente y las emociones para ayudar a superar bloqueos, "
+        "miedos y limitaciones."
     ),
 }
 
