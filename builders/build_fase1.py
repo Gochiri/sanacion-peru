@@ -246,6 +246,84 @@ def wf5():
     ]
 
 
+def wf6_es() -> list[dict]:
+    """WF6-ES · Nutrición entre el registro y el evento.
+
+    Lo pidió Joaquín en la llamada del 4-sep (K21) y el argumento es correcto:
+    con los anuncios el 9 y el webinar el 24, quien se registra el primer día
+    recibe el correo de bienvenida y después **quince días de silencio** hasta
+    el primer recordatorio.
+
+    **Las esperas van relativas al registro, a propósito** — y sí, es justo lo
+    contrario de lo que hubo que arreglar en WF3. La diferencia está en qué
+    ancla cada cosa: un recordatorio habla del evento y tiene que caer respecto
+    del evento; una secuencia de bienvenida habla de la persona y cae respecto
+    de cuándo se apuntó. Anclarla al evento traería el problema de siempre:
+    quien se registre a tres días del webinar recibiría los tres correos de
+    golpe.
+
+    Por eso el copy es **perenne**: no dice «falta poco» ni cuenta días. Así da
+    igual si a alguien le llega el tercero después de la clase — sigue teniendo
+    sentido.
+
+    **Solo correo, sin WhatsApp.** El número es nuevo y sin verificar el negocio
+    ronda las 250 conversaciones iniciadas al día (§11): gastarlo en nutrición
+    antes de los envíos del día del evento es cambiar lo importante por lo
+    accesorio. Y el mapa ya declara el email como canal espejo.
+
+    El trigger es el mismo que WF3 —etapa Registrado—, que solo alcanza quien
+    califica. **Se crea en la UI**, como todos.
+    """
+    grupo = CV("link_grupo_whatsapp_es")
+    cierre = (f'<p>Si te surge algo, escríbelo en el grupo: {grupo}</p>')
+
+    return [
+        esperar("Esperar 1 dia desde el registro", 1, "days"),
+        email("Nutricion 1 - por que ese organo",
+              "Por qué el cuerpo elige un órgano y no otro",
+              "<p>Cuando aparece un síntoma, la pregunta habitual es qué lo "
+              "causó. La que solemos hacernos nosotros es otra: por qué ahí y "
+              "no en otro sitio.</p>"
+              "<p>No es casualidad. Cada órgano cumple una función, y esa "
+              "función tiene que ver con algo concreto de la vida de quien lo "
+              "habita. El estómago con lo que no se digiere. La piel con el "
+              "contacto. Los pulmones con el espacio.</p>"
+              "<p>No hace falta que te lo creas ahora. Es lo que vamos a mirar "
+              "con casos reales en la clase.</p>" + cierre),
+
+        esperar("Esperar 2 dias mas", 2, "days"),
+        email("Nutricion 2 - cuando empezo de verdad",
+              "Lo que estaba pasando cuando empezó",
+              "<p>Casi nadie recuerda bien cuándo empezó su síntoma. Se "
+              "recuerda cuándo se volvió insoportable, que suele ser bastante "
+              "después.</p>"
+              "<p>Ese hueco entre las dos fechas es donde solemos encontrar lo "
+              "interesante. Si te da por pensarlo estos días, no busques el día "
+              "del diagnóstico: busca el mes en que algo cambió y tú seguiste "
+              "adelante como si nada.</p>"
+              "<p>Es un ejercicio incómodo. También es el que más suele "
+              "mover.</p>" + cierre),
+
+        esperar("Esperar 3 dias mas", 3, "days"),
+        # Este correo protege dos veces: al que lo lee, y a la cuenta. En nicho
+        # salud, decir explícitamente lo que NO se promete es lo que separa una
+        # cuenta publicitaria viva de una pausada.
+        email("Nutricion 3 - lo que esto no es",
+              "Lo que esto no es",
+              "<p>Antes de la clase queremos dejar una cosa clara, porque en "
+              "este terreno se promete mucho.</p>"
+              "<p>Esto no cura, no reemplaza a tu médico y no es motivo para "
+              "dejar un tratamiento. Si estás en uno, síguelo.</p>"
+              "<p>Lo que hacemos es otra cosa: entender qué relación puede "
+              "tener un síntoma con lo que estabas viviendo cuando apareció. "
+              "Las dos cosas conviven, y quien mejor le saca provecho a esto "
+              "suele ser justamente el que está bien acompañado por su "
+              "médico.</p>"
+              "<p>Si esperabas otra cosa, mejor saberlo ahora.</p>" + cierre),
+    ]
+
+
+
 WORKFLOWS = [
     ("WF1 - Captacion y atribucion", wf1),
     ("WF2 - Registro y calificacion", wf2),
@@ -255,6 +333,7 @@ WORKFLOWS = [
     ("WF4B - Postulacion", wf4b),
     ("WF4C - Cita agendada", wf4c),
     ("WF5 - Cobro confirmado", wf5),
+    ("WF6-ES - Nutricion pre-evento", wf6_es),
 ]
 
 
