@@ -8,7 +8,13 @@
   sonar a eso: es una redirección hacia lo que sí le sirve hoy.
 
   Variables (custom values):
-   · embed_video_educativo_es -> https://www.youtube.com/embed/XXXXXXXXXXX
+   · embed_video_educativo_es -> el contenido gratuito. Admite dos formas:
+       · un embed de YouTube (https://www.youtube.com/embed/XXXXXXXXXXX)
+         -> se monta el reproductor dentro de la página
+       · cualquier otro enlace https (carpeta de Drive, por ejemplo)
+         -> sale una tarjeta con botón, porque Drive no se deja embeber
+     Desde la llamada del 4-sep el curso «La Verdad que Sana» va en una carpeta
+     de Drive partida por módulos, así que hoy toca la segunda forma.
    · link_educativo_es        -> checkout de 21 Días (ya cargado, Hotmart)
 
   Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
@@ -91,6 +97,14 @@ html, body {
   text-transform:uppercase; color:var(--sc-oro-tenue); }
 .sc-video-espera p { color:var(--sc-mudo); max-width:38ch; }
 .sc-video-pie { color:var(--sc-mudo); font-size:.9rem; margin-top:var(--sc-s4); }
+/* Cuando el contenido no se puede embeber (Drive), el mismo recuadro pasa de
+   reproductor a tarjeta con botón. Se mantiene el 16/9 para que la página no
+   dé un salto según lo que haya cargado. */
+.sc-curso { gap:var(--sc-s4); }
+.sc-curso h3 { font-family:var(--sc-display); font-weight:600;
+  font-size:clamp(1.15rem,2.2vw,1.5rem); color:var(--sc-hueso); margin:0; }
+.sc-curso p { color:var(--sc-mudo); max-width:42ch; }
+.sc-curso .sc-cta { margin-top:var(--sc-s3); }
 
 /* ── Prosa ───────────────────────────────────────────────────────────── */
 .sc-prosa { margin-top:var(--sc-s8); max-width:58ch; }
@@ -177,7 +191,7 @@ html, body {
             <p>El video estará disponible en unos días. Te avisamos por WhatsApp cuando esté.</p>
           </div>
         </div>
-        <p class="sc-video-pie">Son unos minutos. No hace falta saber nada del tema para entenderlo.</p>
+        <p class="sc-video-pie" id="sc-video-pie">Son unos minutos. No hace falta saber nada del tema para entenderlo.</p>
       </section>
 
       <!-- ══ PROSA ══ -->
@@ -241,21 +255,63 @@ html, body {
 
 <script>
 (function () {
-  // Mismo criterio que en la sala del evento: el iframe solo se monta si la URL
-  // es de verdad un embed. Si no, se queda el cartel en vez de una caja rota.
-  var embed = "{{custom_values.embed_video_educativo_es}}";
-  if (!/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(embed)) return;
-
-  var marco = document.createElement('iframe');
-  marco.src = embed;
-  marco.title = 'Contenido educativo · Salud Consciente';
-  marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
-                'gyroscope; picture-in-picture; web-share';
-  marco.referrerPolicy = 'strict-origin-when-cross-origin';
-  marco.allowFullscreen = true;
-
+  // Tres estados, y el orden importa:
+  //   1. embed de YouTube        -> reproductor dentro de la página
+  //   2. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
+  //                                 responde con X-Frame-Options y el iframe
+  //                                 sale en blanco, sin ningún error visible)
+  //   3. nada, o PENDIENTE       -> se queda el cartel de espera
+  //
+  // Sin el paso 2, pegar un enlace de Drive dejaba el cartel puesto para
+  // siempre y nadie se enteraba. Fue lo que pasó al mudar el curso de System.io.
+  var valor = "{{custom_values.embed_video_educativo_es}}".trim();
   var caja = document.getElementById('sc-video');
   var espera = document.getElementById('sc-video-espera');
-  if (caja) { caja.appendChild(marco); if (espera) espera.remove(); }
+  if (!caja || !espera) return;
+
+  if (/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(valor)) {
+    var marco = document.createElement('iframe');
+    marco.src = valor;
+    marco.title = 'Contenido educativo · Salud Consciente';
+    marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                  'gyroscope; picture-in-picture; web-share';
+    marco.referrerPolicy = 'strict-origin-when-cross-origin';
+    marco.allowFullscreen = true;
+    caja.appendChild(marco);
+    espera.remove();
+    return;
+  }
+
+  if (/^https:\/\/[^\s"'<>]+$/.test(valor)) {
+    espera.className = 'sc-video-espera sc-curso';
+    espera.innerHTML = '';
+
+    var marca = document.createElement('span');
+    marca.className = 'sc-video-marca';
+    marca.textContent = 'Gratis';
+
+    var titulo = document.createElement('h3');
+    titulo.textContent = 'La Verdad que Sana';
+
+    var texto = document.createElement('p');
+    texto.textContent = 'Casi tres horas, repartidas por módulos para que las ' +
+                        'veas cuando puedas. No hay que registrarse en nada.';
+
+    var boton = document.createElement('a');
+    boton.className = 'sc-cta';
+    boton.href = valor;
+    boton.target = '_blank';
+    boton.rel = 'noopener';
+    boton.textContent = 'Ver el curso';
+
+    espera.appendChild(marca);
+    espera.appendChild(titulo);
+    espera.appendChild(texto);
+    espera.appendChild(boton);
+
+    var pie = document.getElementById('sc-video-pie');
+    if (pie) pie.textContent = 'Se abre en otra pestaña. Puedes verlo por partes ' +
+                               'y volver cuando quieras.';
+  }
 })();
 </script>
