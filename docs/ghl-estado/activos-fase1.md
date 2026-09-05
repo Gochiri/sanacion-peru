@@ -271,3 +271,54 @@ entera.
 
 ⚠ **Joaquín también quedó con rol `admin`**, igual que Christie. De los tres del cliente,
 solo Luca es `user`.
+
+
+---
+
+## Estado tras la llamada del 4-sep
+
+Fuente: `docs/fuentes/05-deltas-llamada-4sep.md`.
+
+### 🚨 Lo que bloquea el lanzamiento
+
+**Las esperas de WF3 son relativas al registro, no a la fecha del evento.** Verificado
+leyendo los nodos: `{"type":"days","value":1,"when":"after"}`. Con los anuncios el 9-sep y
+el webinar el 24, todo el que se registre temprano recibe la secuencia completa de
+recordatorios en sus primeras 48 horas — y el trigger link de «estamos en vivo» dispara
+WF4A, así que además queda marcado como asistente.
+
+Para arreglarlo hace falta **el esquema real de una espera anclada a fecha**, que no
+conocemos. Se resuelve como se resolvió `internal_notification`: alguien configura **un**
+nodo en la UI y se lee por API.
+
+### Hecho
+
+| | |
+|---|---|
+| `datos_pago_pe` | Sin «SAC». Sigue pendiente confirmar la S de «Con*s*ciencia» |
+| `datos_pago_it` | Intestatario **Luca Stefanizzi** |
+| Plantillas de cobro | 19 en total. `datos_pago_pe` se llama así, y no `_es`, porque lleva la cuenta del BCP en soles en el cuerpo |
+| **WF4C** | Dos `internal_notification` nuevos — al agendar y una hora antes. Antes tenía cero |
+| Fotos y bios | Cuatro custom values nuevos: `foto_christie_url`, `foto_luca_url`, `bio_christie`, `bio_luca`. Ya no hay literales en `registro-es.html` |
+| `comienza-aqui-es` | El recuadro del curso acepta embed de YouTube, enlace normal (tarjeta con botón) o nada |
+
+`retocar.py` aprendió dos cosas: a **insertar** nodos —cosiéndolos con `parentKey`/`next`/
+`order`, solo en cadenas simples— y `--solo <fase>`, porque cada fase reescribe nodos
+enteros y volver a pasar una que ya se afinó a mano en la UI le escribe encima.
+
+`valores.py` aprendió a **crear** los custom values que no existen, no solo a actualizarlos.
+
+### Pendiente, por orden
+
+1. **El anclaje de WF3** — necesita el nodo de ejemplo en la UI
+2. **Nutrición entre registro y evento** (K21) — depende de lo anterior
+3. **Pase VIP** (K13/K14) — espera el link de Hotmart y el contenido de Joaquín
+4. Enlace del Drive del curso → `embed_video_educativo_es`
+5. Confirmar la S de «Consciencia» antes de mandar `datos_pago_pe` a Meta
+6. Verificar a dónde lleva `go.hotmart.com/C104290931W` — **tres documentos dicen tres
+   productos distintos** (21 Días, 5 Leyes, Reflexología) y es el único CTA de la página del
+   no-calificado. Desde el entorno de trabajo el CDN y Hotmart están bloqueados por política
+   de red, así que hay que abrirlo a mano
+7. Réplicas italianas de las 5 páginas — esperan la validación de Luca (B4)
+8. WF2 no bifurca por mercado: un registrado italiano recibe el grupo y el contenido en español
+9. La etapa «Calificado» sigue huérfana
