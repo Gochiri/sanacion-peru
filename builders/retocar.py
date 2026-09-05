@@ -182,6 +182,36 @@ INSERCIONES: list[tuple[str, str, str, dict, str]] = [
 ]
 
 
+# (workflow, nombre del nodo, minutos antes de la cita, por qué)
+#
+# Formato leído del nodo que Oliver configuró a mano en «ZZ sonda - espera por
+# fecha» (5-sep). No era adivinable y difiere del de una espera normal:
+#   · `type` pasa de "time" a "appointment"
+#   · `startAfter` **desaparece** y lo sustituye `appointmentStartAfter`
+#   · `value` va en minutos totales y `distributed` es el desglose que muestra
+#     la UI; los dos tienen que decir lo mismo
+#   · `appointmentCondition: "skip"` — si no hay cita, se salta el nodo
+#
+# Esto arregla el mismo fallo que tiene WF3: las dos esperas de WF4C eran
+# relativas a la entrada («1 día después», «23 horas después»), no a la cita.
+# Quien reservara con una semana de antelación recibía «mañana es tu llamada» al
+# día siguiente de reservar, el enlace de Zoom al otro, y el día de la llamada
+# nada.
+def _minutos(dias: int = 0, horas: int = 0) -> dict:
+    return {"when": "before", "type": "minutes",
+            "value": dias * 1440 + horas * 60,
+            "distributed": {"months": 0, "days": dias, "hours": horas, "minutes": 0}}
+
+
+RETOQUES_ESPERAS: list[tuple[str, str, dict, str]] = [
+    ("WF4C - Cita agendada", "Esperar hasta 24 h antes de la cita",
+     _minutos(dias=1), "era «1 dia despues de entrar», no 24 h antes de la cita"),
+
+    ("WF4C - Cita agendada", "Esperar hasta 1 h antes",
+     _minutos(horas=1), "era «23 horas despues», que solo cuadraba si la cita era manana"),
+]
+
+
 def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
     """Recorre listas y diccionarios sustituyendo en cualquier cadena."""
     if isinstance(valor, str):
@@ -209,7 +239,7 @@ def main() -> None:
     # Cada fase reescribe nodos enteros. Si una ya se aplicó y alguien la afinó
     # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
     # correr una sola: `--solo inserciones`.
-    ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones"],
+    ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas"],
                     help="ejecutar solo una fase (por defecto, todas)")
     args = ap.parse_args()
     fase = lambda n: args.solo in (None, n)  # noqa: E731
@@ -258,6 +288,8 @@ def main() -> None:
         aplicar_avisos(c, loc, ids, args.dry_run)
     if fase("inserciones"):
         aplicar_inserciones(c, loc, ids, args.dry_run)
+    if fase("esperas"):
+        aplicar_esperas(c, loc, ids, args.dry_run)
 
 
 def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
@@ -290,6 +322,45 @@ def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
         r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nodo:38} ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
+
+
+def aplicar_esperas(c, loc, ids, dry_run: bool) -> None:
+    """Ancla una espera a la cita del contacto en vez de a su hora de entrada."""
+    for nombre, nodo, cuando, motivo in RETOQUES_ESPERAS:
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = [dict(t) for t in (wd.get("templates") or [])]
+
+        tocados = 0
+        for t in templates:
+            if t.get("name") != nodo:
+                continue
+            attrs = {**(t.get("attributes") or {})}
+            attrs.pop("startAfter", None)      # o GHL se queda con la espera vieja
+            attrs["type"] = "appointment"
+            attrs["appointmentStartAfter"] = cuando
+            attrs.setdefault("appointmentCondition", "skip")
+            t["attributes"] = attrs
+            tocados += 1
+
+        if not tocados:
+            print(f"  = {nodo:38} no encontrado"); continue
+        h = cuando["value"] // 60
+        if dry_run:
+            print(f"  · {nodo:38} {h} h antes de la cita  ({motivo})  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nodo:38} {h} h antes de la cita"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
