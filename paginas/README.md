@@ -1,3 +1,27 @@
+> # ☠️ Lo que se pega en GHL está en `paginas/generado/`, no aquí
+>
+> Comprobado el 5-sep contra la página publicada: **GHL no sustituye los merge fields.** Al `src`
+> del logo le llegaba `{{custom_values.logo_url}}` como texto. El archivo existe en Media Storage
+> y su URL abre sola, así que no era la imagen.
+>
+> No afectaba solo al logo. Sin sustitución, `agenda-es` se queda sin el `src` del calendario —que
+> es su única función—, `evento-es` sin video ni cuenta atrás, y `registro-es` imprime
+> `{{custom_values.fecha_evento_es}}` tal cual delante del visitante.
+>
+> A cuatro días de encender los anuncios salía más barato quitar la dependencia que averiguar por
+> qué GHL decide sustituir o no:
+>
+> ```
+> python3 builders/previsualizar.py --ghl paginas/*.html
+> ```
+>
+> Los archivos de esta carpeta siguen con los merge fields porque son la versión legible y la
+> fuente única. **Lo generado no se edita nunca**: se regenera.
+>
+> ⚠️ `registro-es`, `gracias-es` y `evento-es` llevan la fecha del evento dentro, así que **al
+> cambiar de ciclo hay que regenerarlas y volver a pegarlas**, en la misma sentada que
+> `valores.py ciclo 2 --aplicar`.
+
 # Páginas del funnel — HTML para pegar en GHL
 
 Cada archivo es un bloque completo (estilos + marcado) para pegar en un elemento

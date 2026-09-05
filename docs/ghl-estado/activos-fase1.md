@@ -328,6 +328,28 @@ enteros y volver a pasar una que ya se afinó a mano en la UI le escribe encima.
 
 `valores.py` aprendió a **crear** los custom values que no existen, no solo a actualizarlos.
 
+### ☠️ En páginas no se usan merge fields
+
+GHL **no los sustituye** en las páginas publicadas — comprobado el 5-sep contra
+`eventos.lanuovacoscienza.com/registro-page`, con el logo roto y su archivo intacto en Media
+Storage. Rompía las seis páginas, incluida `agenda-es`, que sin el `src` del calendario no sirve
+para nada.
+
+Lo que se pega en GHL sale de `python3 builders/previsualizar.py --ghl paginas/*.html`, que deja
+en `paginas/generado/` una copia con todo dentro y avisa si queda algún merge field vivo. Los de
+`paginas/` siguen con los merge fields como fuente legible.
+
+**Coste asumido:** `registro-es`, `gracias-es` y `evento-es` llevan la fecha del evento, así que
+se regeneran y se vuelven a pegar al cargar el ciclo 2.
+
+### El calendario llega con los datos puestos
+
+`agenda-es` reenvía al widget los parámetros que traiga la URL (`first_name`, `last_name`,
+`email`, `phone`). La persona acaba de escribirlos en la postulación y volver a pedírselos en el
+momento de más intención es donde se pierde gente por cansancio. Falta la otra mitad: **en F03,
+que el redirect a `agenda-es` lleve esos valores en la URL.** Sin eso el calendario sale vacío y
+todo funciona igual que antes.
+
 ### Auditoría de prelanzamiento
 
 `python3 builders/auditar.py` recorre el camino español de punta a punta —anuncio, registro,
@@ -361,6 +383,9 @@ crear F02, su campo oculto tiene que estampar `Italia`.
 
 ### Pendiente, por orden
 
+1. **`link_registro_es` corregido el 5-sep**: apuntaba al widget suelto de la encuesta y ahora
+   va a `https://eventos.lanuovacoscienza.com/registro-page`. Es el valor que llevan los anuncios
+   y las plantillas — quien hiciera clic caía en un formulario pelado
 1. **Borrar el workflow de sonda** «ZZ sonda - espera por fecha»
    (`d9a375ad-9df1-4ffc-946a-9fb9eaebdfb0`), que ya cumplió su función
 2. **Probar el anclaje con un contacto real**: meterlo en la etapa *Registrado* y comprobar

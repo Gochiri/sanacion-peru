@@ -16,6 +16,28 @@ merge fields intactos.
 
     python3 builders/previsualizar.py paginas/registro-es.html
     python3 builders/previsualizar.py paginas/*.html
+
+## El modo --ghl
+
+    python3 builders/previsualizar.py --ghl paginas/*.html
+
+Lo mismo, pero escribiendo en `paginas/generado/` y **eso es lo que se pega en
+GHL**, no el archivo de `paginas/`.
+
+Existe porque el 5-sep se comprobó que **GHL no sustituye los merge fields** en
+las páginas publicadas: al `src` del logo le llegaba `{{custom_values.logo_url}}`
+como texto. Se verificó que el archivo existe en Media Storage y que su URL abre
+sola, así que el problema no era la imagen. Con seis páginas dependiendo de esto
+—el calendario de `agenda-es` incluido, que es la única función de esa página—
+resultaba más barato quitar la dependencia que averiguar por qué GHL decide
+sustituir o no, a cuatro días de encender los anuncios.
+
+Los archivos de `paginas/` siguen llevando los merge fields: son la versión
+legible y la fuente única. **Lo generado no se edita nunca.**
+
+⚠️ Tres páginas llevan la fecha del evento dentro —`registro-es`, `gracias-es` y
+`evento-es`—, así que **al cambiar de ciclo hay que regenerarlas y volver a
+pegarlas**. Va en la misma sentada que `valores.py ciclo 2 --aplicar`.
 """
 from __future__ import annotations
 
@@ -47,7 +69,7 @@ def valores() -> dict[str, str]:
     return salida
 
 
-def previsualizar(ruta: str, cv: dict[str, str]) -> None:
+def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False) -> None:
     html = open(ruta).read()
     usados, faltan, vacios = set(), set(), set()
 
@@ -63,9 +85,14 @@ def previsualizar(ruta: str, cv: dict[str, str]) -> None:
 
     html = PATRON.sub(cambiar, html)
 
-    nombre = ruta.rsplit("/", 1)[-1].replace(".html", "-preview.html")
-    destino = "%s/%s" % (SALIDA, nombre)
-    os.makedirs(SALIDA, exist_ok=True)
+    if para_ghl:
+        carpeta = "paginas/generado"
+        nombre = ruta.rsplit("/", 1)[-1]
+    else:
+        carpeta = SALIDA
+        nombre = ruta.rsplit("/", 1)[-1].replace(".html", "-preview.html")
+    destino = "%s/%s" % (carpeta, nombre)
+    os.makedirs(carpeta, exist_ok=True)
     open(destino, "w").write(html)
 
     print("\n%s → %s" % (ruta, destino))
@@ -75,11 +102,24 @@ def previsualizar(ruta: str, cv: dict[str, str]) -> None:
     if faltan:
         print("   ✗ no existen en la subcuenta: %s" % ", ".join(sorted(faltan)))
 
+    if para_ghl:
+        # La comprobación que define el arreglo: si queda un merge field vivo en
+        # lo generado, esa página se sigue rompiendo al publicarla.
+        quedan = set(PATRON.findall(html))
+        if quedan:
+            print("   ✗ SIGUEN SIN SUSTITUIR: %s" % ", ".join(sorted(quedan)))
+        else:
+            print("   ✓ sin merge fields, listo para pegar")
+
 
 if __name__ == "__main__":
-    rutas = sys.argv[1:]
+    args = sys.argv[1:]
+    para_ghl = "--ghl" in args
+    rutas = [a for a in args if a != "--ghl"]
     if not rutas:
         raise SystemExit(__doc__)
     cv = valores()
     for r in rutas:
-        previsualizar(r, cv)
+        previsualizar(r, cv, para_ghl)
+    if para_ghl:
+        print("\nEsto es lo que se pega en GHL. Los de paginas/ no.")
