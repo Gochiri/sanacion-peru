@@ -17,6 +17,19 @@ El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
 variante `_iso` alimenta la cuenta atrás de evento-es y el botón «añadir al
 calendario» de gracias-es. Si se rompe el ISO, la cuenta atrás no arranca.
+
+La variante `_ghl` existe porque la acción **Event start date** de GHL no
+entiende ISO 8601: pide `MM-DD-YYYY HH:MM AM/PM`. Es la que fija la fecha del
+evento en el contacto para que las esperas de WF3 se anclen a ella en vez de
+correr desde el registro. Con el ISO ahí, GHL no parsea y la espera se va a
+donde le parezca, sin avisar.
+
+⚠️ El formato de GHL **no lleva zona horaria**, así que la hora va convertida a
+la de la subcuenta (`America/Bogota`, UTC-5) igual que en los calendarios. Por
+eso el evento italiano de las 18:00 figura como las 11:00: son las mismas.
+Queda por confirmar con un contacto de prueba que GHL lo lea en la hora de la
+cuenta y no en la del contacto — si fuera lo segundo, la italiana hay que
+dejarla en 18:00.
 """
 from __future__ import annotations
 
@@ -32,9 +45,11 @@ CICLOS = {
         "nombre_lanzamiento_vigente": "LNZ-2026-W39",
         "fecha_evento_es": "jueves 24 de septiembre",
         "fecha_evento_es_iso": "2026-09-24T20:00:00-05:00",
+        "fecha_evento_es_ghl": "09-24-2026 08:00 PM",
         "hora_evento_pe": "8:00 p. m. (hora de Perú)",
         "fecha_evento_it": "sabato 26 settembre",
         "fecha_evento_it_iso": "2026-09-26T18:00:00+02:00",
+        "fecha_evento_it_ghl": "09-26-2026 11:00 AM",
         "hora_evento_it": "18:00 (ora italiana)",
     },
     # Webinar 2 · LATAM jueves 1-oct 20:00 Perú · Italia sábado 3-oct 18:00
@@ -42,9 +57,11 @@ CICLOS = {
         "nombre_lanzamiento_vigente": "LNZ-2026-W40",
         "fecha_evento_es": "jueves 1 de octubre",
         "fecha_evento_es_iso": "2026-10-01T20:00:00-05:00",
+        "fecha_evento_es_ghl": "10-01-2026 08:00 PM",
         "hora_evento_pe": "8:00 p. m. (hora de Perú)",
         "fecha_evento_it": "sabato 3 ottobre",
         "fecha_evento_it_iso": "2026-10-03T18:00:00+02:00",
+        "fecha_evento_it_ghl": "10-03-2026 11:00 AM",
         "hora_evento_it": "18:00 (ora italiana)",
     },
 }
