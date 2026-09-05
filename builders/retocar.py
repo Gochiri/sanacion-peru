@@ -197,10 +197,12 @@ INSERCIONES: list[tuple[str, str, str, dict, str]] = [
 # Quien reservara con una semana de antelación recibía «mañana es tu llamada» al
 # día siguiente de reservar, el enlace de Zoom al otro, y el día de la llamada
 # nada.
-def _minutos(dias: int = 0, horas: int = 0) -> dict:
-    return {"when": "before", "type": "minutes",
-            "value": dias * 1440 + horas * 60,
-            "distributed": {"months": 0, "days": dias, "hours": horas, "minutes": 0}}
+def _minutos(dias: int = 0, horas: int = 0, minutos: int = 0,
+             cuando: str = "before") -> dict:
+    return {"when": cuando, "type": "minutes",
+            "value": dias * 1440 + horas * 60 + minutos,
+            "distributed": {"months": 0, "days": dias, "hours": horas,
+                            "minutes": minutos}}
 
 
 RETOQUES_ESPERAS: list[tuple[str, str, dict, str]] = [
@@ -209,7 +211,45 @@ RETOQUES_ESPERAS: list[tuple[str, str, dict, str]] = [
 
     ("WF4C - Cita agendada", "Esperar hasta 1 h antes",
      _minutos(horas=1), "era «23 horas despues», que solo cuadraba si la cita era manana"),
+
+    # WF3: el mismo arreglo, pero anclado a la fecha del evento en vez de a una
+    # cita. Lo que la hace existir es el nodo `event_start_date` del principio
+    # del workflow — sin él estas esperas no tienen a qué agarrarse y, con
+    # `appointmentCondition: "skip"`, se saltan enteras: el contacto recibiría
+    # los cuatro mensajes de golpe. **Primero el nodo, después esto.**
+    #
+    # Dejan de ser acumulativas: cada una apunta a un instante absoluto
+    # respecto del evento, no al anterior de la cadena.
+    ("WF3-ES - Recordatorios de evento", "Esperar hasta T-24h del evento",
+     _minutos(dias=1), "corria 1 dia despues del registro"),
+    ("WF3-ES - Recordatorios de evento", "Esperar hasta T-3h",
+     _minutos(horas=3), "corria 21 h despues de la anterior"),
+    ("WF3-ES - Recordatorios de evento", "Esperar hasta T-15min",
+     _minutos(minutos=15), "corria 3 h despues de la anterior"),
+    ("WF3-ES - Recordatorios de evento", "Esperar 2 h tras el evento",
+     _minutos(horas=2, cuando="after"), "unica que va DESPUES del evento"),
+
+    ("WF3-IT - Promemoria evento", "Esperar hasta T-24h del evento",
+     _minutos(dias=1), "corria 1 dia despues del registro"),
+    ("WF3-IT - Promemoria evento", "Esperar hasta T-3h",
+     _minutos(horas=3), "corria 21 h despues de la anterior"),
+    ("WF3-IT - Promemoria evento", "Esperar hasta T-15min",
+     _minutos(minutos=15), "corria 3 h despues de la anterior"),
+    ("WF3-IT - Promemoria evento", "Esperar 2 h tras el evento",
+     _minutos(horas=2, cuando="after"), "unica que va DESPUES del evento"),
 ]
+
+# La quinta espera de cada WF3 —«No asistio al evento? - sin accion», de 1 minuto—
+# NO está en la tabla a propósito: no es un anclaje temporal, es el relleno que
+# GHL mete dentro de una rama vacía del if_else. Anclarla al evento la rompería.
+
+# El nodo que hace posible todo lo anterior, leído de la sonda:
+#     {"type": "event_start_date",
+#      "event_start_type": "custom_field",
+#      "value": "{{custom_values.fecha_evento_es_ghl}}"}
+# Va como primer paso del workflow. En WF3 se añade **en la UI**, no por API:
+# los dos WF3 tienen ramas y sus `order` ya se repiten dentro de ellas, así que
+# insertar en la cabecera y renumerar es justo lo que rompe sin avisar.
 
 
 def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
@@ -350,9 +390,15 @@ def aplicar_esperas(c, loc, ids, dry_run: bool) -> None:
 
         if not tocados:
             print(f"  = {nodo:38} no encontrado"); continue
-        h = cuando["value"] // 60
+        # El texto se arma con los minutos reales: decir «0 h antes» de una
+        # espera de 15 minutos, o «antes» de una que va después, engaña justo
+        # cuando uno está comprobando que la tabla dice lo que quiere decir.
+        m = cuando["value"]
+        cuanto = (f"{m // 1440} d" if m >= 1440 and m % 1440 == 0 else
+                  f"{m // 60} h" if m >= 60 and m % 60 == 0 else f"{m} min")
+        lado = "antes" if cuando["when"] == "before" else "después"
         if dry_run:
-            print(f"  · {nodo:38} {h} h antes de la cita  ({motivo})  DRY-RUN"); continue
+            print(f"  · {nodo:38} {cuanto} {lado} del evento  ({motivo})  DRY-RUN"); continue
 
         cuerpo = {"name": nombre, "version": actual.get("version", 1),
                   "workflowData": {**wd, "templates": templates}}
@@ -360,7 +406,7 @@ def aplicar_esperas(c, loc, ids, dry_run: bool) -> None:
             cuerpo["status"] = actual["status"]
         r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
         ok = bool(r and not r.get("_error"))
-        print(f"  {'✓' if ok else '✗'} {nodo:38} {h} h antes de la cita"
+        print(f"  {'✓' if ok else '✗'} {nodo:38} {cuanto} {lado} del evento"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
