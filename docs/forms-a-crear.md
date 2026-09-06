@@ -87,6 +87,31 @@ años buscando solución y llega sensible.
 
 ---
 
+## Campos para F02 y F03-IT — cuáles se duplican y cuáles no
+
+Creados el 6-sep por API, con **italiano provisional que valida Luca**:
+
+| Campo IT | Reemplaza a | Opciones |
+|---|---|---|
+| `nivel_calificacion_it` | `nivel_calificacion` | Capire perché il mio corpo si è ammalato e come guarirlo · Un farmaco o una cura medica · Ho solo curiosità |
+| `cluster_sintoma_it` | `cluster_sintoma` | Dolori articolari · Digestivo · Ansia-panico-depressione · Pelle · Altro |
+| `tiempo_con_sintoma_it` | `tiempo_con_sintoma` | Meno di 6 mesi · 6-24 mesi · Più di 2 anni · Più di 5 anni |
+| `franja_llamada_it` | `franja_llamada` | Mattina · Pomeriggio · Sera |
+
+Se duplican **solo esos cuatro**: son los desplegables que ve el visitante, y un desplegable
+muestra todas las opciones de su campo — no se pueden mezclar dos idiomas en uno.
+
+**Todo lo demás se comparte**, y duplicarlo rompe el ruteo:
+
+- `mercado` e `idioma` — **los mismos campos**, con valor oculto `Italia` / `IT`. Es por lo que
+  WF3-IT dispara y WF4B manda al calendario de Luca
+- `sintoma_declarado`, `motivo_postulacion` — texto libre, sin opciones: el mismo campo
+- `utm_*`, `lanzamiento`, `pais`, `fuente_contacto` — de sistema
+- `asistio_evento`, `estado_pago`, `plan_pago`, `producto_comprado`… — los escriben los
+  workflows o el que cierra, el visitante nunca los ve
+
+WF2-IT ya está escrito leyendo `nivel_calificacion_it` y comparando contra la frase italiana.
+
 ## ☠️ El campo oculto de mercado pisa lo que ya se decidió
 
 F01 estampa `contact.mercado = Peru-LATAM` como campo oculto de valor fijo. Y **WF1 ya había

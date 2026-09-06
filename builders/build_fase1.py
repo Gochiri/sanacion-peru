@@ -93,15 +93,22 @@ COPY_WF2_IT = {
 }
 
 
-def _wf2(grupo, educativo, t, sufijo=""):
+def _wf2(grupo, educativo, t, sufijo="",
+         campo_calif="contact.nivel_calificacion",
+         frase_calif="Entender por que mi cuerpo enfermo y como sanarlo"):
     return [
         etiqueta("Marcar registrado", ["registrado"]),
         # El campo guarda la frase que ve el visitante (el builder no permite
         # separar etiqueta y valor al arrastrar un campo personalizado), asi que
         # la condicion compara contra esa frase, no contra "Califica".
+        #
+        # En italiano el campo es OTRO —`nivel_calificacion_it`— porque un
+        # desplegable muestra todas las opciones de su campo y no se pueden
+        # mezclar dos idiomas en uno. Solo se duplican los 4 desplegables que ve
+        # el visitante; `mercado` e `idioma` siguen siendo los mismos, que es
+        # por lo que WF3-IT y WF4B saben que alguien es italiano.
         *bifurcar("Califica para la escuela?",
-            [cond("contact.nivel_calificacion", "eq",
-                  "Entender por que mi cuerpo enfermo y como sanarlo")],
+            [cond(campo_calif, "eq", frase_calif)],
             rama_si=[
                 mover("Mover a Registrado", "Registrado"),
                 whatsapp("Bienvenida con link del grupo" + sufijo, "bienvenida-registro",
@@ -141,7 +148,9 @@ def wf2_it():
     No está en WORKFLOWS a propósito, para que no se despliegue por descuido.
     """
     return _wf2(CV("link_grupo_whatsapp_it"), CV("link_educativo_it"),
-                COPY_WF2_IT, sufijo=" IT")
+                COPY_WF2_IT, sufijo=" IT",
+                campo_calif="contact.nivel_calificacion_it",
+                frase_calif="Capire perché il mio corpo si è ammalato e come guarirlo")
 
 
 # ── WF3 · Recordatorios de evento + no-show (SP02) ───────────────────────
