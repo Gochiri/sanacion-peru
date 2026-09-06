@@ -49,6 +49,15 @@ RETOQUES: list[tuple[str, str, str, str]] = [
      "Agenda tu llamada de cierre",
      "K11: en espanol cierra Joaquin, no Luca"),
 
+    # {{appointment.address}} resolvía a nada: la ubicación de reunión de los
+    # calendarios está vacía y no hay integración de Zoom. El enlace vive en un
+    # custom value por closer (B9). Afecta a dos nodos: el recordatorio de 1 h al
+    # contacto y el aviso interno al equipo.
+    ("WF4C - Cita agendada",
+     "{{appointment.address}}",
+     "{{custom_values.link_zoom_llamada_es}}",
+     "la ubicacion del calendario esta vacia; el Zoom es un custom value (B9)"),
+
     ("WF2 - Registro y calificacion",
      "Te esperamos el {{custom_values.fecha_evento_vigente}} a las "
      "{{custom_values.hora_evento_pe}}.",

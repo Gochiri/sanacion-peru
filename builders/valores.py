@@ -12,6 +12,7 @@ Hay dos clases de valor y por eso hay dos comandos:
     python3 builders/valores.py ciclo 2 --aplicar
     python3 builders/valores.py fijos --aplicar
     python3 builders/valores.py personas --aplicar
+    python3 builders/valores.py zoom --aplicar
 
 El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
@@ -134,6 +135,18 @@ PERSONAS = {
 }
 
 
+# Un Zoom personal fijo por closer, no uno generado por cita: los calendarios no
+# tienen integración de Zoom (zoomOauthId vacío) y la ubicación de reunión está
+# en blanco. Es el checklist B9, que nunca se cerró. Nacen en PENDIENTE para que
+# aparezcan ya en el selector de variables de las plantillas de WhatsApp — que
+# ofrece custom values pero no campos de la cita, por eso {{appointment.address}}
+# no se encontraba.
+ZOOM = {
+    "link_zoom_llamada_es": "PENDIENTE",   # Joaquín — cierra el mercado español
+    "link_zoom_llamada_it": "PENDIENTE",   # Luca — cierra el italiano
+}
+
+
 def _indice() -> dict[str, dict]:
     cod, r = publico.pedir("GET", "/locations/%s/customValues" % os.environ["GHL_LOCATION_ID"])
     if cod != 200:
@@ -195,6 +208,9 @@ if __name__ == "__main__":
     elif args[:1] == ["personas"]:
         print("Fotos y biografías de la landing")
         cargar(PERSONAS, escribir)
+    elif args[:1] == ["zoom"]:
+        print("Enlaces de Zoom de las llamadas de cierre")
+        cargar(ZOOM, escribir)
     else:
         raise SystemExit(__doc__)
 

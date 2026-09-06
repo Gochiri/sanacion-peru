@@ -342,7 +342,12 @@ En 1 hora es tu llamada. Enlace: {{1}} (instala Zoom antes para no perder tiempo
 
 | Meta | GHL | Ejemplo para la revisión |
 |---|---|---|
-| `{{1}}` | `{{appointment.address}}` | https://zoom.us/j/XXXXXXXXX |
+| `{{1}}` | `{{custom_values.link_zoom_llamada_es}}` | https://zoom.us/j/XXXXXXXXX |
+
+> Antes apuntaba a `{{appointment.address}}`, que **no está en el selector** de la plantilla
+> (ofrece contacto y custom values, no campos de la cita) y que además **resolvía a nada**: la
+> ubicación de reunión de los calendarios está vacía. El Zoom de Joaquín vive en
+> `link_zoom_llamada_es`, que hoy está en `PENDIENTE` — checklist **B9**, sin cerrar.
 
 
 ---

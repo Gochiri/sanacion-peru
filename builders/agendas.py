@@ -56,12 +56,27 @@ LUCA = {f: (15 + DESFASE_IT, 19 + DESFASE_IT) for f in [
 HORIZONTE = "2026-11-30"
 DIAS_RESERVA = 45
 
+# La ubicación de reunión se lee del custom value de Zoom de cada closer (B9).
+# Mientras esté en PENDIENTE no se toca: mejor vacía que con la palabra
+# «PENDIENTE» dentro de la confirmación que GHL manda solo.
 VENTANAS = [
     {"id": "befuzgaXYSmsD2qUZdkl", "quien": "Joaquin (ES)", "dias": JOAQUIN,
+     "zoom": "link_zoom_llamada_es",
      "descripcion": "Llamada de una hora con Joaquin para cerrar la inscripcion a la escuela."},
     {"id": "MNg4SJeHdqjOfoGjJpKQ", "quien": "Luca (IT)", "dias": LUCA,
+     "zoom": "link_zoom_llamada_it",
      "descripcion": "Chiamata di un'ora con Luca per chiudere l'iscrizione alla scuola."},
 ]
+
+
+def _zoom(clave: str) -> str | None:
+    import os
+    cod, r = publico.pedir("GET", "/locations/%s/customValues" % os.environ["GHL_LOCATION_ID"])
+    for c in (r.get("customValues", []) if cod == 200 else []):
+        if c.get("fieldKey", "").strip() == "{{ custom_values.%s }}" % clave:
+            v = (c.get("value") or "").strip()
+            return v if v.startswith("http") else None
+    return None
 
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
@@ -130,6 +145,20 @@ def aplicar(cal: dict, escribir: bool) -> None:
     if not escribir:
         print("   — simulación, no se escribió nada")
         return
+
+    zoom = _zoom(cal["zoom"])
+    if zoom:
+        # Se reescribe teamMembers entero porque la ubicación vive dentro de
+        # cada miembro. Se parte del que ya está para no perder el userId.
+        cod0, r0 = publico.pedir("GET", "/calendars/" + cal["id"])
+        miembros = (r0.get("calendar", r0) if cod0 == 200 else {}).get("teamMembers", [])
+        for m in miembros:
+            for lc in m.get("locationConfigurations", []):
+                lc["location"] = zoom
+        cuerpo["teamMembers"] = miembros
+        print("   ubicación de reunión → %s" % zoom)
+    else:
+        print("   ubicación de reunión: %s en PENDIENTE, no se toca" % cal["zoom"])
 
     cod, r = publico.pedir("PUT", "/calendars/" + cal["id"], cuerpo)
     print("   PUT %s" % cod, "" if cod == 200 else r)
