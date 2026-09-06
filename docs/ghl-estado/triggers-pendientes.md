@@ -42,7 +42,7 @@ corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 | WF4C | `customer_appointment` → calendario de cierre | ✅ corregido en UI |
 | WF5 | `contact_tag` → `pago-manual` | ✅ |
 | **WF6-ES** | `pipeline_stage_updated` → Lanzamiento / **Registrado** | ✅ 6-sep |
-| **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ⬜ **falta — se crea en la UI** |
+| **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ⬜ **falta — el workflow ya está listo, en borrador** |
 | **WF4B** (rama IT) | ya existe: `form_submission` → F03. **Añadir F03-IT** `bGZjMxYQ78jACMs2keUO` al mismo trigger, o crear uno segundo | ⬜ |
 
 **WF2-IT** es el gemelo de WF2 con un solo cambio en el trigger: la encuesta es **F02**, no F01.

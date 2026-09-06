@@ -364,22 +364,29 @@ Corrida del 5-sep: **el camino español está entero salvo tres cosas**, y las t
 WF6 sin publicar y sin trigger (Oliver), y `embed_video_educativo_es` esperando el enlace del
 Drive (Joaquín).
 
-### WF2 por mercado — por qué no se hizo
+### WF2 por mercado — hecho el 6-sep
 
-No es que falte tiempo: **GHL rechaza las bifurcaciones anidadas** («Add at least one branch»,
-probado) y WF2 ya gasta su única bifurcación en la calificación. La salida correcta es partirlo
-en dos como se hizo con WF3, y eso exige la **encuesta italiana F02**, que no se puede crear por
-API y depende del copy de Luca.
+**WF2-IT existe**, en borrador y esperando trigger. Se hizo duplicando WF2 en la UI y
+retocándolo por API: diez sustituciones de texto y una de campos. El builder no puede crearlo
+—GHL rechaza su `if_else` también al crear, con el mismo «Add at least one branch» de siempre—
+así que `wf2_it()` en `build_fase1.py` queda como referencia del contenido, fuera del registro.
 
-`wf2_it()` ya está escrito en `builders/build_fase1.py`, con el copy italiano marcado como
-provisional igual que `COPY_IT`. **No está en `WORKFLOWS`** a propósito, para que no se despliegue
-por descuido antes de tener trigger.
+Verificado leyendo el workflow: no queda ni un `_es`, ni la frase española que califica, ni el
+id del campo español, ni `Peru-LATAM`.
 
-☠️ Y de paso apareció una trampa que muerde el día que Italia arranque: **F01 estampa
-`mercado = Peru-LATAM` como campo oculto fijo y pisa lo que WF1 ya había decidido** mirando el
-prefijo `+39`. Un italiano en F01 queda marcado como Perú, WF3-IT no dispara para él y recibe los
-recordatorios en español con la fecha equivocada. Está documentado en `forms-a-crear.md`: al
-crear F02, su campo oculto tiene que estampar `Italia`.
+Lo que lo destrabó fue que Oliver creara **F02** (`UTqIwgAEt0xjmcBeA75j`) y **F03-IT**
+(`bGZjMxYQ78jACMs2keUO`), y los cuatro campos `_it` de los desplegables que ve el visitante.
+
+### Lo que ya no aplica de la nota anterior
+
+La trampa que se anotó aquí —que F01 estampa `mercado` con un campo oculto y pisa a WF1— **era
+falsa por partida doble**: esos campos ocultos no existen en F01, y el builder de encuestas de
+GHL no permite crearlos. Ver `forms-a-crear.md`.
+
+El problema real era otro y ya está resuelto: `mercado` lo escribía solo WF1, en una carrera
+contra WF2 que podía perder, y entonces el trigger de WF3 se evaluaba con el campo vacío y el
+contacto no recibía **ningún** recordatorio. Ahora lo estampa el segundo nodo de WF2, antes de
+mover a *Registrado*, así que cuando dispara WF3 el campo ya está escrito.
 
 ### Pendiente, por orden
 
