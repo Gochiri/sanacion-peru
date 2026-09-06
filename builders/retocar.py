@@ -58,6 +58,43 @@ RETOQUES: list[tuple[str, str, str, str]] = [
      "{{custom_values.link_zoom_llamada_es}}",
      "la ubicacion del calendario esta vacia; el Zoom es un custom value (B9)"),
 
+    # ── WF2-IT: la copia de WF2 hecha en la UI, vuelta italiana ────────────
+    # Se duplica WF2 en la UI con el nombre exacto «WF2-IT - Registrazione e
+    # qualifica» y estas sustituciones hacen el resto. El builder ya no puede
+    # crearlo: GHL rechaza el if_else antiguo también al crear.
+    ("WF2-IT - Registrazione e qualifica",
+     "{{custom_values.link_grupo_whatsapp_es}}", "{{custom_values.link_grupo_whatsapp_it}}",
+     "grupo italiano"),
+    ("WF2-IT - Registrazione e qualifica",
+     "{{custom_values.link_educativo_es}}", "{{custom_values.link_educativo_it}}",
+     "contenido educativo italiano"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Entender por que mi cuerpo enfermo y como sanarlo",
+     "Capire perché il mio corpo si è ammalato e come guarirlo",
+     "la frase que califica, en italiano"),
+    ("WF2-IT - Registrazione e qualifica",
+     "F4n43YBwtdya1dyJYdzO", "0wmQIMlZee0a3IAr3esc",
+     "la condicion lee nivel_calificacion_it, no el campo español"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Hola {{contact.first_name}}! Ya estas registrado. Unete al grupo para recibir el acceso: ",
+     "Ciao {{contact.first_name}}! Sei registrato. Entra nel gruppo per ricevere l'accesso: ",
+     "bienvenida WA (provisional, valida Luca)"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Tu lugar esta confirmado", "Il tuo posto e confermato", "asunto bienvenida"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Tu lugar quedo confirmado. Te enviamos el recordatorio con el dia y la hora, y el acceso por el grupo: ",
+     "Il tuo posto e confermato. Ti mandiamo il promemoria con il giorno e l'ora, e l'accesso dal gruppo: ",
+     "cuerpo bienvenida"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Gracias por escribirnos. Te dejamos este contenido para entender la causa emocional del sintoma: ",
+     "Grazie per averci scritto. Ti lasciamo questo contenuto per capire la causa emotiva del sintomo: ",
+     "educativo WA"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Un primer paso para entender tu sintoma", "Un primo passo per capire il tuo sintomo",
+     "asunto educativo"),
+    ("WF2-IT - Registrazione e qualifica",
+     "Te compartimos este material: ", "Ti condividiamo questo materiale: ", "cuerpo educativo"),
+
     ("WF2 - Registro y calificacion",
      "Te esperamos el {{custom_values.fecha_evento_vigente}} a las "
      "{{custom_values.hora_evento_pe}}.",

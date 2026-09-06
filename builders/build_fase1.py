@@ -144,8 +144,12 @@ def wf2_it():
     esa encuesta (F02) no existe: los formularios no se pueden crear por API
     («route not supported by the IAM Service») y el copy depende de Luca (B4).
 
-    F02 existe desde el 6-sep (`UTqIwgAEt0xjmcBeA75j`). Nace como borrador y sin
-    trigger: el trigger —Survey Submitted → F02— se crea en la UI, como todos.
+    F02 existe desde el 6-sep (`UTqIwgAEt0xjmcBeA75j`), pero **esto ya no se
+    despliega con el builder**: GHL rechaza el formato antiguo de `if_else`
+    también al crear («Add at least one branch»), no solo al reescribir. La vía
+    es duplicar WF2 en la UI —que sale ya en el formato rico— y retocarlo por
+    API con `retocar.py --solo retoques`, que es para lo que existe. Esta
+    función queda como referencia del contenido, no como despliegue.
     """
     return _wf2(CV("link_grupo_whatsapp_it"), CV("link_educativo_it"),
                 COPY_WF2_IT, sufijo=" IT",
@@ -389,7 +393,6 @@ WORKFLOWS = [
     ("WF4C - Cita agendada", wf4c),
     ("WF5 - Cobro confirmado", wf5),
     ("WF6-ES - Nutricion pre-evento", wf6_es),
-    ("WF2-IT - Registrazione e qualifica", wf2_it),
 ]
 
 
