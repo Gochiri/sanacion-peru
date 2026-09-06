@@ -112,24 +112,33 @@ muestra todas las opciones de su campo — no se pueden mezclar dos idiomas en u
 
 WF2-IT ya está escrito leyendo `nivel_calificacion_it` y comparando contra la frase italiana.
 
-## ☠️ El campo oculto de mercado pisa lo que ya se decidió
+## ☠️ Los campos ocultos nunca se crearon — y sin ellos el mercado es una carrera
 
-F01 estampa `contact.mercado = Peru-LATAM` como campo oculto de valor fijo. Y **WF1 ya había
-decidido el mercado antes**, mirando si el teléfono empieza por `+39`.
+**Corregido el 6-sep.** Aquí decía que F01 estampa `mercado = Peru-LATAM` con un campo oculto y
+pisa lo que WF1 decide. **Era falso**: los envíos reales de F01 traen solo las tres preguntas y
+los datos de contacto. Ni `mercado`, ni `idioma`, ni las UTMs. Lo de abajo se especificó y nadie
+lo montó.
 
-Gana el formulario. Así que **un italiano que llegue a F01 queda marcado como Perú**, y a partir
-de ahí:
+El riesgo real es el contrario. Hoy `mercado` lo escribe **solo WF1**, que dispara con
+*contact created* y lo pone en su cuarto nodo. WF2 dispara con *survey submitted* y mueve a
+*Registrado* en su tercero. **Los dos arrancan en el mismo instante.** Si WF2 llega antes, el
+cambio de etapa dispara el trigger de WF3, que filtra por `mercado`… y el campo está vacío.
+**Ni WF3-ES ni WF3-IT entran, y ese contacto no recibe ningún recordatorio.** Sin error, sin
+rastro.
 
-- **WF3-IT no dispara para él** — su trigger exige `Mercado = Italia`
-- **WF3-ES sí**, así que recibe los recordatorios en español y con la fecha del webinar
-  equivocada, que además cae dos días antes que la suya
+**El campo oculto en la encuesta lo arregla de raíz**: se escribe en el envío, antes de que
+ningún workflow corra. Por eso hay que montarlo en F01 **y** en F02, y por eso no da igual
+dejarlo para después.
 
-Hoy no muerde porque no hay una sola página en italiano a la que mandar tráfico. Muerde el día
-que Italia arranque.
+| | F01 (español) | F02 (italiano) |
+|---|---|---|
+| `Mercado` oculto | `Peru-LATAM` | `Italia` |
+| `Idioma` oculto | `ES` | `IT` |
+| `Utm campaign` · `Utm adset` · `Utm ad` ocultos | sí | sí |
 
-**Al crear F02, su campo oculto tiene que estampar `Italia`**, no `Peru-LATAM`. Con las dos
-encuestas cada una marcando lo suyo, el problema desaparece solo y el prefijo `+39` de WF1 pasa a
-ser lo que debe ser: una red de seguridad para quien escribe por WhatsApp antes de registrarse.
+En el builder: arrastrar el campo personalizado a la encuesta, abrir sus opciones, activar
+**Hidden** y ponerle el valor por defecto. Las UTMs ocultas se rellenan solas desde la URL del
+anuncio — sin ellas, el reporte por anuncio de Joaquín no existe.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.
