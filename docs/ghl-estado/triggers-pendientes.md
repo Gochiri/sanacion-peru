@@ -41,9 +41,9 @@ corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 | WF4B | Form Submitted (F03 `DTwkB4aTiEIqUGNI9Qjo`) | F03 ✅ creado — **falta el trigger, se hace en UI** |
 | WF4C | `customer_appointment` → calendario de cierre | ✅ corregido en UI |
 | WF5 | `contact_tag` → `pago-manual` | ✅ |
-| **WF6-ES** | `pipeline_stage_updated` → Lanzamiento / **Registrado** | ✅ 6-sep |
-| **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ⬜ **falta — el workflow ya está listo, en borrador** |
-| **WF4B** (rama IT) | ya existe: `form_submission` → F03. **Añadir F03-IT** `bGZjMxYQ78jACMs2keUO` al mismo trigger, o crear uno segundo | ⬜ |
+| **WF6-ES** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Peru-LATAM** | ✅ 6-sep |
+| **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ✅ 6-sep |
+| **WF4B** | dos triggers `form_submission`: F03 y **F03-IT** `bGZjMxYQ78jACMs2keUO` | ✅ 6-sep |
 
 **WF2-IT** es el gemelo de WF2 con un solo cambio en el trigger: la encuesta es **F02**, no F01.
 Sin filtro de mercado: la encuesta ya decide el mercado por sí sola, y filtrar la entrada por
@@ -51,6 +51,10 @@ un campo es lo que rompió WF2 en su día.
 
 **WF4B** hoy dispara solo con F03. La postulación italiana llega por **F03-IT**, así que hay que
 añadirla al trigger — WF4B ya bifurca por `mercado` por dentro y manda a cada uno a su calendario.
+
+⚠️ **WF6 nació sin filtro de mercado y por eso mandaba los tres correos en español también a los
+italianos** — su trigger es la misma etapa *Registrado* que alcanzan los dos mercados. Corregido
+el 6-sep copiando la condición literal de WF3-ES. **Cuando se haga WF6-IT, su filtro es `Italia`.**
 
 **WF6-ES** lleva el mismo trigger que WF3-ES, a propósito: la etapa *Registrado* solo la alcanza
 quien califica, así que la nutrición no le llega al descalificado. Al crearlo, **no** añadir
