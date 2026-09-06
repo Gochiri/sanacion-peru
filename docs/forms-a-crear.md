@@ -112,33 +112,35 @@ muestra todas las opciones de su campo — no se pueden mezclar dos idiomas en u
 
 WF2-IT ya está escrito leyendo `nivel_calificacion_it` y comparando contra la frase italiana.
 
-## ☠️ Los campos ocultos nunca se crearon — y sin ellos el mercado es una carrera
+## El mercado lo estampa WF2, no la encuesta
 
-**Corregido el 6-sep.** Aquí decía que F01 estampa `mercado = Peru-LATAM` con un campo oculto y
-pisa lo que WF1 decide. **Era falso**: los envíos reales de F01 traen solo las tres preguntas y
-los datos de contacto. Ni `mercado`, ni `idioma`, ni las UTMs. Lo de abajo se especificó y nadie
-lo montó.
+**Aquí decía** que F01 lleva campos ocultos con `mercado = Peru-LATAM`. Dos cosas resultaron
+falsas: **no existen** —los envíos reales de F01 traen solo las tres preguntas y los datos de
+contacto— y **no se pueden crear**: el builder de encuestas de GHL no tiene campos ocultos con
+valor fijo. La pestaña *Options* de un desplegable muestra las opciones del campo personalizado,
+y editarlas ahí lo cambia en toda la cuenta.
 
-El riesgo real es el contrario. Hoy `mercado` lo escribe **solo WF1**, que dispara con
-*contact created* y lo pone en su cuarto nodo. WF2 dispara con *survey submitted* y mueve a
-*Registrado* en su tercero. **Los dos arrancan en el mismo instante.** Si WF2 llega antes, el
-cambio de etapa dispara el trigger de WF3, que filtra por `mercado`… y el campo está vacío.
-**Ni WF3-ES ni WF3-IT entran, y ese contacto no recibe ningún recordatorio.** Sin error, sin
+**El problema que había que resolver** sigue siendo real. El trigger de WF3 filtra por `mercado`,
+y ese campo lo escribe **solo WF1**, en su cuarto nodo. WF2 mueve a *Registrado* en su tercero, y
+los dos arrancan en el mismo instante. Si WF2 gana la carrera, WF3 se evalúa con el campo vacío:
+**ni WF3-ES ni WF3-IT entran, y ese contacto no recibe ningún recordatorio.** Sin error y sin
 rastro.
 
-**El campo oculto en la encuesta lo arregla de raíz**: se escribe en el envío, antes de que
-ningún workflow corra. Por eso hay que montarlo en F01 **y** en F02, y por eso no da igual
-dejarlo para después.
+**La solución es un nodo dentro de WF2**, no un campo en la encuesta:
 
-| | F01 (español) | F02 (italiano) |
+| | WF2 (español) | WF2-IT (italiano) |
 |---|---|---|
-| `Mercado` oculto | `Peru-LATAM` | `Italia` |
-| `Idioma` oculto | `ES` | `IT` |
-| `Utm campaign` · `Utm adset` · `Utm ad` ocultos | sí | sí |
+| Nodo | `Estampar mercado`, entre «Marcar registrado» y la bifurcación | igual |
+| `Mercado` | `Peru-LATAM` | `Italia` |
+| `Idioma` | `ES` | `IT` |
 
-En el builder: arrastrar el campo personalizado a la encuesta, abrir sus opciones, activar
-**Hidden** y ponerle el valor por defecto. Las UTMs ocultas se rellenan solas desde la URL del
-anuncio — sin ellas, el reporte por anuncio de Joaquín no existe.
+Funciona porque el paso a *Registrado* ocurre **después, en el mismo workflow**: cuando dispara
+el trigger de WF3, el campo ya está escrito. No hay carrera que perder. Y la encuesta deja de
+tener que saber de qué mercado es, que es una cosa menos que puede quedarse sin configurar.
+
+> **Las UTMs siguen pendientes.** También iban ocultas en la encuesta. No bloquean el embudo —
+> sin ellas falta el reporte por anuncio de Joaquín, no el registro— y necesitan su propia vía:
+> el elemento *Hidden Field* del builder, o la atribución nativa de GHL.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.

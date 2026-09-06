@@ -118,6 +118,22 @@ RETOQUES_CAMPOS: list[tuple[str, str, list[dict], str]] = [
        "title": "Bono llamada christie", "type": "multiselect", "date": ""}],
      "CHECKBOX -> multiselect (verificado contra WF4A)"),
 
+    # WF2-IT nace duplicando WF2 en la UI, así que trae el nodo «Estampar
+    # mercado» con los valores españoles. Esto se los cambia.
+    #
+    # El nodo existe porque el builder de encuestas de GHL **no tiene** campos
+    # ocultos con valor fijo: la pestaña Options de un desplegable solo muestra
+    # las opciones del campo, y editarlas ahí lo cambia en toda la cuenta.
+    # Estampar el mercado dentro de WF2 sale mejor: el paso a «Registrado»
+    # ocurre después, en el mismo workflow, así que cuando dispara el trigger de
+    # WF3 —que filtra por mercado— el campo ya está escrito. No hay carrera.
+    ("WF2-IT - Registrazione e qualifica", "Estampar mercado",
+     [{"field": "RHvsJaHCeyNUxAjCc9j1", "value": "Italia",
+       "title": "Mercado", "type": "singleselect", "date": ""},
+      {"field": "ehI6wrdH3ISrRVH0Q6JL", "value": "IT",
+       "title": "Idioma", "type": "singleselect", "date": ""}],
+     "la copia trae Peru-LATAM/ES; aqui van los italianos"),
+
     ("WF5 - Cobro confirmado", "Registrar datos de la venta",
      [{"field": "nHjHVOUlxUefgbhI9v5J", "value": ["Escuela"],
        "title": "Producto comprado", "type": "multiselect", "date": ""},
