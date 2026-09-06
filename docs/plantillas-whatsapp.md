@@ -29,8 +29,9 @@ cada mensaje ya convertido, con la correspondencia.
 **Nombre de plantilla:** solo minúsculas, números y guiones bajos.
 
 **El cuerpo no puede empezar ni terminar con una variable.** Es regla de Meta y GHL la aplica
-al crear: *«Your body can't start or end with a variable»*. Ocho de las diecinueve terminaban en
-el enlace, así que llevan una línea de cierre después — corta, neutra y que sume algo
+al crear: *«Your body can't start or end with a variable»*. Y **un punto después de la variable no cuenta
+como texto**: GHL lo rechaza igual. Diez de las diecinueve terminaban en variable o en variable
+más punto, así que llevan una línea de cierre después — corta, neutra y que sume algo
 (*«Te toma un minuto»*, *«Te esperamos dentro»*), no un punto pegado a la variable por cumplir.
 
 ---
@@ -134,6 +135,8 @@ Sin prisa: es para verlo cuando puedas.
 
 ```
 Mañana es la clase: {{1}} a las {{2}}.
+
+Te avisamos por aquí cuando empecemos.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -200,6 +203,8 @@ Te perdiste la clase de hoy, pero te dejamos lo esencial.
 
 ```
 Domani è la lezione: {{1}} alle {{2}}.
+
+Ti avvisiamo qui quando iniziamo.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
