@@ -28,6 +28,11 @@ cada mensaje ya convertido, con la correspondencia.
 
 **Nombre de plantilla:** solo minúsculas, números y guiones bajos.
 
+**El cuerpo no puede empezar ni terminar con una variable.** Es regla de Meta y GHL la aplica
+al crear: *«Your body can't start or end with a variable»*. Ocho de las diecinueve terminaban en
+el enlace, así que llevan una línea de cierre después — corta, neutra y que sume algo
+(*«Te toma un minuto»*, *«Te esperamos dentro»*), no un punto pegado a la variable por cumplir.
+
 ---
 
 
@@ -44,6 +49,8 @@ cada mensaje ya convertido, con la correspondencia.
 
 ```
 Ciao {{1}}, iscriviti qui: {{2}}
+
+Ci vuole un minuto.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -62,6 +69,8 @@ Ciao {{1}}, iscriviti qui: {{2}}
 
 ```
 Hola {{1}}, regístrate aquí: {{2}}
+
+Te toma un minuto.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -83,6 +92,8 @@ Hola {{1}}, regístrate aquí: {{2}}
 
 ```
 Hola {{1}}, tu registro está listo. Únete al grupo para recibir el acceso: {{2}}
+
+¡Nos vemos en el grupo!
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -101,6 +112,8 @@ Hola {{1}}, tu registro está listo. Únete al grupo para recibir el acceso: {{2
 
 ```
 Gracias por escribirnos. Te dejamos este contenido para entender la causa emocional del síntoma: {{1}}
+
+Sin prisa: es para verlo cuando puedas.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -152,6 +165,8 @@ Hoy es el día. En 3 horas comenzamos.
 
 ```
 Estamos comenzando. Entra aquí: {{1}}
+
+Te esperamos dentro.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -216,6 +231,8 @@ Oggi è il giorno. Tra 3 ore iniziamo.
 
 ```
 Stiamo iniziando. Entra qui: {{1}}
+
+Ti aspettiamo dentro.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -249,6 +266,8 @@ Hai saltato la lezione di oggi, ma ti lasciamo l'essenziale.
 
 ```
 Prenota la tua chiamata: {{1}}
+
+Scegli l'orario che preferisci.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
@@ -266,6 +285,8 @@ Prenota la tua chiamata: {{1}}
 
 ```
 Agenda tu llamada de cierre: {{1}}
+
+Elige el horario que mejor te venga.
 ```
 
 | Meta | GHL | Ejemplo para la revisión |
