@@ -310,6 +310,12 @@ WHATSAPP_REMITENTE = "1232540499943195"
 # configurado en ningún nodo — o, en el caso de las cinco italianas de WF2-IT y
 # WF4C, ni siquiera se han mandado a aprobar.
 PLANTILLAS: dict[str, str] = {
+    "respuesta_entrada_desconocido_es": "1617563836754204",
+    "respuesta_entrada_desconocido_it": "1447054830652394",
+    "bienvenida_registro_es":  "820018627835745",
+    "educativo_no_califica_es": "2132297580658494",
+    "postulacion_agenda_es":   "1597737338742240",
+    "postulacion_agenda_it":   "1700170017719237",
     "recordatorio_24h_es": "1105900248632421",
     "recordatorio_3h_es":  "2902519780107882",
     "en_vivo_es":          "1109792191480478",

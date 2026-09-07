@@ -77,20 +77,22 @@ el contenedor arranca limpio y no hay credenciales cargadas en esta sesión.
 |---|---|---|
 | **Meta** | Acceso al portafolio concedido | Los 4 eventos CAPI dejan de estar bloqueados por permisos |
 | **Dominio** | Configurado al 100 % | Publicar las páginas; con la del evento y su trigger link, **WF4A deja de estar sin disparador** |
-| **WhatsApp** | Número **conectado** | Los **13 nodos `[PENDIENTE-WA]`** pueden pasar a canal real |
+| **Trigger links** | `evento-es-en-vivo` `zsM5LP4jGLvvLbNG8hXy` · `evento-it-en-vivo` `Y5dtDFxPynXgvi9hqp91` | WF4A dispara con los dos (7-sep). El italiano **no existía**: en Italia no se marcaba la asistencia de nadie, y la rama de no-show le habría caído a todos los asistentes |
+| **WhatsApp** | Número **conectado** | Los nodos `[PENDIENTE-WA]` pueden pasar a canal real — 15 de 19 hechos el 7-sep |
 
-### Los 13 nodos de WhatsApp
+### Los nodos de WhatsApp — resuelto el 7-sep
 
-Se crearon como `sms` con el nombre marcado `[PENDIENTE-WA]` y la plantilla anotada en
-`attributes._plantilla_meta` (ver `whatsapp()` en `builders/esb_lib.py`), justo para poder
-localizarlos y corregirlos en bloque cuando hubiera canal. Ese momento llegó.
+Se crearon como `sms` marcados `[PENDIENTE-WA]` porque no se sabía qué `type` acepta GHL. **Es
+`whatsapp_v2`**, leído de los nodos que se configuraron a mano en la UI; el esquema completo está
+en `docs/ghl-estado/esquemas-nodos.md` y la función es `whatsapp_v2()` en `builders/esb_lib.py`.
 
-Reparto: WF1 lleva 2 · WF2 lleva 2 · WF3 lleva 4 · WF4B lleva 2 · WF4C lleva 3.
+Van **15 de 19** convertidos. Los cuatro que faltan son los dos de WF2-IT y dos de WF4C, y no es
+trabajo de builder: **el `template_id` no sale por ninguna API** —se probaron 22 rutas de la
+interna y la pública— así que cada nodo hay que abrirlo en la UI y elegir la plantilla. Los ids
+que se van conociendo se guardan en `PLANTILLAS`, en `esb_lib.py`.
 
-**Primer paso al retomar**: leer por API cómo quedó el canal de WhatsApp en la subcuenta —
-qué `type` acepta el nodo y cómo se referencia la plantilla aprobada. Eso es lo que nunca se
-pudo confirmar (GHL rechaza `whatsapp`, `wa`, `whatsapp_message` y `send_whatsapp` con
-*corrupted type*).
+**Buscar los pendientes por el nombre ya no sirve**: al convertirse, GHL renombra el nodo a
+«WhatsApp» y el nombre legible pasa a `attributes.__name__`. Lo que distingue es el `type`.
 
 ### Sigue pendiente
 

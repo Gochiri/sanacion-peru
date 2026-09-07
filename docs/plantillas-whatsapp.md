@@ -15,6 +15,12 @@ cliente en su teléfono: «Manana es la clase» y «el sintoma» se ven como un 
 > texto dentro, y al convertirlos a WhatsApp pasarán a referenciar la plantilla aprobada. Manda
 > el texto de Meta. Al hacer esa conversión, copiar de aquí y no del nodo.
 
+**7-sep.** Meta aprobó las 19 y quedan **cinco por mandar**: las de WF2-IT y las tres italianas
+de WF4C, que no estaban en la lista original y sin las cuales esos cuatro nodos no se pueden
+convertir. Están abajo, en sus secciones. Van 15 de 19 nodos convertidos; los ids que GHL guarda
+para cada plantilla viven en `PLANTILLAS`, en `builders/esb_lib.py`, porque **no hay endpoint que
+los liste**.
+
 ## Cómo funciona esto
 
 Meta solo deja enviar mensajes libres dentro de las **24 h siguientes al último mensaje que
@@ -122,6 +128,55 @@ Sin prisa: es para verlo cuando puedas.
 | `{{1}}` | `{{custom_values.link_educativo_es}}` | https://go.hotmart.com/XXXX |
 
 
+## WF2-IT - Registrazione e qualifica
+
+Las dos que faltaban. WF2-IT se duplicó de WF2 el 4-sep y **quedó publicado y disparando** sin
+que sus plantillas existieran en Meta: hasta que estas dos se aprueben, sus dos nodos siguen
+como `sms`. Traducción provisional — la valida Luca (P-13/B4).
+
+### Bienvenida con link del grupo
+
+- **Nombre:** `bienvenida_registro_it`
+- **Idioma:** Italiano (it)
+- **Categoría:** UTILITY
+- **¿Necesita plantilla?** **Sí** — sale fuera de la ventana de 24 h
+
+**Texto para Meta:**
+
+```
+Ciao {{1}}, la tua iscrizione è confermata. Entra nel gruppo per ricevere l'accesso: {{2}}
+
+Ci vediamo nel gruppo!
+```
+
+| Meta | GHL | Ejemplo para la revisión |
+|---|---|---|
+| `{{1}}` | `{{contact.first_name}}` | Giulia |
+| `{{2}}` | `{{custom_values.link_grupo_whatsapp_it}}` | https://chat.whatsapp.com/XXXX |
+
+> «Sei registrato» era la traducción directa, pero en italiano concuerda en género: le habría
+> dicho *registrato* a una mujer. `La tua iscrizione è confermata` no concuerda con nadie.
+
+### Contenido educativo (sin link de grupo)
+
+- **Nombre:** `educativo_no_califica_it`
+- **Idioma:** Italiano (it)
+- **Categoría:** MARKETING
+- **¿Necesita plantilla?** **Sí** — sale fuera de la ventana de 24 h
+
+**Texto para Meta:**
+
+```
+Grazie per averci scritto. Ti lasciamo questo contenuto per capire la causa emotiva del sintomo: {{1}}
+
+Con calma: è da guardare quando puoi.
+```
+
+| Meta | GHL | Ejemplo para la revisión |
+|---|---|---|
+| `{{1}}` | `{{custom_values.link_educativo_it}}` | https://go.hotmart.com/XXXX |
+
+
 ## WF3-ES - Recordatorios de evento
 
 ### Recordatorio 24 h
@@ -174,7 +229,12 @@ Te esperamos dentro.
 
 | Meta | GHL | Ejemplo para la revisión |
 |---|---|---|
-| `{{1}}` | `{{custom_values.link_evento_es}}` | https://eventos.lanuovacoscienza.com/evento-es |
+| `{{1}}` | `{{trigger_link.zsM5LP4jGLvvLbNG8hXy}}` | https://eventos.lanuovacoscienza.com/evento-es |
+
+> **No es `link_evento_es`.** El enlace tiene que ser el *trigger link* `evento-es-en-vivo`, que
+> es lo que dispara WF4A y marca la asistencia. Con el custom value entra igual, pero no queda
+> registrado y le acaba llegando el mensaje de no-show. El valor de la variable se puede cambiar
+> sin volver a pasar por Meta.
 
 ### Recuperacion de no-show (copy suave)
 
@@ -242,7 +302,10 @@ Ti aspettiamo dentro.
 
 | Meta | GHL | Ejemplo para la revisión |
 |---|---|---|
-| `{{1}}` | `{{custom_values.link_evento_it}}` | https://eventos.lanuovacoscienza.com/evento-it |
+| `{{1}}` | `{{trigger_link.Y5dtDFxPynXgvi9hqp91}}` | https://eventos.lanuovacoscienza.com/evento-it |
+
+> El trigger link italiano (`evento-it-en-vivo`) se creó el 7-sep: hasta entonces solo existía el
+> español, así que en Italia **no se marcaba la asistencia de nadie**.
 
 ### Recuperacion de no-show (copy suave)
 
@@ -350,6 +413,50 @@ En 1 hora es tu llamada. Enlace: {{1}} (instala Zoom antes para no perder tiempo
 > `link_zoom_llamada_es`, que hoy está en `PENDIENTE` — checklist **B9**, sin cerrar.
 
 
+### Confirmacion de cita — Italia
+
+- **Nombre:** `confirmacion_cita_it`
+- **Idioma:** Italiano (it)
+- **Categoría:** UTILITY
+
+**Texto para Meta:**
+
+```
+La tua chiamata è fissata. Ti aspettiamo.
+```
+
+### Recordatorio cita 24 h — Italia
+
+- **Nombre:** `recordatorio_cita_24h_it`
+- **Idioma:** Italiano (it)
+- **Categoría:** UTILITY
+
+**Texto para Meta:**
+
+```
+Domani è la tua chiamata.
+```
+
+### Recordatorio cita 1 h + Zoom — Italia
+
+- **Nombre:** `recordatorio_cita_1h_it`
+- **Idioma:** Italiano (it)
+- **Categoría:** UTILITY
+
+**Texto para Meta:**
+
+```
+Tra 1 ora è la tua chiamata. Link: {{1}} (installa Zoom prima, per non perdere tempo).
+```
+
+| Meta | GHL | Ejemplo para la revisión |
+|---|---|---|
+| `{{1}}` | `{{custom_values.link_zoom_llamada_it}}` | https://zoom.us/j/XXXXXXXXX |
+
+> Las tres son de **WF4C, que hoy no filtra por mercado**: su trigger es `customer_appointment`
+> sin condición, así que un italiano que agenda recibe los tres mensajes en español con el Zoom
+> de Perú. Con estas aprobadas se le añade la bifurcación por `Mercado`, como la de WF4B.
+
 ---
 
 ## Cierre manual — no salen de un workflow
@@ -449,7 +556,7 @@ Copy provisional por P-13, como el resto del italiano: lo valida Luca.
 
 ## Antes de mandarlas
 
-- **17 de 19** salen fuera de la ventana: sin plantilla aprobada **no se envían**.
+- **22 de 24** salen fuera de la ventana: sin plantilla aprobada **no se envían**.
 - Los **enlaces en el cuerpo** hacen que Meta revise con más lupa. Si rechaza alguna suele ser por
   eso, y la salida es sacar el enlace a un **botón de URL** de la plantilla en vez de dejarlo en el texto.
 - Las de **MARKETING** se rechazan más que las UTILITY. Van clasificadas por lo que hace cada

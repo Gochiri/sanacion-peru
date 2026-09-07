@@ -30,6 +30,12 @@ Lo que se falló al adivinar, con el patrón detrás:
 corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 /workflow/{loc}/trigger?workflowId=<id>`), que es como se construyó este catálogo.
 
+**Y crearlos por API tampoco funciona**, probado el 7-sep con el segundo trigger de WF4A:
+`POST /workflow/{loc}/trigger` responde **200 con un id nuevo**, pero el trigger no queda
+enganchado a ningún workflow —el `GET` del workflow sigue devolviendo uno solo y el `GET` del
+id devuelve 404—. Es decir: **falla en silencio**. Si algún día hace falta automatizarlo, hay que
+verificar releyendo el workflow, nunca fiarse del 200.
+
 ## Estado
 
 | Workflow | Trigger | Estado |
@@ -37,13 +43,13 @@ corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 | WF1 | `contact_created` | ✅ |
 | WF2 | `survey_submission` + F01 | ✅ (se le quitó un filtro que rompía el flujo, ver abajo) |
 | WF3 | `pipeline_stage_updated` → Lanzamiento/Registrado | ✅ corregido en UI |
-| WF4A | Trigger Link Clicked | **espera la página del evento** (falta el dominio) |
+| WF4A | **dos** Trigger Link Clicked: `evento-es-en-vivo` y `evento-it-en-vivo` | ✅ 7-sep |
 | WF4B | Form Submitted (F03 `DTwkB4aTiEIqUGNI9Qjo`) | F03 ✅ creado — **falta el trigger, se hace en UI** |
 | WF4C | `customer_appointment` → calendario de cierre | ✅ corregido en UI |
 | WF5 | `contact_tag` → `pago-manual` | ✅ |
 | **WF6-ES** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Peru-LATAM** | ✅ 6-sep |
 | **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ✅ 6-sep |
-| **WF6-IT** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Italia** | ⬜ **falta — el workflow ya está en italiano, en borrador** |
+| **WF6-IT** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Italia** | ✅ 6-sep |
 | **WF4B** | dos triggers `form_submission`: F03 y **F03-IT** `bGZjMxYQ78jACMs2keUO` | ✅ 6-sep |
 
 **WF2-IT** es el gemelo de WF2 con un solo cambio en el trigger: la encuesta es **F02**, no F01.
