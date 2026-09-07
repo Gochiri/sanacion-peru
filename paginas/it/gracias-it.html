@@ -248,7 +248,7 @@ html, body {
 (function () {
   // Botones de agenda. Solo aparecen si hay una fecha ISO real cargada:
   // sin ella no se inventa un evento de calendario.
-  var crudo = "{{custom_values.fecha_evento_es_iso}}";
+  var crudo = "{{custom_values.fecha_evento_it_iso}}";
   var inicio = new Date(crudo);
   var caja = document.getElementById('sc-agenda');
   if (!caja || isNaN(inicio.getTime())) return;
@@ -257,7 +257,7 @@ html, body {
   var MINUTOS = 90;
   var fin = new Date(inicio.getTime() + MINUTOS * 60000);
 
-  var TITULO = 'Clase en vivo · La Nuova Coscienza';
+  var TITULO = 'Lezione dal vivo · La Nuova Coscienza';
   var DETALLE = 'Entra por el enlace que te llega a tu WhatsApp.';
 
   function utc(d) {

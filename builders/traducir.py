@@ -144,6 +144,11 @@ TEXTOS = {
     "¿Cómo me llega el acceso?": "Come mi arriva l'accesso?",
     "Al registrarte te llega por WhatsApp el enlace del grupo, y ahí mandamos el acceso el día de la clase. Revisa que tu número esté bien escrito.":
         "Quando ti iscrivi ti arriva su WhatsApp il link del gruppo, e lì mandiamo l'accesso il giorno della lezione. Controlla che il tuo numero sia scritto bene.",
+    # Estas dos solo aparecen dentro del <script> —el title del iframe y el
+    # texto del estado— y por eso se colaron: van antes que "En vivo" por
+    # ser mas largas, que es como se ordena la tabla al aplicarla.
+    "Clase en vivo": "Lezione dal vivo",
+    "En vivo ahora": "Siamo in diretta",
     "En vivo": "Dal vivo",
 
     # ── evento ──────────────────────────────────────────────────────────────
@@ -306,12 +311,17 @@ VALORES = [
     (r"custom_values\.link_calendario_cierre_pe", "custom_values.link_calendario_cierre_it"),
     (r"custom_values\.hora_evento_pe", "custom_values.hora_evento_it"),
     (r"custom_values\.logo_url\b", "custom_values.logo_url_it"),
+    # `fecha_evento_es_iso` no lo cogia la regla de abajo: el `_es` va en
+    # medio y `\b` no rompe entre `s` y `_`. La pagina italiana acababa
+    # contando hasta el evento ESPAÑOL.
+    (r"custom_values\.([a-z_]+?)_es(_(?:iso|ghl))\b", r"custom_values.\1_it\2"),
     (r"custom_values\.([a-z_]+)_es\b", r"custom_values.\1_it"),
 ]
 
 # Rastros de que una frase se escapó de la tabla. Se buscan en lo generado.
 RASTROS = ["ñ", "¿", "¡", " qué ", " está ", " aquí ", " cómo ", " tú ", "ción ",
-           " para ti", " puedes ", " tienes ", "Cuándo", " año", " síntoma"]
+           " para ti", " puedes ", " tienes ", "Cuándo", " año", " síntoma",
+           " en vivo", " ahora", "Clase "]
 
 # Nombres propios que son español y se quedan así: la razón social es la que
 # figura en el registro peruano, y traducirla sería inventarse una empresa.
@@ -335,8 +345,16 @@ def limpio(html: str) -> list[str]:
     """Lo que queda en español después de traducir, mirando solo el texto visible."""
     s = re.sub(r"<!--.*?-->", "", html, flags=re.S)
     s = re.sub(r"<style.*?</style>", "", s, flags=re.S)
+    # Del <script> se tira el codigo pero NO sus cadenas: el title del iframe y
+    # el texto del estado se leen en pantalla igual que cualquier parrafo, y
+    # tirando el bloque entero se quedaron dos frases en español sin que nadie
+    # se enterara.
+    cadenas = []
+    for bloque in re.findall(r"<script.*?</script>", s, flags=re.S):
+        cadenas += re.findall(r"'([^'\\]{4,})'|\"([^\"\\]{4,})\"", bloque)
     s = re.sub(r"<script.*?</script>", "", s, flags=re.S)
     visible = " ".join(x.strip() for x in re.split(r"<[^>]+>", s) if x.strip())
+    visible += " " + " ".join(a or b for a, b in cadenas)
     for propio in NO_SE_TRADUCE:
         visible = visible.replace(propio, "")
     return sorted({r.strip() for r in RASTROS if r in visible})

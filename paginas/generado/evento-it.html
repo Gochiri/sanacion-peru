@@ -228,7 +228,7 @@ html, body {
         </div>
 
         <div>
-          <a class="sc-cta" href="https://eventos.lanuovacoscienza.com/candidatura-it">
+          <a class="sc-cta" href="https://eventos.lanuovacoscienza.com/postulacion-it">
             Voglio candidarmi alla scuola
           </a>
           <p class="sc-cta-nota">
@@ -296,50 +296,80 @@ html, body {
   </footer>
 
   <div class="sc-sticky">
-    <a class="sc-cta" href="https://eventos.lanuovacoscienza.com/candidatura-it">Voglio candidarmi alla scuola</a>
+    <a class="sc-cta" href="https://eventos.lanuovacoscienza.com/postulacion-it">Voglio candidarmi alla scuola</a>
   </div>
 
 </div>
 
 <script>
 (function () {
-  // El embed llega como custom value. Mientras valga PENDIENTE —o GHL no lo
-  // sustituya— NO se monta el iframe: se deja el cartel de espera en vez de
-  // una caja rota, que es lo que veria quien entre antes de tiempo.
+  // ── El reproductor ────────────────────────────────────────────────────
+  // El embed llega como custom value. Desde el 7-sep es la **URL de directo
+  // del canal**, no la de un video concreto:
+  //     https://www.youtube.com/embed/live_stream?channel=UC…
+  // Esa URL no cambia nunca: reproduce lo que el canal este emitiendo en ese
+  // momento. Antes iba el id del video, que YouTube crea al abrir la
+  // transmision, y obligaba a regenerar y volver a pegar esta pagina minutos
+  // antes de salir en directo. Se aceptan las dos formas por si algun ciclo
+  // hace falta apuntar a un video suelto.
+  //
+  // Mientras el valor sea PENDIENTE —o GHL no lo sustituya— NO se monta el
+  // iframe: se deja el cartel de espera en vez de una caja rota.
   var embed = "PENDIENTE";
-  if (/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(embed)) {
+  var crudo = "2026-09-26T18:00:00+02:00";
+
+  // Cuanto antes del inicio aparece el reproductor. Son los mismos 15 minutos
+  // en los que WF3 manda el «estamos en vivo», asi que quien llega por ese
+  // mensaje ya lo encuentra puesto. Antes de eso, un embed de canal solo
+  // ensenaria el aviso de que no hay directo.
+  var ANTES_MS = 15 * 60 * 1000;
+
+  var VALIDO = /^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/(live_stream\?channel=[\w-]{6,}|[\w-]{6,})/;
+
+  var inicio = new Date(crudo);
+  var caja   = document.getElementById('sc-video');
+  var espera = document.getElementById('sc-video-espera');
+  var puesto = false;
+
+  function montar() {
+    if (puesto || !caja || !VALIDO.test(embed)) return;
+    puesto = true;
     var marco = document.createElement('iframe');
     marco.src = embed;
-    marco.title = 'Clase en vivo · La Nuova Coscienza';
+    marco.title = 'Lezione dal vivo · La Nuova Coscienza';
     marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
                   'gyroscope; picture-in-picture; web-share';
     marco.referrerPolicy = 'strict-origin-when-cross-origin';
     marco.allowFullscreen = true;
-    var caja = document.getElementById('sc-video');
-    var espera = document.getElementById('sc-video-espera');
-    if (caja) { caja.appendChild(marco); if (espera) espera.remove(); }
+    caja.appendChild(marco);
+    if (espera) espera.remove();
   }
-})();
 
-(function () {
-  // El inicio llega como custom value en ISO. Si aún no está cargado (o dice
-  // PENDIENTE) NO se inventa una cuenta atrás: se deja el estado de espera.
-  var crudo = "2026-09-24T20:00:00-05:00";
-  var inicio = new Date(crudo);
-  var caja = document.getElementById('sc-estado');
-  var txt  = document.getElementById('sc-estado-txt');
-  if (!caja || !txt || isNaN(inicio.getTime())) return;
+  // Sin fecha valida no hay a que esperar: se monta y ya.
+  if (isNaN(inicio.getTime())) { montar(); return; }
+
+  function toca() { return Date.now() >= inicio.getTime() - ANTES_MS; }
+
+  // ── La cuenta atras ───────────────────────────────────────────────────
+  var cajaEst = document.getElementById('sc-estado');
+  var txt     = document.getElementById('sc-estado-txt');
 
   function dos(n) { return String(n).padStart(2, '0'); }
 
   function pintar() {
+    if (toca()) montar();
+
     var faltan = inicio.getTime() - Date.now();
 
     if (faltan <= 0) {
-      caja.classList.remove('sc-estado--espera');
-      txt.textContent = 'Dal vivo ahora';
+      if (cajaEst && txt) {
+        cajaEst.classList.remove('sc-estado--espera');
+        txt.textContent = 'Siamo in diretta';
+      }
       return true;                        // ya no hace falta seguir contando
     }
+
+    if (!cajaEst || !txt) return false;
 
     var s = Math.floor(faltan / 1000);
     var d = Math.floor(s / 86400);
@@ -347,7 +377,7 @@ html, body {
     var m = Math.floor((s % 3600) / 60);
     var g = s % 60;
 
-    caja.classList.add('sc-estado--espera');
+    cajaEst.classList.add('sc-estado--espera');
     txt.textContent = d > 0
       ? 'Empieza en ' + d + (d === 1 ? ' día ' : ' días ') + dos(h) + ':' + dos(m)
       : 'Empieza en ' + dos(h) + ':' + dos(m) + ':' + dos(g);
