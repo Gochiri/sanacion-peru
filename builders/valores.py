@@ -13,6 +13,7 @@ Hay dos clases de valor y por eso hay dos comandos:
     python3 builders/valores.py fijos --aplicar
     python3 builders/valores.py personas --aplicar
     python3 builders/valores.py zoom --aplicar
+    python3 builders/valores.py italia --aplicar
 
 El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
@@ -147,6 +148,25 @@ ZOOM = {
 }
 
 
+# Las páginas italianas. Se cargan por adelantado —antes de que existan en GHL—
+# porque las páginas se enlazan entre sí: sin esto, lo generado saldría con
+# «PENDIENTE» donde va la URL de la siguiente. Oliver crea las páginas en GHL
+# con exactamente estos slugs.
+_EV = "https://eventos.lanuovacoscienza.com/"
+
+ITALIA = {
+    "link_registro_it":      _EV + "registro-it",
+    "link_evento_it":        _EV + "evento-it",
+    "link_postulacion_it":   _EV + "candidatura-it",
+    "link_agenda_it":        _EV + "agenda-it",
+    "link_comienza_aqui_it": _EV + "inizia-qui",
+    # No hay logo italiano en Media Storage — solo los dos de Salud Consciente.
+    # Apunta al mismo archivo: el día que llegue uno, se cambia este valor y se
+    # regenera, sin tocar HTML. Es P-11, abierto desde julio.
+    "logo_url_it": (_MEDIA + "6a988e51fac7854efe335f37.png"),
+}
+
+
 def _indice() -> dict[str, dict]:
     cod, r = publico.pedir("GET", "/locations/%s/customValues" % os.environ["GHL_LOCATION_ID"])
     if cod != 200:
@@ -211,6 +231,9 @@ if __name__ == "__main__":
     elif args[:1] == ["zoom"]:
         print("Enlaces de Zoom de las llamadas de cierre")
         cargar(ZOOM, escribir)
+    elif args[:1] == ["italia"]:
+        print("URLs y logo de las páginas italianas")
+        cargar(ITALIA, escribir)
     else:
         raise SystemExit(__doc__)
 

@@ -1,0 +1,323 @@
+<!--
+  comienza-aqui · versión italiana
+  GENERADO por builders/traducir.py — no editar aquí.
+  El texto se cambia en la tabla TEXTOS de ese script y se vuelve a generar.
+  Traducción PROVISIONAL del 6-sep: la valida Luca (B4/P-13).
+-->
+<!--
+  La Nuova Coscienza · Inizia qui (mercado ES)
+  Destino de quien NO califica para la escuela. Para pegar en GHL:
+  Funnels > nueva página > elemento Custom Code/HTML.
+
+  Quien llega aquí acaba de responder que busca "un medicamento o tratamiento
+  médico" o que "solo tiene curiosidad". NO es un rechazo y el copy no debe
+  sonar a eso: es una redirección hacia lo que sí le sirve hoy.
+
+  Variables (custom values):
+   · embed_video_educativo_es -> el contenido gratuito. Admite dos formas:
+       · un embed de YouTube (https://www.youtube.com/embed/XXXXXXXXXXX)
+         -> se monta el reproductor dentro de la página
+       · cualquier otro enlace https (carpeta de Drive, por ejemplo)
+         -> sale una tarjeta con botón, porque Drive no se deja embeber
+     Desde la llamada del 4-sep el curso «La Verdad que Sana» va en una carpeta
+     de Drive partida por módulos, así que hoy toca la segunda forma.
+   · link_educativo_es        -> checkout de 21 Giorni (ya cargado, Hotmart)
+
+  Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
+  mensaje de WF2 del no-calificado, que hoy manda directo al checkout.
+-->
+
+<style>
+/* ── A1 · Reset del builder de GHL ───────────────────────────────────── */
+html, body {
+  background:#0E0C0A !important;
+  margin:0 !important; padding:0 !important;
+  overflow-x:clip !important;
+  width:100% !important; max-width:100% !important;
+}
+#app, .hl_page-preview, .c-section, .c-row, .c-column, .c-wrapper,
+.container, .content, .fullSection, .innerSection,
+[class*="c-section"], [class*="c-row"], [class*="c-column"] {
+  background:transparent !important; background-color:transparent !important;
+  padding:0 !important; margin-left:0 !important; margin-right:0 !important;
+  max-width:100% !important; width:100% !important; border:0 !important;
+}
+
+.sc-page {
+  --sc-negro:#0E0C0A; --sc-negro-2:#171310;
+  --sc-oro:#D4A24C; --sc-oro-claro:#E8C77E; --sc-oro-tenue:#8A6B2F;
+  --sc-hueso:#F2EDE4; --sc-mudo:#A8A093; --sc-linea:#2C251D;
+
+  --sc-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --sc-cuerpo:'Manrope',system-ui,-apple-system,sans-serif;
+  --sc-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sc-s3:12px; --sc-s4:16px; --sc-s5:24px;
+  --sc-s6:32px; --sc-s8:64px;
+  --sc-pad-x:clamp(20px,5vw,64px);
+  --sc-maxw:820px;
+
+  width:100vw; max-width:100vw;
+  margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+  background:var(--sc-negro); color:var(--sc-hueso);
+  font-family:var(--sc-cuerpo); font-size:clamp(16px,1.02vw,17px);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.sc-page *, .sc-page *::before, .sc-page *::after { box-sizing:border-box; }
+.sc-page img { max-width:100%; height:auto; display:block; }
+.sc-wrap { max-width:var(--sc-maxw); margin:0 auto; }
+
+.sc-page h1, .sc-page h2, .sc-page h3 {
+  font-family:var(--sc-display); font-style:normal; font-weight:600;
+  margin:0; overflow-wrap:anywhere; min-width:0; text-wrap:balance;
+}
+.sc-page p { margin:0; max-width:60ch; }
+.sc-etiqueta { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--sc-oro); }
+
+.sc-barra { padding:var(--sc-s5) var(--sc-pad-x); border-bottom:1px solid var(--sc-linea); }
+.sc-page .sc-barra img {
+  width:clamp(140px,18vw,180px); aspect-ratio:3/1; height:auto;
+  object-fit:cover; object-position:center;
+}
+
+.sc-cuerpo { padding:clamp(40px,6vw,80px) var(--sc-pad-x) 0; }
+.sc-h1 { font-size:clamp(1.9rem,4.4vw,3rem); line-height:1.05;
+  letter-spacing:-.014em; margin-top:var(--sc-s4); }
+.sc-lead { color:var(--sc-mudo); margin-top:var(--sc-s5);
+  font-size:clamp(1.02rem,1.5vw,1.15rem); }
+
+/* ── Video ───────────────────────────────────────────────────────────── */
+.sc-video-zona { margin-top:var(--sc-s8); }
+.sc-video {
+  position:relative; width:100%; aspect-ratio:16/9;
+  background:var(--sc-negro-2); border:1px solid var(--sc-linea);
+}
+.sc-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.sc-video-espera {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:var(--sc-s3);
+  text-align:center; padding:var(--sc-s6);
+}
+.sc-video-marca { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--sc-oro-tenue); }
+.sc-video-espera p { color:var(--sc-mudo); max-width:38ch; }
+.sc-video-pie { color:var(--sc-mudo); font-size:.9rem; margin-top:var(--sc-s4); }
+/* Cuando el contenido no se puede embeber (Drive), el mismo recuadro pasa de
+   reproductor a tarjeta con botón. Se mantiene el 16/9 para que la página no
+   dé un salto según lo que haya cargado. */
+.sc-curso { gap:var(--sc-s4); }
+.sc-curso h3 { font-family:var(--sc-display); font-weight:600;
+  font-size:clamp(1.15rem,2.2vw,1.5rem); color:var(--sc-hueso); margin:0; }
+.sc-curso p { color:var(--sc-mudo); max-width:42ch; }
+.sc-curso .sc-cta { margin-top:var(--sc-s3); }
+
+/* ── Prosa ───────────────────────────────────────────────────────────── */
+.sc-prosa { margin-top:var(--sc-s8); max-width:58ch; }
+.sc-prosa h2 { font-size:clamp(1.4rem,2.6vw,1.9rem); line-height:1.1; }
+.sc-prosa p { margin-top:var(--sc-s5); }
+.sc-prosa p:first-of-type::first-letter {
+  font-family:var(--sc-display); font-size:3.4em; line-height:.82;
+  float:left; padding:.06em .12em 0 0; color:var(--sc-oro);
+}
+
+/* ── Oferta ──────────────────────────────────────────────────────────── */
+.sc-oferta {
+  margin-top:var(--sc-s8); border-top:1px solid var(--sc-oro-tenue);
+  background:var(--sc-negro-2); padding:clamp(28px,4vw,44px);
+}
+.sc-oferta h2 { font-size:clamp(1.3rem,2.4vw,1.75rem); margin-top:var(--sc-s3); }
+.sc-oferta p { color:var(--sc-mudo); margin-top:var(--sc-s4); }
+.sc-lista { list-style:none; padding:0; margin:var(--sc-s5) 0 0; }
+.sc-lista li {
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s4);
+  padding:var(--sc-s3) 0; max-width:56ch; font-size:.97rem;
+}
+.sc-lista li::before { content:"—"; color:var(--sc-oro); font-family:var(--sc-display); }
+
+.sc-cta {
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--sc-cuerpo); font-weight:700; font-size:1.02rem;
+  color:var(--sc-negro); background:var(--sc-oro);
+  padding:var(--sc-s4) var(--sc-s6); border:1px solid var(--sc-oro);
+  text-decoration:none; margin-top:var(--sc-s6);
+  transition:background .18s ease, transform .18s ease;
+}
+.sc-cta:hover { background:var(--sc-oro-claro); border-color:var(--sc-oro-claro); }
+.sc-cta:active { transform:translateY(1px); }
+.sc-cta:focus-visible { outline:3px solid var(--sc-oro-claro); outline-offset:3px; }
+
+/* ── Nota sobre la medicina ──────────────────────────────────────────── */
+.sc-nota {
+  margin-top:var(--sc-s8); border-left:2px solid var(--sc-oro-tenue);
+  padding:var(--sc-s4) var(--sc-s5);
+}
+.sc-nota p { color:var(--sc-mudo); font-size:.95rem; }
+
+.sc-pie { padding:var(--sc-s8) var(--sc-pad-x) calc(var(--sc-s8) + 8px);
+  color:var(--sc-mudo); font-size:.85rem; }
+.sc-pie a { color:var(--sc-oro); }
+.sc-regla { height:1px; background:linear-gradient(90deg, transparent,
+  var(--sc-oro-tenue) 20%, var(--sc-oro-tenue) 80%, transparent); margin-bottom:var(--sc-s6); }
+
+@media (prefers-reduced-motion: reduce){
+  .sc-page *, .sc-page *::before, .sc-page *::after {
+    transition:none !important; animation:none !important;
+  }
+}
+@media print { .sc-page { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<div class="sc-page">
+
+  <header class="sc-barra">
+    <div class="sc-wrap"><img src="{{custom_values.logo_url_it}}" alt="La Nuova Coscienza"></div>
+  </header>
+
+  <main class="sc-cuerpo">
+    <div class="sc-wrap">
+
+      <span class="sc-etiqueta">Inizia qui</span>
+      <h1 class="sc-h1">Da dove iniziare, senza impegnarti in nulla.</h1>
+      <p class="sc-lead">
+        Da quello che ci hai raccontato, la scuola non è quello che ti serve adesso —
+        e va bene così. È un percorso lungo ed esigente, e non tutti ci arrivano in
+        questo momento. Quello che abbiamo per oggi è questo.
+      </p>
+
+      <!-- ══ VIDEO ══ -->
+      <section class="sc-video-zona">
+        <div class="sc-video" id="sc-video">
+          <div class="sc-video-espera" id="sc-video-espera">
+            <span class="sc-video-marca">La Nuova Coscienza</span>
+            <p>Il video sarà disponibile tra qualche giorno. Ti avvisiamo su WhatsApp quando c'è.</p>
+          </div>
+        </div>
+        <p class="sc-video-pie" id="sc-video-pie">Sono pochi minuti. Non serve sapere nulla dell'argomento per capirlo.</p>
+      </section>
+
+      <!-- ══ PROSA ══ -->
+      <section class="sc-prosa">
+        <h2>Una cosa che conviene dire prima.</h2>
+        <p>
+          Questo non sostituisce il tuo medico, e non vogliamo che lo faccia. Se stai seguendo un
+          trattamento, continualo. Quello che facciamo qui va da un'altra parte: guardare cosa stava
+          succedendo nella tua vita quando il sintomo è comparso, e che relazione può avere con lui.
+        </p>
+        <p>
+          Le due cose convivono. Anzi, chi ne trae più beneficio di solito
+          è proprio chi è ben seguito dal proprio medico.
+        </p>
+      </section>
+
+      <!-- ══ OFERTA ══ -->
+      <section class="sc-oferta">
+        <span class="sc-etiqueta">Se vuoi proseguire</span>
+        <h2>21 Giorni</h2>
+        <p>
+          È la cosa più simile a provare tutto questo da dentro senza entrare in un percorso lungo.
+          Un esercizio breve ogni giorno, per tre settimane.
+        </p>
+        <ul class="sc-lista">
+          <li><span>Vai al tuo ritmo: ogni giorno si fa in pochi minuti.</span></li>
+          <li><span>Parte da quello che è tuo, non dalla teoria generale.</span></li>
+          <li><span>Alla fine sai se questo ti interessa davvero o non faceva per te.</span></li>
+        </ul>
+        <a class="sc-cta" href="{{custom_values.link_educativo_it}}" target="_blank" rel="noopener">
+          Voglio iniziare i 21 Giorni
+        </a>
+      </section>
+
+      <!-- ══ NOTA ══ -->
+      <div class="sc-nota">
+        <p>
+          E se più avanti cambia il tuo momento, la scuola è sempre lì. Ti avviseremo
+          quando apriremo la prossima. Senza insistere.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="sc-pie">
+    <div class="sc-wrap">
+      <div class="sc-regla"></div>
+      <p>
+        <strong style="color:var(--sc-hueso)">La Nuova Coscienza</strong> · Nueva Conciencia Formación ·
+        <a href="mailto:info@lanuovacoscienza.com">info@lanuovacoscienza.com</a>
+      </p>
+      <p style="margin-top:var(--sc-s4)">
+        Questo contenuto è educativo e di accompagnamento. Non costituisce diagnosi né
+        trattamento medico, e non sostituisce il consulto con un professionista della salute.
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // Tres estados, y el orden importa:
+  //   1. embed de YouTube        -> reproductor dentro de la página
+  //   2. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
+  //                                 responde con X-Frame-Options y el iframe
+  //                                 sale en blanco, sin ningún error visible)
+  //   3. nada, o PENDIENTE       -> se queda el cartel de espera
+  //
+  // Sin el paso 2, pegar un enlace de Drive dejaba el cartel puesto para
+  // siempre y nadie se enteraba. Fue lo que pasó al mudar el curso de System.io.
+  var valor = "{{custom_values.embed_video_educativo_it}}".trim();
+  var caja = document.getElementById('sc-video');
+  var espera = document.getElementById('sc-video-espera');
+  if (!caja || !espera) return;
+
+  if (/^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]{6,}/.test(valor)) {
+    var marco = document.createElement('iframe');
+    marco.src = valor;
+    marco.title = 'Contenuto educativo · La Nuova Coscienza';
+    marco.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; ' +
+                  'gyroscope; picture-in-picture; web-share';
+    marco.referrerPolicy = 'strict-origin-when-cross-origin';
+    marco.allowFullscreen = true;
+    caja.appendChild(marco);
+    espera.remove();
+    return;
+  }
+
+  if (/^https:\/\/[^\s"'<>]+$/.test(valor)) {
+    espera.className = 'sc-video-espera sc-curso';
+    espera.innerHTML = '';
+
+    var marca = document.createElement('span');
+    marca.className = 'sc-video-marca';
+    marca.textContent = 'Gratis';
+
+    var titulo = document.createElement('h3');
+    titulo.textContent = 'La Verdad que Sana';
+
+    var texto = document.createElement('p');
+    texto.textContent = 'Casi tres horas, repartidas por módulos para que las ' +
+                        'veas cuando puedas. No hay que registrarse en nada.';
+
+    var boton = document.createElement('a');
+    boton.className = 'sc-cta';
+    boton.href = valor;
+    boton.target = '_blank';
+    boton.rel = 'noopener';
+    boton.textContent = 'Ver el curso';
+
+    espera.appendChild(marca);
+    espera.appendChild(titulo);
+    espera.appendChild(texto);
+    espera.appendChild(boton);
+
+    var pie = document.getElementById('sc-video-pie');
+    if (pie) pie.textContent = 'Se abre en otra pestaña. Puedes verlo por partes ' +
+                               'y volver cuando quieras.';
+  }
+})();
+</script>

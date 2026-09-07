@@ -296,3 +296,42 @@ WF4B está tocado en la UI, así que ese cambio va con `retocar.py`.
 GHL puede pasar los datos del formulario como parámetros en la redirección, y el widget del
 calendario los acepta para prellenar nombre, email y teléfono. **No está confirmado** — si no
 funciona, la persona vuelve a escribirlos, que es fricción menor pero conviene saberlo.
+
+---
+
+## Las seis italianas
+
+**No se editan a mano.** Salen de `builders/traducir.py`, que aplica una tabla frase-a-frase
+sobre las españolas y escribe en `paginas/it/`. Cambiar un texto es cambiar una línea de la
+tabla `TEXTOS` y volver a generar:
+
+```
+python3 builders/traducir.py
+python3 builders/previsualizar.py --ghl paginas/it/*.html
+```
+
+**Por qué una tabla y no seis archivos duplicados:** la estructura, el CSS y los guards quedan
+en un solo sitio, así que un arreglo llega a los dos idiomas sin acordarse de nada. Y la
+traducción queda legible para que Luca la revise sin abrir HTML.
+
+El script se niega a generar si encuentra rastros de español en el texto visible, o si sobrevive
+un id de formulario español.
+
+⚠️ **La traducción es PROVISIONAL** — la hicimos el 6-sep porque el copy llevaba bloqueado desde
+el 28-ago (B4/P-13) y el webinar italiano es el 26. La valida Luca.
+
+### Lo que el traductor cambia además del texto
+
+| | |
+|---|---|
+| Custom values | `*_es` → `*_it`, `hora_evento_pe` → `hora_evento_it`, `link_calendario_cierre_pe` → `_it`, `logo_url` → `logo_url_it` |
+| **Formularios** | **F01 → F02** y **F03 → F03-IT**. Los ids van escritos en el HTML, así que la tabla de textos no los tocaba: la página italiana embebía la encuesta española, que además marca al contacto como Perú-LATAM y lo mete en WF2 en vez de WF2-IT |
+| Marca | «Salud Consciente» → **«La Nuova Coscienza»** (P-11): es el dominio, el correo y la marca con la que Luca opera allá |
+| Razón social | **No se traduce.** «Nueva Conciencia Formación» es la del registro peruano |
+
+### Los slugs que hay que usar en GHL
+
+`registro-it` · `evento-it` · `grazie` no — **`gracias-it`** se pega en la página cuya URL es
+`/gracias-it`; y las otras: `candidatura-it`, `agenda-it`, `inizia-qui`. Están cargados en los
+custom values, así que las páginas ya se enlazan entre sí. Si se usan otros slugs, hay que
+cambiar el valor y regenerar.

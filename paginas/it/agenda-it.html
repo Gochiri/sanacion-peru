@@ -1,0 +1,245 @@
+<!--
+  agenda · versión italiana
+  GENERADO por builders/traducir.py — no editar aquí.
+  El texto se cambia en la tabla TEXTOS de ese script y se vuelve a generar.
+  Traducción PROVISIONAL del 6-sep: la valida Luca (B4/P-13).
+-->
+<!--
+  La Nuova Coscienza · Agenda tu llamada (mercado ES)
+  Para pegar en GHL: Funnels > nueva página > elemento Custom Code/HTML.
+
+  Es el paso siguiente a la postulación. En los ajustes del formulario F03:
+  On submit -> Redirect to URL -> la URL de esta página.
+
+  Aquí SÍ va el calendario embebido, a propósito: la persona acaba de postular
+  y es su momento de mayor intención. Mandarla a esperar un WhatsApp para
+  volver a entrar es donde se pierde gente.
+
+  El mensaje de WF4B pasa a ser la red de seguridad de quien se fue sin agendar.
+
+  Variables (custom values):
+   · link_calendario_cierre_pe -> calendario del mercado español (Joaquín)
+
+  DATOS PRECARGADOS: si la URL trae parámetros (first_name, last_name, email,
+  phone), se pasan al calendario para que la persona no vuelva a escribir lo que
+  acaba de poner en la postulación. Se configura en F03: al redirigir aquí, que
+  la URL lleve esos valores. Si no vienen, la página funciona igual.
+-->
+
+<style>
+/* ── A1 · Reset del builder de GHL ───────────────────────────────────── */
+html, body {
+  background:#0E0C0A !important;
+  margin:0 !important; padding:0 !important;
+  overflow-x:clip !important;
+  width:100% !important; max-width:100% !important;
+}
+#app, .hl_page-preview, .c-section, .c-row, .c-column, .c-wrapper,
+.container, .content, .fullSection, .innerSection,
+[class*="c-section"], [class*="c-row"], [class*="c-column"] {
+  background:transparent !important; background-color:transparent !important;
+  padding:0 !important; margin-left:0 !important; margin-right:0 !important;
+  max-width:100% !important; width:100% !important; border:0 !important;
+}
+
+.sc-page {
+  --sc-negro:#0E0C0A; --sc-negro-2:#171310;
+  --sc-oro:#D4A24C; --sc-oro-tenue:#8A6B2F;
+  --sc-hueso:#F2EDE4; --sc-mudo:#A8A093; --sc-linea:#2C251D;
+  --sc-verde:#6E9E6A;
+
+  --sc-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --sc-cuerpo:'Manrope',system-ui,-apple-system,sans-serif;
+  --sc-mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sc-s3:12px; --sc-s4:16px; --sc-s5:24px;
+  --sc-s6:32px; --sc-s7:48px; --sc-s8:64px;
+  --sc-pad-x:clamp(20px,5vw,64px);
+  --sc-maxw:1060px;
+
+  width:100vw; max-width:100vw;
+  margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
+  background:var(--sc-negro); color:var(--sc-hueso);
+  font-family:var(--sc-cuerpo); font-size:clamp(16px,1.02vw,17px);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.sc-page *, .sc-page *::before, .sc-page *::after { box-sizing:border-box; }
+.sc-page img { max-width:100%; height:auto; display:block; }
+.sc-wrap { max-width:var(--sc-maxw); margin:0 auto; }
+
+.sc-page h1, .sc-page h2, .sc-page h3 {
+  font-family:var(--sc-display); font-style:normal; font-weight:600;
+  margin:0; overflow-wrap:anywhere; min-width:0; text-wrap:balance;
+}
+.sc-page p { margin:0; max-width:58ch; }
+.sc-etiqueta { font-family:var(--sc-mono); font-size:.7rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--sc-oro); }
+
+.sc-barra { padding:var(--sc-s5) var(--sc-pad-x); border-bottom:1px solid var(--sc-linea); }
+.sc-page .sc-barra img {
+  width:clamp(140px,18vw,180px); aspect-ratio:3/1; height:auto;
+  object-fit:cover; object-position:center;
+}
+
+/* ── Confirmación breve ──────────────────────────────────────────────── */
+.sc-cuerpo { padding:clamp(36px,5vw,64px) var(--sc-pad-x) 0; }
+.sc-marca-ok {
+  display:inline-flex; align-items:center; gap:var(--sc-s3);
+  font-family:var(--sc-mono); font-size:.72rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--sc-verde);
+}
+.sc-marca-ok::before {
+  content:""; width:22px; height:11px; flex:none;
+  border-left:2px solid var(--sc-verde); border-bottom:2px solid var(--sc-verde);
+  transform:rotate(-45deg) translate(2px,-3px);
+}
+.sc-h1 { font-size:clamp(1.85rem,4vw,2.7rem); line-height:1.06;
+  letter-spacing:-.014em; margin-top:var(--sc-s5); }
+.sc-lead { color:var(--sc-mudo); margin-top:var(--sc-s4);
+  font-size:clamp(1rem,1.4vw,1.1rem); }
+
+/* ── Calendario + qué esperar ────────────────────────────────────────── */
+.sc-grid { display:grid; gap:clamp(28px,4vw,48px); align-items:start;
+  margin-top:var(--sc-s7); }
+@media (min-width:960px){
+  .sc-grid { grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr); }
+}
+.sc-cal { background:var(--sc-negro-2); border:1px solid var(--sc-oro-tenue); }
+/* Suelo mientras carga form_embed.js, que luego ajusta el iframe al contenido.
+   Si se pone alto, sobra fondo oscuro por debajo del widget. */
+.sc-cal iframe { width:100%; border:0; display:block; min-height:520px; }
+
+.sc-aparte h2 { font-size:clamp(1.1rem,1.9vw,1.35rem); }
+.sc-lista { list-style:none; padding:0; margin:var(--sc-s5) 0 0; }
+.sc-lista li {
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--sc-s4);
+  padding:var(--sc-s4) 0; border-bottom:1px solid var(--sc-linea);
+  font-size:.95rem; color:var(--sc-mudo);
+}
+.sc-lista li::before { content:"—"; color:var(--sc-oro); font-family:var(--sc-display); }
+.sc-lista li:first-child { border-top:1px solid var(--sc-linea); }
+
+.sc-nota { margin-top:var(--sc-s6); border-left:2px solid var(--sc-oro-tenue);
+  padding:var(--sc-s4) var(--sc-s5); }
+.sc-nota p { color:var(--sc-mudo); font-size:.92rem; }
+
+.sc-pie { padding:var(--sc-s8) var(--sc-pad-x) calc(var(--sc-s8) + 8px);
+  color:var(--sc-mudo); font-size:.85rem; }
+.sc-pie a { color:var(--sc-oro); }
+.sc-regla { height:1px; background:linear-gradient(90deg, transparent,
+  var(--sc-oro-tenue) 20%, var(--sc-oro-tenue) 80%, transparent); margin-bottom:var(--sc-s6); }
+
+@media (prefers-reduced-motion: reduce){
+  .sc-page *, .sc-page *::before, .sc-page *::after {
+    transition:none !important; animation:none !important;
+  }
+}
+@media print { .sc-page { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<div class="sc-page">
+
+  <header class="sc-barra">
+    <div class="sc-wrap"><img src="{{custom_values.logo_url_it}}" alt="La Nuova Coscienza"></div>
+  </header>
+
+  <main class="sc-cuerpo">
+    <div class="sc-wrap">
+
+      <span class="sc-marca-ok">Candidatura ricevuta</span>
+      <h1 class="sc-h1">Manca l'ultima cosa: scegliere quando parliamo.</h1>
+      <p class="sc-lead">
+        Scegli l'orario che ti viene meglio. È un'ora in videochiamata, con Luca.
+      </p>
+
+      <div class="sc-grid">
+
+        <!-- ══ CALENDARIO ══ -->
+        <div class="sc-cal">
+          <!-- Calendario del mercado español. El horario se elige aquí mismo:
+               es el momento de mayor intención y no conviene desviarlo. -->
+          <!-- El src lo pone el script de abajo, para poder añadirle los datos
+               de la persona antes de montar el iframe. -->
+          <iframe
+            data-base="{{custom_values.link_calendario_cierre_it}}"
+            id="sc-calendario"
+            title="Prenota la tua chiamata"
+            scrolling="no"></iframe>
+        </div>
+
+        <!-- ══ QUÉ ESPERAR ══ -->
+        <aside class="sc-aparte">
+          <span class="sc-etiqueta">La chiamata</span>
+          <h2 style="margin-top:var(--sc-s3)">Cosa succederà.</h2>
+
+          <ul class="sc-lista">
+            <li><span>Ti chiediamo di quello che hai scritto, per capire bene il tuo caso.</span></li>
+            <li><span>Ti raccontiamo come funziona la scuola, quanto dura e cosa ci si aspetta da te.</span></li>
+            <li><span>Prezzo e modalità di pagamento, senza giri di parole.</span></li>
+            <li><span>Se vediamo che non è il tuo momento, te lo diciamo lì.</span></li>
+          </ul>
+
+          <div class="sc-nota">
+            <p>
+              Non c'è da decidere nulla durante la chiamata. E se ti capita qualcosa e non puoi,
+              si riprogramma dalla stessa email di conferma.
+            </p>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="sc-pie">
+    <div class="sc-wrap">
+      <div class="sc-regla"></div>
+      <p>
+        <strong style="color:var(--sc-hueso)">La Nuova Coscienza</strong> · Nueva Conciencia Formación ·
+        <a href="mailto:info@lanuovacoscienza.com">info@lanuovacoscienza.com</a>
+      </p>
+      <p style="margin-top:var(--sc-s4)">
+        L'accompagnamento della scuola è educativo. Non costituisce diagnosi né trattamento
+        medico, e non sostituisce il consulto con un professionista della salute.
+      </p>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // La persona acaba de escribir su nombre, su correo y su teléfono en la
+  // postulación. Volver a pedírselos en el calendario, en el momento de más
+  // intención, es donde se pierde gente por puro cansancio.
+  //
+  // Se reenvía al widget lo que venga en la URL, sin inventar nada: si F03 no
+  // pasa los datos, el calendario sale vacío y funciona igual que antes.
+  var marco = document.getElementById("sc-calendario");
+  if (!marco) return;
+
+  var base = marco.getAttribute("data-base") || "";
+  // Sin URL válida no se monta nada: mejor un hueco que un iframe roto.
+  if (!/^https?:\/\//.test(base)) return;
+
+  var ADMITIDOS = ["first_name", "last_name", "name", "email", "phone"];
+  var entrada = new URLSearchParams(window.location.search);
+  var destino = new URL(base);
+
+  ADMITIDOS.forEach(function (clave) {
+    var v = (entrada.get(clave) || "").trim();
+    // GHL deja los merge fields sin resolver como texto literal: si llega
+    // «{{contact.email}}» tal cual, es peor que no mandar nada.
+    if (v && v.indexOf("{{") === -1) destino.searchParams.set(clave, v);
+  });
+
+  marco.src = destino.toString();
+})();
+</script>
+
+<script src="https://link.msgsndr.com/js/form_embed.js"></script>
