@@ -58,6 +58,68 @@ RETOQUES: list[tuple[str, str, str, str]] = [
      "{{custom_values.link_zoom_llamada_es}}",
      "la ubicacion del calendario esta vacia; el Zoom es un custom value (B9)"),
 
+    # ── WF6-IT: la nutrición, vuelta italiana ──────────────────────────────
+    # Copia hecha en la UI, como WF2-IT. El copy es perenne a propósito —no
+    # cuenta días ni dice «falta poco»— porque las esperas van relativas al
+    # registro y quien se inscriba tarde puede recibir el tercero después del
+    # webinar. Traducción provisional: la valida Luca.
+    ("WF6-IT - Nutrizione pre-evento",
+     "{{custom_values.link_grupo_whatsapp_es}}", "{{custom_values.link_grupo_whatsapp_it}}",
+     "grupo italiano, en los tres correos"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Si te surge algo, escríbelo en el grupo: ",
+     "Se ti viene in mente qualcosa, scrivilo nel gruppo: ",
+     "el cierre de los tres"),
+
+    ("WF6-IT - Nutrizione pre-evento",
+     "Por qué el cuerpo elige un órgano y no otro",
+     "Perché il corpo sceglie un organo e non un altro", "asunto 1"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Cuando aparece un síntoma, la pregunta habitual es qué lo causó. La que solemos hacernos nosotros es otra: por qué ahí y no en otro sitio.",
+     "Quando compare un sintomo, la domanda abituale è che cosa lo ha causato. Quella che ci facciamo noi è un'altra: perché lì e non da un'altra parte.",
+     "cuerpo 1, primer párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "No es casualidad. Cada órgano cumple una función, y esa función tiene que ver con algo concreto de la vida de quien lo habita. El estómago con lo que no se digiere. La piel con el contacto. Los pulmones con el espacio.",
+     "Non è un caso. Ogni organo svolge una funzione, e quella funzione ha a che fare con qualcosa di concreto nella vita di chi lo abita. Lo stomaco con quello che non si digerisce. La pelle con il contatto. I polmoni con lo spazio.",
+     "cuerpo 1, segundo párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "No hace falta que te lo creas ahora. Es lo que vamos a mirar con casos reales en la clase.",
+     "Non serve che ci creda adesso. È quello che guarderemo con casi reali nella lezione.",
+     "cuerpo 1, tercer párrafo"),
+
+    ("WF6-IT - Nutrizione pre-evento",
+     "Lo que estaba pasando cuando empezó", "Cosa stava succedendo quando è iniziato",
+     "asunto 2"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Casi nadie recuerda bien cuándo empezó su síntoma. Se recuerda cuándo se volvió insoportable, que suele ser bastante después.",
+     "Quasi nessuno ricorda bene quando è iniziato il proprio sintomo. Si ricorda quando è diventato insopportabile, che di solito è parecchio dopo.",
+     "cuerpo 2, primer párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Ese hueco entre las dos fechas es donde solemos encontrar lo interesante. Si te da por pensarlo estos días, no busques el día del diagnóstico: busca el mes en que algo cambió y tú seguiste adelante como si nada.",
+     "Quel vuoto tra le due date è dove di solito troviamo la cosa interessante. Se ti va di pensarci in questi giorni, non cercare il giorno della diagnosi: cerca il mese in cui qualcosa è cambiato e tu sei andato avanti come se niente fosse.",
+     "cuerpo 2, segundo párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Es un ejercicio incómodo. También es el que más suele mover.",
+     "È un esercizio scomodo. È anche quello che di solito smuove di più.",
+     "cuerpo 2, tercer párrafo"),
+
+    ("WF6-IT - Nutrizione pre-evento", "Lo que esto no es", "Cosa non è questo", "asunto 3"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Antes de la clase queremos dejar una cosa clara, porque en este terreno se promete mucho.",
+     "Prima della lezione vogliamo mettere in chiaro una cosa, perché su questo terreno si promette molto.",
+     "cuerpo 3, primer párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Esto no cura, no reemplaza a tu médico y no es motivo para dejar un tratamiento. Si estás en uno, síguelo.",
+     "Questo non cura, non sostituisce il tuo medico e non è un motivo per interrompere un trattamento. Se ne stai seguendo uno, continualo.",
+     "cuerpo 3, el parrafo que protege la cuenta"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Lo que hacemos es otra cosa: entender qué relación puede tener un síntoma con lo que estabas viviendo cuando apareció. Las dos cosas conviven, y quien mejor le saca provecho a esto suele ser justamente el que está bien acompañado por su médico.",
+     "Quello che facciamo è un'altra cosa: capire che relazione può avere un sintomo con quello che stavi vivendo quando è comparso. Le due cose convivono, e chi ne trae più beneficio di solito è proprio chi è ben seguito dal proprio medico.",
+     "cuerpo 3, tercer párrafo"),
+    ("WF6-IT - Nutrizione pre-evento",
+     "Si esperabas otra cosa, mejor saberlo ahora.",
+     "Se ti aspettavi altro, meglio saperlo adesso.", "cuerpo 3, cierre"),
+
     # ── WF2-IT: la copia de WF2 hecha en la UI, vuelta italiana ────────────
     # Se duplica WF2 en la UI con el nombre exacto «WF2-IT - Registrazione e
     # qualifica» y estas sustituciones hacen el resto. El builder ya no puede

@@ -43,6 +43,7 @@ corregir — y evita dejar triggers muertos. El API sirve para **leerlos** (`GET
 | WF5 | `contact_tag` → `pago-manual` | ✅ |
 | **WF6-ES** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Peru-LATAM** | ✅ 6-sep |
 | **WF2-IT** | `survey_submission` → **F02** `UTqIwgAEt0xjmcBeA75j` | ✅ 6-sep |
+| **WF6-IT** | `pipeline_stage_updated` → Lanzamiento / **Registrado** + **Mercado = Italia** | ⬜ **falta — el workflow ya está en italiano, en borrador** |
 | **WF4B** | dos triggers `form_submission`: F03 y **F03-IT** `bGZjMxYQ78jACMs2keUO` | ✅ 6-sep |
 
 **WF2-IT** es el gemelo de WF2 con un solo cambio en el trigger: la encuesta es **F02**, no F01.
@@ -51,6 +52,9 @@ un campo es lo que rompió WF2 en su día.
 
 **WF4B** hoy dispara solo con F03. La postulación italiana llega por **F03-IT**, así que hay que
 añadirla al trigger — WF4B ya bifurca por `mercado` por dentro y manda a cada uno a su calendario.
+
+⚠️ **El filtro de mercado de WF6-IT no es opcional.** Sin él recogería también a los españoles,
+que es exactamente el fallo de abajo pero al revés.
 
 ⚠️ **WF6 nació sin filtro de mercado y por eso mandaba los tres correos en español también a los
 italianos** — su trigger es la misma etapa *Registrado* que alcanzan los dos mercados. Corregido
