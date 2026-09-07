@@ -39,6 +39,15 @@ RETOQUES: list[tuple[str, str, str, str]] = [
      "{{trigger_link.zsM5LP4jGLvvLbNG8hXy}}",
      "el enlace del evento va como trigger link, o WF4A no sabe quien entro"),
 
+    # El nodo «en vivo» italiano no llevaba ningun trigger link —ni el email ni
+    # el WhatsApp—, asi que WF4A no se disparaba nunca para Italia: nadie llegaba
+    # a *Asistio* y la rama de no-show de este mismo workflow le caia a todos los
+    # asistentes. El link italiano se creo el 7-sep apuntando a /evento-it.
+    ("WF3-IT - Promemoria evento",
+     "{{custom_values.link_evento_it}}",
+     "{{trigger_link.Y5dtDFxPynXgvi9hqp91}}",
+     "sin trigger link italiano, WF4A no marca asistencia en Italia"),
+
     ("WF3-ES - Recordatorios de evento",
      "{{custom_values.fecha_evento_vigente}}",
      "{{custom_values.fecha_evento_es}}",
@@ -388,11 +397,17 @@ def sustituir(valor, viejo: str, nuevo: str) -> tuple[object, int]:
             salida.append(v2); cambiados += n
         return salida, cambiados
     if isinstance(valor, dict):
+        # También las CLAVES: los nodos `whatsapp_v2` guardan el mapeo de cada
+        # variable como una clave que ES el merge field
+        # (`"{{custom_values.x}}": "{{custom_values.x}}"`). Sustituir solo el
+        # valor dejaba la clave apuntando al campo viejo.
         cambiados = 0
         salida = {}
         for k, v in valor.items():
             v2, n = sustituir(v, viejo, nuevo)
-            salida[k] = v2; cambiados += n
+            k2 = k.replace(viejo, nuevo) if isinstance(k, str) else k
+            cambiados += n + (k.count(viejo) if isinstance(k, str) else 0)
+            salida[k2] = v2
         return salida, cambiados
     return valor, 0
 
@@ -405,8 +420,13 @@ def main() -> None:
     # correr una sola: `--solo inserciones`.
     ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas"],
                     help="ejecutar solo una fase (por defecto, todas)")
+    # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
+    # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
+    # la UI y todavia no se han verificado.
+    ap.add_argument("--workflow", help="limitar a los workflows cuyo nombre empiece asi")
     args = ap.parse_args()
     fase = lambda n: args.solo in (None, n)  # noqa: E731
+    toca = lambda n: not args.workflow or n.startswith(args.workflow)  # noqa: E731
 
     c = cliente(); loc = c.location_id
     lst = c.request("GET", f"/workflow/{loc}") or []
@@ -416,6 +436,8 @@ def main() -> None:
            if isinstance(w, dict) and w.get("type") != "directory"}
 
     for nombre, viejo, nuevo, motivo in (RETOQUES if fase("retoques") else []):
+        if not toca(nombre):
+            continue
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe")
@@ -447,18 +469,20 @@ def main() -> None:
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
     if fase("campos"):
-        aplicar_campos(c, loc, ids, args.dry_run)
+        aplicar_campos(c, loc, ids, args.dry_run, toca)
     if fase("avisos"):
-        aplicar_avisos(c, loc, ids, args.dry_run)
+        aplicar_avisos(c, loc, ids, args.dry_run, toca)
     if fase("inserciones"):
-        aplicar_inserciones(c, loc, ids, args.dry_run)
+        aplicar_inserciones(c, loc, ids, args.dry_run, toca)
     if fase("esperas"):
-        aplicar_esperas(c, loc, ids, args.dry_run)
+        aplicar_esperas(c, loc, ids, args.dry_run, toca)
 
 
-def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
+def aplicar_avisos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
     """Reescribe por completo los `attributes` de una notificación interna."""
     for nombre, nodo, attrs, motivo in RETOQUES_AVISOS:
+        if not toca(nombre):
+            continue
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe"); continue
@@ -489,9 +513,11 @@ def aplicar_avisos(c, loc, ids, dry_run: bool) -> None:
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
-def aplicar_esperas(c, loc, ids, dry_run: bool) -> None:
+def aplicar_esperas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
     """Ancla una espera a la cita del contacto en vez de a su hora de entrada."""
     for nombre, nodo, cuando, motivo in RETOQUES_ESPERAS:
+        if not toca(nombre):
+            continue
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe"); continue
@@ -534,13 +560,15 @@ def aplicar_esperas(c, loc, ids, dry_run: bool) -> None:
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
-def aplicar_inserciones(c, loc, ids, dry_run: bool) -> None:
+def aplicar_inserciones(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
     """Cose un nodo nuevo justo detrás de otro, en un workflow de cadena simple.
 
     Es idempotente por el nombre del nodo: si ya está, no lo duplica. Importa,
     porque este script se corre varias veces mientras se afina un texto.
     """
     for nombre, nodo, detras_de, attrs, motivo in INSERCIONES:
+        if not toca(nombre):
+            continue
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe"); continue
@@ -592,9 +620,11 @@ def aplicar_inserciones(c, loc, ids, dry_run: bool) -> None:
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
-def aplicar_campos(c, loc, ids, dry_run: bool) -> None:
+def aplicar_campos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
     """Reescribe por completo los `fields` de un nodo, localizado por su nombre."""
     for nombre, nodo, campos, motivo in RETOQUES_CAMPOS:
+        if not toca(nombre):
+            continue
         wid = ids.get(nombre)
         if not wid:
             print(f"  ✗ {nombre:34} no existe"); continue

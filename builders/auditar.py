@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
@@ -88,7 +89,10 @@ def main() -> None:
                     problemas.append("%s sin publicar" % wf)
                 if not tiene_tr:
                     problemas.append("%s sin trigger" % wf)
-                wa = [t for t in d["pasos"] if "[PENDIENTE-WA]" in (t.get("name") or "")]
+                # Un nodo ya convertido pierde la marca del nombre —GHL los llama
+                # a todos «WhatsApp»—, así que lo que cuenta es el tipo: los que
+                # siguen esperando plantilla son los que aún son `sms`.
+                wa = [t for t in d["pasos"] if t.get("type") == "sms"]
                 if wa:
                     print("     %s %d nodo(s) todavía como SMS, esperando plantilla" % (OJO, len(wa)))
         for k in valores:
@@ -111,10 +115,28 @@ def main() -> None:
     print("   %s workflows sin publicar: %s"
           % (OK if not sin_pub else MAL, ", ".join(sin_pub) or "ninguno"))
 
-    wa_total = sum(len([t for t in d["pasos"] if "[PENDIENTE-WA]" in (t.get("name") or "")])
+    wa_total = sum(len([t for t in d["pasos"] if t.get("type") == "sms"])
                    for d in wfs.values())
-    print("   %s nodos esperando plantilla de WhatsApp: %d"
-          % (OJO if wa_total else OK, wa_total))
+    hechos = sum(len([t for t in d["pasos"] if t.get("type") == "whatsapp_v2"])
+                 for d in wfs.values())
+    print("   %s nodos esperando plantilla de WhatsApp: %d  (ya convertidos: %d)"
+          % (OJO if wa_total else OK, wa_total, hechos))
+
+    # Cada variable del cuerpo tiene que tener su clave de mapeo en attributes,
+    # o GHL manda el parámetro vacío y Meta rechaza el envío entero.
+    sueltas = []
+    for n, d in wfs.items():
+        for t in d["pasos"]:
+            if t.get("type") != "whatsapp_v2":
+                continue
+            at = t.get("attributes", {})
+            faltan = set(re.findall(r"\{\{[^}]+\}\}", at.get("message") or ""))
+            faltan -= {k for k in at if k.startswith("{{")}
+            if faltan or not at.get("template_id"):
+                sueltas.append("%s / %s" % (n, at.get("__name__") or t.get("name")))
+    print("   %s nodos de WhatsApp mal mapeados: %s"
+          % (MAL if sueltas else OK, ", ".join(sueltas) or "ninguno"))
+    problemas += ["%s mal mapeado" % x for x in sueltas]
 
     cod, r = publico.pedir("GET", "/surveys/?locationId=%s&limit=50" % os.environ["GHL_LOCATION_ID"])
     encuestas = [s.get("name") for s in (r.get("surveys", []) if cod == 200 else [])]

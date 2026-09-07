@@ -12,6 +12,7 @@ Encapsula todo lo verificado contra la subcuenta real el 16-ago
 from __future__ import annotations
 
 import json
+import re
 import os
 import sys
 import uuid
@@ -296,24 +297,61 @@ def email(nombre: str, asunto: str, cuerpo_html: str) -> dict:
     }
 
 
-def whatsapp(nombre: str, plantilla: str, cuerpo: str) -> dict:
-    """Envío de WhatsApp.
+# El remitente de WhatsApp de la subcuenta. Es el mismo para los dos mercados:
+# un solo número conectado al WABA del cliente.
+WHATSAPP_REMITENTE = "1232540499943195"
 
-    ⚠️ PENDIENTE: no existe un tipo `whatsapp` en GHL (verificado: rechaza
-    whatsapp/wa/whatsapp_message/send_whatsapp con "corrupted type"). Se
-    construye como `sms` y GHL enruta por canal, pero falta confirmar en la UI
-    cómo se marca canal=WhatsApp y cómo se referencia la plantilla aprobada.
 
-    Hasta confirmarlo, el nodo se crea como `sms` con el nombre marcado
-    [PENDIENTE-WA] y la plantilla anotada en los attributes, para localizarlos
-    y corregirlos en bloque después.
+# Las plantillas aprobadas por Meta, por su nombre → el id que GHL guarda en el
+# nodo. **No hay endpoint que las liste**: se probaron 22 rutas de las dos APIs
+# y ninguna existe (`/locations/{loc}/templates?type=whatsapp` responde 200 pero
+# devuelve la librería de snippets de GHL, que está vacía). Cada id de aquí se
+# copió de un nodo configurado en la UI. Las que faltan todavía no se han
+# configurado en ningún nodo — o, en el caso de las cinco italianas de WF2-IT y
+# WF4C, ni siquiera se han mandado a aprobar.
+PLANTILLAS: dict[str, str] = {
+    "recordatorio_24h_es": "1105900248632421",
+    "recordatorio_3h_es":  "2902519780107882",
+    "en_vivo_es":          "1109792191480478",
+    "no_show_es":          "1083013000787364",
+    "recordatorio_24h_it": "3641877889305054",
+    "recordatorio_3h_it":  "3539641422873340",
+    "en_vivo_it":          "860187593847492",
+    "no_show_it":          "4115810205219760",
+    "confirmacion_cita_es": "4485080301811520",
+}
+
+
+def whatsapp_v2(nombre: str, plantilla: str, cuerpo: str,
+                remitente: str = WHATSAPP_REMITENTE) -> dict:
+    """Envío de una plantilla aprobada de Meta.
+
+    El tipo es `whatsapp_v2`. Costó encontrarlo: GHL rechaza `whatsapp`, `wa`,
+    `whatsapp_message` y `send_whatsapp` con "corrupted type", y no hay ningún
+    endpoint que liste los tipos válidos. Se leyó de un nodo hecho en la UI.
+
+    `cuerpo` es el texto **de la plantilla ya aprobada**, con las variables de
+    GHL puestas donde Meta tiene `{{1}}`, `{{2}}`… Cada una aparece dos veces:
+    dentro de `message` y como una clave suelta de `attributes` que se apunta a
+    sí misma. Si falta la clave, GHL manda el parámetro vacío.
+
+    El id de la plantilla **no sale por API** —no existe endpoint que liste las
+    de Meta—, así que `PLANTILLAS` se rellena copiándolo de un nodo hecho en la
+    UI. Con una plantilla que no esté en la tabla, el nodo sale sin id y el
+    envío falla: `auditar.py` lo señala.
     """
+    mapeo = {v: v for v in re.findall(r"\{\{[^}]+\}\}", cuerpo)}
     return {
-        "id": uid(), "type": "sms", "name": f"{WHATSAPP_PENDIENTE} {nombre}",
+        "id": uid(), "type": "whatsapp_v2", "name": "WhatsApp",
+        "cat": "", "workflowsActionType": "INTERNAL",
         "attributes": {
-            "body": cuerpo, "attachments": [],
-            "_plantilla_meta": plantilla,   # anotación nuestra, GHL la ignora
-            "_canal_pendiente": "whatsapp",
+            "template_id": PLANTILLAS.get(plantilla, ""),
+            "from_phone_number": remitente,
+            "message": cuerpo,
+            **mapeo,
+            "type": "whatsapp_v2", "__name__": nombre,
+            "toggle_branch": False, "convertToMultipath": False,
+            "__customInputs__": {}, "cat": "", "transitions": [],
         },
     }
 

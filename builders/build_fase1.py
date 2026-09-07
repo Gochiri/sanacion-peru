@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from esb_lib import (  # noqa: E402
     CARPETA, bifurcar, campo, capi, carpeta, cargar_estado, cliente, cond,
     crear_tags, desplegar, email, esperar, etiqueta, mover_a_etapa, notificar,
-    resumen, tags_usados, whatsapp,
+    resumen, tags_usados, whatsapp_v2,
 )
 
 E = cargar_estado()
@@ -42,7 +42,7 @@ def wf1():
                       [("contact.idioma", "IT"), ("contact.mercado", "Italia")]),
                 mover("Crear oportunidad IT en Lead nuevo", "Lead nuevo"),
                 etiqueta("Marcar oportunidad creada (IT)", ["oportunidad-creada"]),
-                whatsapp("Link de registro IT", "respuesta-entrada-desconocido",
+                whatsapp_v2("Link de registro IT", "respuesta_entrada_desconocido_it",
                          f"Ciao {{{{contact.first_name}}}}, iscriviti qui: {CV('link_registro_it')}"),
             ],
             rama_no=[
@@ -50,7 +50,7 @@ def wf1():
                       [("contact.idioma", "ES"), ("contact.mercado", "Peru-LATAM")]),
                 mover("Crear oportunidad ES en Lead nuevo", "Lead nuevo"),
                 etiqueta("Marcar oportunidad creada (ES)", ["oportunidad-creada"]),
-                whatsapp("Link de registro ES", "respuesta-entrada-desconocido",
+                whatsapp_v2("Link de registro ES", "respuesta_entrada_desconocido_es",
                          f"Hola {{{{contact.first_name}}}}, registrate aqui: {CV('link_registro_es')}"),
                 esperar("Esperar 30 min por registro", 30, "minutes"),
                 notificar("Avisar a Luca: escribio y no se registro",
@@ -66,7 +66,10 @@ def wf1():
 # esquemas-nodos.md), y WF2 ya gasta su única bifurcación en la calificación.
 # Para decidir además por mercado no queda otra que separar en dos workflows,
 # distinguidos por un filtro en el trigger, que es lo que ya se hizo con WF3.
+# `mkt` elige la plantilla aprobada del mercado: Meta aprueba una por idioma,
+# aunque el nodo lo construya la misma función.
 COPY_WF2_ES = {
+    "mkt": "_es",
     "bienvenida_asunto": "Tu lugar esta confirmado",
     "bienvenida_wa": ("Hola {{contact.first_name}}! Ya estas registrado. Unete "
                       "al grupo para recibir el acceso: %s"),
@@ -81,6 +84,7 @@ COPY_WF2_ES = {
 # Copy italiano PROVISIONAL: lo produce y valida Luca (P-13/B4), igual que
 # COPY_IT de WF3. No sale a producción sin su visto bueno.
 COPY_WF2_IT = {
+    "mkt": "_it",
     "bienvenida_asunto": "Il tuo posto e confermato",
     "bienvenida_wa": ("Ciao {{contact.first_name}}! Sei registrato. Entra nel "
                       "gruppo per ricevere l'accesso: %s"),
@@ -111,7 +115,7 @@ def _wf2(grupo, educativo, t, sufijo="",
             [cond(campo_calif, "eq", frase_calif)],
             rama_si=[
                 mover("Mover a Registrado", "Registrado"),
-                whatsapp("Bienvenida con link del grupo" + sufijo, "bienvenida-registro",
+                whatsapp_v2("Bienvenida con link del grupo" + sufijo, "bienvenida_registro" + t["mkt"],
                          t["bienvenida_wa"] % grupo),
                 # Sin fecha a propósito: desde K12 cada mercado tiene su día
                 # (sábado IT / jueves ES). Aunque este workflow ya sabe de qué
@@ -124,8 +128,8 @@ def _wf2(grupo, educativo, t, sufijo="",
             rama_no=[
                 mover("Mover a No califica", "No califica"),
                 etiqueta("Etiquetar para remarketing", ["a-educar"]),
-                whatsapp("Contenido educativo (sin link de grupo)" + sufijo,
-                         "educativo-no-califica", t["educativo_wa"] % educativo),
+                whatsapp_v2("Contenido educativo (sin link de grupo)" + sufijo,
+                         "educativo_no_califica" + t["mkt"], t["educativo_wa"] % educativo),
                 email("Email educativo no califica" + sufijo, t["educativo_asunto"],
                       t["educativo_email"] % educativo),
             ]),
@@ -171,14 +175,14 @@ def _wf3(fecha, hora, link_evento, t):
     """
     return [
         esperar("Esperar hasta T-24h del evento", 1, "days"),
-        whatsapp("Recordatorio 24 h", "recordatorio-24h",
+        whatsapp_v2("Recordatorio 24 h", "recordatorio_24h" + t["mkt"],
                  t["24h"].format(fecha=fecha, hora=hora)),
         email("Email recordatorio 24 h", t["asunto_24h"],
               f"<p>{t['email_24h'].format(hora=hora)}</p>"),
         esperar("Esperar hasta T-3h", 21, "hours"),
-        whatsapp("Recordatorio 3 h", "recordatorio-3h", t["3h"]),
+        whatsapp_v2("Recordatorio 3 h", "recordatorio_3h" + t["mkt"], t["3h"]),
         esperar("Esperar hasta T-15min", 3, "hours"),
-        whatsapp("Estamos en vivo (trigger link 1:1)", "en-vivo",
+        whatsapp_v2("Estamos en vivo (trigger link 1:1)", "en_vivo" + t["mkt"],
                  t["vivo"].format(link=link_evento)),
         email("Email en vivo", t["asunto_vivo"],
               f"<p>{t['email_vivo'].format(link=link_evento)}</p>"),
@@ -187,13 +191,14 @@ def _wf3(fecha, hora, link_evento, t):
         *bifurcar("No asistio al evento?",
             [cond("contact.asistio_evento", "eq", False)],
             rama_si=[
-                whatsapp("Recuperacion de no-show (copy suave)", "no-show",
+                whatsapp_v2("Recuperacion de no-show (copy suave)", "no_show" + t["mkt"],
                          t["noshow"]),
             ]),
     ]
 
 
 COPY_ES = {
+    "mkt": "_es",
     "24h": "Manana es la clase: {fecha} a las {hora}.",
     "asunto_24h": "Manana nos vemos",
     "email_24h": "Manana a las {hora}.",
@@ -206,6 +211,7 @@ COPY_ES = {
 
 # Copy italiano PROVISIONAL: lo produce y valida Luca (P-13/B4).
 COPY_IT = {
+    "mkt": "_it",
     "24h": "Domani e la lezione: {fecha} alle {hora}.",
     "asunto_24h": "Domani ci vediamo",
     "email_24h": "Domani alle {hora}.",
@@ -242,9 +248,9 @@ def wf4b():
         capi("CAPI: Postulacion", "Schedule"),
         *bifurcar("Es del mercado Italia?",
             [cond("contact.mercado", "eq", "Italia")],
-            rama_si=[whatsapp("Enviar calendario Italia", "postulacion-agenda",
+            rama_si=[whatsapp_v2("Enviar calendario Italia", "postulacion_agenda_it",
                               f"Prenota la tua chiamata: {CV('link_calendario_cierre_it')}")],
-            rama_no=[whatsapp("Enviar calendario Peru", "postulacion-agenda",
+            rama_no=[whatsapp_v2("Enviar calendario Peru", "postulacion_agenda_es",
                               f"Agenda tu llamada de cierre: {CV('link_calendario_cierre_pe')}")]),
     ]
 
@@ -252,17 +258,17 @@ def wf4b():
 def wf4c():
     return [
         mover("Mover a Llamada agendada", "Llamada agendada"),
-        whatsapp("Confirmacion de cita", "confirmacion-cita",
+        whatsapp_v2("Confirmacion de cita", "confirmacion_cita_es",
                  "Tu llamada quedo agendada. Te esperamos."),
         esperar("Esperar hasta 24 h antes de la cita", 1, "days"),
-        whatsapp("Recordatorio cita 24 h", "recordatorio-cita-24h",
+        whatsapp_v2("Recordatorio cita 24 h", "recordatorio_cita_24h_es",
                  "Manana es tu llamada de cierre."),
         esperar("Esperar hasta 1 h antes", 23, "hours"),
         # El link de Zoom CAMBIA en cada llamada (confirmado por Christie el
         # 28-ago): sale de la propia cita, no de un custom value global.
         # `appointment.address` es donde GHL deja la ubicación/enlace.
         # ⚠️ VERIFICAR con una reserva real antes del lanzamiento.
-        whatsapp("Recordatorio cita 1 h + Zoom", "recordatorio-cita-1h",
+        whatsapp_v2("Recordatorio cita 1 h + Zoom", "recordatorio_cita_1h_es",
                  "En 1 hora es tu llamada. Enlace: {{appointment.address}} "
                  "(instala Zoom antes para no perder tiempo)."),
     ]

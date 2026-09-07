@@ -61,12 +61,44 @@ Es un nodo de canvas: **su `next` es un ARRAY** con los ids de sus ramas
 Exige **Event Type, Access Token y Pixel**. Los tres salen del Business Manager de Meta, que sigue sin
 administrador (llave A1). No es un problema de esquema: **la llave A1 impide incluso crear el nodo**.
 
-## WhatsApp — sigue pendiente
+## WhatsApp — `whatsapp_v2`
 
-No existe tipo `whatsapp` (rechaza `whatsapp`/`wa`/`whatsapp_message`/`send_whatsapp`). Los nodos se
-crean como `sms` marcados `[PENDIENTE-WA]`. Falta confirmar cómo se marca canal=WhatsApp y cómo se
-referencia la plantilla aprobada de Meta — y eso **sí requiere ver un nodo hecho en la UI**, que desde
-este entorno no es alcanzable.
+El tipo es **`whatsapp_v2`**. Se buscó a ciegas durante semanas probando `whatsapp`, `wa`,
+`whatsapp_message` y `send_whatsapp` —los cuatro devuelven "corrupted type"— y no hay endpoint
+que liste los tipos válidos. Salió de leer por API un nodo configurado a mano en la UI.
+
+```json
+{"id": "…", "parentKey": "…", "type": "whatsapp_v2", "name": "WhatsApp",
+ "order": 2, "cat": "", "workflowsActionType": "INTERNAL", "next": "…",
+ "attributes": {
+   "template_id": "1105900248632421",
+   "from_phone_number": "1232540499943195",
+   "message": "Mañana es la clase: {{custom_values.fecha_evento_es}} a las {{custom_values.hora_evento_pe}}.\n\nTe avisamos por aquí cuando empecemos.",
+   "{{custom_values.fecha_evento_es}}": "{{custom_values.fecha_evento_es}}",
+   "{{custom_values.hora_evento_pe}}": "{{custom_values.hora_evento_pe}}",
+   "type": "whatsapp_v2", "__name__": "Recordatorio 24 h",
+   "toggle_branch": false, "convertToMultipath": false,
+   "__customInputs__": {}, "cat": "", "transitions": []}}
+```
+
+- `from_phone_number` es el mismo en toda la subcuenta: **`1232540499943195`**.
+- **Cada variable aparece dos veces**: dentro de `message` y como una **clave suelta** de
+  `attributes` apuntándose a sí misma. Sin la clave, GHL manda el parámetro vacío. Por eso
+  `sustituir()` de `retocar.py` reescribe también las claves de los diccionarios: cambiar solo
+  el valor deja el mapeo apuntando al campo viejo.
+- El `name` del nodo queda en `"WhatsApp"` para todos; el nombre legible vive en
+  `attributes.__name__`. **Buscar los pendientes por el nombre no sirve** — hay que mirar el
+  `type`: los que aún esperan plantilla son los que siguen siendo `sms`.
+- `message` tiene que ser **literalmente el cuerpo aprobado por Meta**, con las variables de GHL
+  donde Meta tiene `{{1}}`, `{{2}}`… El valor de una variable sí se puede cambiar sin volver a
+  pasar por aprobación (así se metió el trigger link en los nodos «en vivo»).
+
+### El `template_id` no sale por API
+
+Se probaron 22 rutas de la API interna y la pública buscando el catálogo de plantillas de Meta.
+Ninguna existe. `/locations/{loc}/templates?type=whatsapp` responde 200 pero devuelve la
+librería de *snippets* de GHL, que está vacía. **El id solo se ve eligiendo la plantilla en la
+UI**, así que `PLANTILLAS` en `esb_lib.py` se rellena a mano copiándolo de un nodo ya hecho.
 
 ## Reglas de las ramas (descubiertas a golpes)
 
