@@ -138,6 +138,25 @@ def main() -> None:
           % (MAL if sueltas else OK, ", ".join(sueltas) or "ninguno"))
     problemas += ["%s mal mapeado" % x for x in sueltas]
 
+    # Una rama de if_else sin pasos no da error en GHL —la deja pasar y el
+    # contacto sale por ahí sin que ocurra nada—, así que no se ve mirando el
+    # workflow: se ve leyendo los `next`. Fue el fallo de WF4C el 7-sep, con la
+    # rama italiana a medias: quien no fuera Peru-LATAM se quedaba sin la etapa
+    # y sin los tres mensajes.
+    vacias = []
+    for n, d in wfs.items():
+        for t in d["pasos"]:
+            if t.get("type") != "if_else" or t.get("nodeType") not in ("branch-yes", "branch-no"):
+                continue
+            if not t.get("next"):
+                cond = next((x for x in d["pasos"] if x.get("id") == t.get("parentKey")), {})
+                vacias.append("%s / %s → %s"
+                              % (n, (cond.get("attributes") or {}).get("name") or "bifurcacion",
+                                 "rama si" if t.get("nodeType") == "branch-yes" else "rama no"))
+    print("   %s ramas de bifurcacion vacias: %s"
+          % (MAL if vacias else OK, "; ".join(vacias) or "ninguna"))
+    problemas += ["rama vacia en %s" % x.split(" /")[0] for x in vacias]
+
     cod, r = publico.pedir("GET", "/surveys/?locationId=%s&limit=50" % os.environ["GHL_LOCATION_ID"])
     encuestas = [s.get("name") for s in (r.get("surveys", []) if cod == 200 else [])]
     print("   %s encuestas: %s" % (OJO if len(encuestas) < 2 else OK, ", ".join(encuestas)))
