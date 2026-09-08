@@ -226,6 +226,28 @@ html, body {
         </a>
       </section>
 
+      <!-- ══ OFERTA · PASE VIP ══ -->
+      <!-- El segundo producto que encaja con este público (K13/K14). Va después
+           de 21 Días a propósito: aquel es para empezar a practicar, este es
+           para ver el material. El checkout es de Hotmart, como el otro. -->
+      <section class="sc-oferta" id="sc-vip">
+        <span class="sc-etiqueta">O si prefieres verlo primero</span>
+        <h2>Pase VIP · Semana de la Salud Consciente</h2>
+        <p>
+          Las clases de la Semana quedaron grabadas. El pase te las abre enteras, con
+          el material que se usó dentro, para verlas a tu ritmo y volver a lo que te haya
+          movido algo.
+        </p>
+        <ul class="sc-lista">
+          <li><span>Las grabaciones completas de las clases, para verlas cuando quieras.</span></li>
+          <li><span>El material en PDF que se trabajó durante el evento.</span></li>
+          <li><span>Una forma distinta de mirar el síntoma: no quedarte en él, sino ver qué está expresando.</span></li>
+        </ul>
+        <a class="sc-cta" href="{{custom_values.link_pase_vip_es}}" target="_blank" rel="noopener">
+          Quiero el pase VIP
+        </a>
+      </section>
+
       <!-- ══ NOTA ══ -->
       <div class="sc-nota">
         <p>
@@ -313,5 +335,18 @@ html, body {
     if (pie) pie.textContent = 'Se abre en otra pestaña. Puedes verlo por partes ' +
                                'y volver cuando quieras.';
   }
+})();
+</script>
+
+<script>
+(function () {
+  // El pase VIP italiano todavia no existe: su custom value esta en PENDIENTE.
+  // Sin esto la pagina italiana ensenaria la oferta con un boton que no lleva a
+  // ningun sitio, que es peor que no ensenarla. Mismo criterio que el video de
+  // arriba: si el valor no es una URL, el bloque no se pinta.
+  var enlace = "{{custom_values.link_pase_vip_es}}".trim();
+  if (/^https:\/\/[^\s"'<>]+$/.test(enlace)) return;
+  var bloque = document.getElementById('sc-vip');
+  if (bloque) bloque.remove();
 })();
 </script>

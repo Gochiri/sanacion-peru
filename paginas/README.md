@@ -253,8 +253,22 @@ Reflexología y Dispersión del dolor **no** se ofrecen aquí a propósito: Joaq
 llamada del 28-ago que van dirigidos a **operadores**, no a personas que quieren sanarse. A este
 público no le sirven.
 
-⚠️ **Cuando exista el pase VIP** (K13/K14), su sitio natural es esta página — es el otro producto
-que sí encaja con este público. Hoy no se puede enlazar porque no existe.
+### El pase VIP
+
+Joaquín pasó el checkout el 8-sep: `link_pase_vip_es` → `https://pay.hotmart.com/O107489045N`.
+Es el segundo producto que encaja con este público (K13/K14) y por eso vive aquí, después de
+21 Días: aquel es para **empezar a practicar**, este es para **ver el material** — las clases
+grabadas de la Semana de la Salud Consciente y sus PDFs.
+
+**El bloque se borra solo si no hay checkout.** `link_pase_vip_it` está en `PENDIENTE` porque el
+pase italiano no existe todavía, y un botón que no lleva a ningún sitio es peor que no enseñar la
+oferta. Mismo criterio que el vídeo educativo de más arriba: si el valor no es una URL, la
+sección no se pinta. Cuando exista el pase italiano, basta con cargar el custom value y volver a
+generar.
+
+⚠️ **Queda por decidir si el pase VIP también entra en WF2.** Hoy el mensaje del no-calificado
+manda al checkout de 21 Días; ahora hay dos productos y la página los ordena, pero el workflow
+sigue apuntando a uno solo.
 
 ### Cambio pendiente en WF2
 

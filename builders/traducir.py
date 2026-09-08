@@ -147,6 +147,22 @@ TEXTOS = {
     # Estas dos solo aparecen dentro del <script> —el title del iframe y el
     # texto del estado— y por eso se colaron: van antes que "En vivo" por
     # ser mas largas, que es como se ordena la tabla al aplicarla.
+    # ── Pase VIP (8-sep) ──────────────────────────────────────────────
+    # Traducción provisional: el pase italiano ni siquiera existe todavía
+    # (`link_pase_vip_it` está en PENDIENTE), así que esto lo valida Luca
+    # cuando haya producto.
+    "O si prefieres verlo primero": "O se preferisci prima guardarlo",
+    "Pase VIP · Semana de la Salud Consciente": "Pass VIP · Settimana della Salute Consapevole",
+    "Las clases de la Semana quedaron grabadas. El pase te las abre enteras, con\n          el material que se usó dentro, para verlas a tu ritmo y volver a lo que te haya\n          movido algo.":
+        "Le lezioni della Settimana sono state registrate. Il pass te le apre per intero, con\n          il materiale usato dentro, per guardarle con i tuoi tempi e tornare a ciò che ti ha\n          smosso qualcosa.",
+    "Las grabaciones completas de las clases, para verlas cuando quieras.":
+        "Le registrazioni complete delle lezioni, per guardarle quando vuoi.",
+    "El material en PDF que se trabajó durante el evento.":
+        "Il materiale in PDF su cui si è lavorato durante l'evento.",
+    "Una forma distinta de mirar el síntoma: no quedarte en él, sino ver qué está expresando.":
+        "Un modo diverso di guardare il sintomo: non fermarti a lui, ma vedere cosa sta esprimendo.",
+    "Quiero el pase VIP": "Voglio il pass VIP",
+
     "Clase en vivo": "Lezione dal vivo",
     "En vivo ahora": "Siamo in diretta",
     "En vivo": "Dal vivo",

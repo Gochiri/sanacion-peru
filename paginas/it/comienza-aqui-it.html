@@ -232,6 +232,28 @@ html, body {
         </a>
       </section>
 
+      <!-- ══ OFERTA · PASE VIP ══ -->
+      <!-- El segundo producto que encaja con este público (K13/K14). Va después
+           de 21 Giorni a propósito: aquel es para empezar a practicar, este es
+           para ver el material. El checkout es de Hotmart, como el otro. -->
+      <section class="sc-oferta" id="sc-vip">
+        <span class="sc-etiqueta">O se preferisci prima guardarlo</span>
+        <h2>Pass VIP · Settimana della Salute Consapevole</h2>
+        <p>
+          Le lezioni della Settimana sono state registrate. Il pass te le apre per intero, con
+          il materiale usato dentro, per guardarle con i tuoi tempi e tornare a ciò che ti ha
+          smosso qualcosa.
+        </p>
+        <ul class="sc-lista">
+          <li><span>Le registrazioni complete delle lezioni, per guardarle quando vuoi.</span></li>
+          <li><span>Il materiale in PDF su cui si è lavorato durante l'evento.</span></li>
+          <li><span>Un modo diverso di guardare il sintomo: non fermarti a lui, ma vedere cosa sta esprimendo.</span></li>
+        </ul>
+        <a class="sc-cta" href="{{custom_values.link_pase_vip_it}}" target="_blank" rel="noopener">
+          Voglio il pass VIP
+        </a>
+      </section>
+
       <!-- ══ NOTA ══ -->
       <div class="sc-nota">
         <p>
@@ -319,5 +341,18 @@ html, body {
     if (pie) pie.textContent = 'Se abre en otra pestaña. Puedes verlo por partes ' +
                                'y volver cuando quieras.';
   }
+})();
+</script>
+
+<script>
+(function () {
+  // El pase VIP italiano todavia no existe: su custom value esta en PENDIENTE.
+  // Sin esto la pagina italiana ensenaria la oferta con un boton que no lleva a
+  // ningun sitio, que es peor que no ensenarla. Mismo criterio que el video de
+  // arriba: si el valor no es una URL, el bloque no se pinta.
+  var enlace = "{{custom_values.link_pase_vip_it}}".trim();
+  if (/^https:\/\/[^\s"'<>]+$/.test(enlace)) return;
+  var bloque = document.getElementById('sc-vip');
+  if (bloque) bloque.remove();
 })();
 </script>
