@@ -141,6 +141,14 @@ tener que saber de qué mercado es, que es una cosa menos que puede quedarse sin
 > **Las UTMs siguen pendientes.** También iban ocultas en la encuesta. No bloquean el embudo —
 > sin ellas falta el reporte por anuncio de Joaquín, no el registro— y necesitan su propia vía:
 > el elemento *Hidden Field* del builder, o la atribución nativa de GHL.
+>
+> **11-sep: el pendiente creció.** El tracking de Meta en el navegador necesita meter `fbc` y
+> `fbp` por el mismo sitio, así que ya no es solo el reporte por anuncio: sin campos ocultos con
+> *Query Key* propio en la encuesta, tampoco hay forma de pasar los identificadores de Meta desde
+> la URL al contacto. **Hay que comprobarlo en el builder de F01 antes de escribir nada más**: si
+> las encuestas no lo admiten, las dos cosas necesitan otra vía y no tiene sentido seguir por
+> aquí. Ojo también con el `fieldKey`: el API lo deriva del nombre («Utm adset» →
+> `contact.utm_adset`), así que un campo «Meta fbc» daría `contact.meta_fbc`, no `fbc`.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.

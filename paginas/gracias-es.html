@@ -296,3 +296,26 @@ html, body {
   caja.hidden = false;
 })();
 </script>
+
+<script>
+(function () {
+  // CompleteRegistration · solo navegador, y solo aquí.
+  //
+  // WF2 ya manda `Lead` por la API de conversiones en cada registro, así que
+  // este NO es el mismo evento con otro canal: mide otra cosa. Desde que el
+  // descalificado se redirige a `comienza-aqui`, a esta página **solo llega
+  // quien califica**, así que CompleteRegistration = registro calificado.
+  //
+  // Por eso no se pone en `comienza-aqui`: a esa página también se llega desde
+  // el mensaje de WF2 días después, y el evento se dispararía en cada visita.
+  //
+  // No se intenta deduplicar con el servidor: el nodo `facebook_conversion_api`
+  // de GHL no expone `event_id`, así que no hay forma de alinearlos. Es la otra
+  // razón para que los dos eventos se llamen distinto.
+  //
+  // El código base del píxel va en el Head del funnel, no aquí. Si no está,
+  // `fbq` no existe y esto no hace nada — ni rompe la página.
+  if (typeof fbq !== 'function') return;
+  fbq('track', 'CompleteRegistration');
+})();
+</script>

@@ -231,6 +231,31 @@ fecha inventada.
 cambia en una línea cuando el cliente confirme cuánto dura la clase.
 
 
+## Los dos eventos de Meta, y por qué son dos
+
+| Evento | Canal | Dónde | Significa |
+|---|---|---|---|
+| `Lead` | servidor | nodo CAPI de WF2 y WF2-IT | se registró alguien |
+| `CompleteRegistration` | navegador | script de `gracias-es` / `gracias-it` | se registró **y califica** |
+
+**No son el mismo evento por dos vías.** Miden cosas distintas a propósito, y es cierto desde que
+el descalificado se redirige a `comienza-aqui`: a la página de gracias solo llega quien califica.
+Para optimizar anuncios, `CompleteRegistration` es mejor señal que `Lead` a secas.
+
+**No se deduplican, y no se puede.** El nodo `facebook_conversion_api` de GHL solo expone
+`event_type`, `event_name`, `pixel_id`, `access_token`, `currency` y `connection_type` — **no hay
+`event_id`**, así que no hay forma de alinear navegador y servidor. Es la razón de fondo para que
+los nombres sean distintos: con el mismo nombre y sin `event_id`, Meta contaría doble.
+
+⚠️ **`CompleteRegistration` no va en `comienza-aqui`.** A esa página se llega también desde el
+mensaje de WF2 días después, así que se dispararía en cada visita.
+
+El **código base del píxel** va en el Head del funnel, no en estas páginas. Si falta, `fbq` no
+existe, el script no hace nada y la página sigue funcionando igual.
+
+Píxeles: español `1597347808517241` · italiano `28398235549805946`.
+
+
 ## Comienza aquí ES — el destino del que no califica
 
 Es la página más delicada de escribir del funnel. Quien llega acaba de responder que busca
