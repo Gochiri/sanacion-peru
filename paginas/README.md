@@ -242,10 +242,18 @@ cambia en una línea cuando el cliente confirme cuánto dura la clase.
 el descalificado se redirige a `comienza-aqui`: a la página de gracias solo llega quien califica.
 Para optimizar anuncios, `CompleteRegistration` es mejor señal que `Lead` a secas.
 
-**No se deduplican, y no se puede.** El nodo `facebook_conversion_api` de GHL solo expone
-`event_type`, `event_name`, `pixel_id`, `access_token`, `currency` y `connection_type` — **no hay
-`event_id`**, así que no hay forma de alinear navegador y servidor. Es la razón de fondo para que
-los nombres sean distintos: con el mismo nombre y sin `event_id`, Meta contaría doble.
+**No se deduplican.** El nodo `facebook_conversion_api` de GHL solo expone `event_type`,
+`event_name`, `pixel_id`, `access_token`, `currency` y `connection_type`: **no hay `event_id`
+configurable**, así que desde aquí no se puede alinear nada con el servidor.
+
+> **Matiz, 11-sep.** Aquí ponía que deduplicar «no se puede». Es más preciso decir que *nosotros*
+> no podemos: el registro de un envío de encuesta trae un **`fbEventId`** que GHL genera por su
+> cuenta, así que su integración con Meta puede estar deduplicando por dentro. No cambia nada de
+> lo de abajo —nuestro `fbq('track', …)` sale de nuestra página sin `event_id` y no entra en esa
+> deduplicación de ningún modo— pero la afirmación era más tajante de lo que los datos sostienen.
+
+Por eso los dos eventos se llaman distinto: con el mismo nombre y sin `event_id` compartido, Meta
+contaría doble.
 
 ⚠️ **`CompleteRegistration` no va en `comienza-aqui`.** A esa página se llega también desde el
 mensaje de WF2 días después, así que se dispararía en cada visita.
