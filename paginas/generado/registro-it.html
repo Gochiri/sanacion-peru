@@ -414,11 +414,68 @@ html, body {
         <!-- Encuesta F01 de GHL. El envío dispara WF2 (registro y calificación):
              NO reemplazar por un formulario propio o el flujo se queda sin trigger. -->
         <iframe
-          src="https://api.leadconnectorhq.com/widget/survey/UTqIwgAEt0xjmcBeA75j"
+          data-src="https://api.leadconnectorhq.com/widget/survey/UTqIwgAEt0xjmcBeA75j"
           id="UTqIwgAEt0xjmcBeA75j"
           title="Iscrizione a la clase en vivo"
           scrolling="no"></iframe>
+        <noscript>
+          <iframe
+            src="https://api.leadconnectorhq.com/widget/survey/UTqIwgAEt0xjmcBeA75j"
+            title="Iscrizione a la clase en vivo"
+            scrolling="no"></iframe>
+        </noscript>
       </div>
+
+      <script>
+      (function () {
+        // Atribucion: mete en la URL de la encuesta lo que GHL sabe leer por
+        // «Clave de consulta» de cada campo oculto. Cada parametro solo llega si
+        // el campo existe en el builder de F01 con esa clave exacta.
+        //
+        // Va con `data-src` y no con `src` a proposito: el iframe se carga UNA
+        // vez, ya con los parametros dentro. La alternativa —dejar que cargue y
+        // reescribirle el `src` despues— recarga el formulario delante del
+        // visitante. El <noscript> de arriba lo cubre si no hay JS.
+        var marco = document.getElementById('UTqIwgAEt0xjmcBeA75j');
+        if (!marco) return;
+
+        function galleta(nombre) {
+          var m = document.cookie.match('(^|;)\\s*' + nombre + '\\s*=\\s*([^;]+)');
+          return m ? m.pop() : '';
+        }
+
+        var params = new URLSearchParams(window.location.search);
+        var lleva = {};
+
+        // Las UTMs viajan tal cual desde la URL del anuncio.
+        ['utm_campaign', 'utm_adset', 'utm_ad'].forEach(function (k) {
+          var v = params.get(k);
+          if (v) lleva[k] = v;
+        });
+
+        // `_fbc` la escribe el pixel, pero tarda un instante y puede no estar
+        // todavia. Si falta, se reconstruye desde el `fbclid` de la URL, que es
+        // el dato que de verdad viene del anuncio.
+        var fbc = galleta('_fbc');
+        if (!fbc && params.get('fbclid')) {
+          fbc = 'fb.1.' + Date.now() + '.' + params.get('fbclid');
+        }
+        if (fbc) lleva.fbc = fbc;
+
+        // `_fbp` la crea el pixel al cargar. Como su codigo base va en el Head
+        // del funnel, para cuando el navegador llega hasta aqui ya existe. Si no
+        // esta, se manda sin ella y no se espera: retrasar el formulario por un
+        // dato de medicion seria cambiar registros por analitica.
+        var fbp = galleta('_fbp');
+        if (fbp) lleva.fbp = fbp;
+
+        var cola = Object.keys(lleva).map(function (k) {
+          return k + '=' + encodeURIComponent(lleva[k]);
+        }).join('&');
+
+        marco.src = marco.dataset.src + (cola ? '?' + cola : '');
+      })();
+      </script>
     </div>
   </section>
 

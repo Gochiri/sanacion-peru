@@ -142,13 +142,31 @@ tener que saber de qué mercado es, que es una cosa menos que puede quedarse sin
 > sin ellas falta el reporte por anuncio de Joaquín, no el registro— y necesitan su propia vía:
 > el elemento *Hidden Field* del builder, o la atribución nativa de GHL.
 >
-> **11-sep: el pendiente creció.** El tracking de Meta en el navegador necesita meter `fbc` y
-> `fbp` por el mismo sitio, así que ya no es solo el reporte por anuncio: sin campos ocultos con
-> *Query Key* propio en la encuesta, tampoco hay forma de pasar los identificadores de Meta desde
-> la URL al contacto. **Hay que comprobarlo en el builder de F01 antes de escribir nada más**: si
-> las encuestas no lo admiten, las dos cosas necesitan otra vía y no tiene sentido seguir por
-> aquí. Ojo también con el `fieldKey`: el API lo deriva del nombre («Utm adset» →
-> `contact.utm_adset`), así que un campo «Meta fbc» daría `contact.meta_fbc`, no `fbc`.
+> **11-sep: resuelto, y no era lo que parecía.** Lo que el builder de encuestas no tiene es el
+> campo oculto con **valor fijo**. Pero sí tiene **«Clave de consulta» + casilla «Oculto»** en
+> cada campo, que es justo lo que hace falta: el valor no se escribe a mano, se lee de la URL.
+> Comprobado en F01 el 11-sep.
+>
+> Con eso se destraban las UTMs **y** el tracking de Meta a la vez. La clave de consulta vive en
+> el **elemento de la encuesta**, no en el campo personalizado, así que da igual que el `fieldKey`
+> se derive del nombre: «Meta fbc» → `contact.meta_fbc` como campo, y `fbc` como clave de
+> consulta. Son cosas distintas.
+
+### Los campos ocultos que hay que añadir a F01 y F02
+
+| Campo personalizado | Clave de consulta | De dónde sale |
+|---|---|---|
+| Utm campaign | `utm_campaign` | URL del anuncio |
+| Utm adset | `utm_adset` | URL del anuncio |
+| Utm ad | `utm_ad` | URL del anuncio |
+| **Meta fbc** (`contact.meta_fbc`) | `fbc` | cookie `_fbc`, o reconstruido del `fbclid` |
+| **Meta fbp** (`contact.meta_fbp`) | `fbp` | cookie `_fbp`, la escribe el píxel |
+
+Los cinco **con la casilla «Oculto» marcada**. Sin marcarla, el visitante ve un recuadro vacío
+con el nombre del campo encima en mitad del registro.
+
+Quien pone los parámetros en la URL de la encuesta es el script de `paginas/registro-es.html`,
+que los lee de la URL de la página y de las cookies del píxel.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.
