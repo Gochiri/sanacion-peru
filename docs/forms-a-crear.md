@@ -159,14 +159,24 @@ tener que saber de qué mercado es, que es una cosa menos que puede quedarse sin
 | Utm campaign | `utm_campaign` | URL del anuncio |
 | Utm adset | `utm_adset` | URL del anuncio |
 | Utm ad | `utm_ad` | URL del anuncio |
-| **Meta fbc** (`contact.meta_fbc`) | `fbc` | cookie `_fbc`, o reconstruido del `fbclid` |
-| **Meta fbp** (`contact.meta_fbp`) | `fbp` | cookie `_fbp`, la escribe el píxel |
+| **Meta fbc** (`contact.meta_fbc`) | `meta_fbc` | cookie `_fbc`, o reconstruido del `fbclid` |
+| **Meta fbp** (`contact.meta_fbp`) | `meta_fbp` | cookie `_fbp`, la escribe el píxel |
 
 Los cinco **con la casilla «Oculto» marcada**. Sin marcarla, el visitante ve un recuadro vacío
 con el nombre del campo encima en mitad del registro.
 
 Quien pone los parámetros en la URL de la encuesta es el script de `paginas/registro-es.html`,
 que los lee de la URL de la página y de las cookies del píxel.
+
+**Los dos de Meta van como `meta_fbc` / `meta_fbp`, no como `fbc` / `fbp`.** Es la clave que GHL
+deriva sola del nombre del campo, así que es la que ya estaba puesta. La primera prueba (11-sep)
+mandaba `fbc`: llegó a la encuesta —se ve en el `documentURL` del envío— y **no lo recogió ningún
+campo**, porque ninguna clave coincidía. De paso evita chocar con `eventData.fbc` y
+`eventData.fbp`, que son campos nativos de GHL en cada envío.
+
+Se arregló en el script y no en la encuesta a propósito: cambiar la clave en dos encuestas son
+cuatro ediciones a mano, y además nadie sabe si GHL reserva `fbc`. Con `meta_fbc` no hay duda —lo
+generó GHL.
 
 **El nombre del campo NO se cambia** (`Nivel calificacion`): es lo que ven Luca y Christie en la
 ficha del contacto y en los reportes, y lo que lee WF2.

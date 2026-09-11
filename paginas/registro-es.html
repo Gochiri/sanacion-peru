@@ -426,6 +426,12 @@ html, body {
         // «Clave de consulta» de cada campo oculto. Cada parametro solo llega si
         // el campo existe en el builder de F01 con esa clave exacta.
         //
+        // Los de Meta viajan como `meta_fbc` / `meta_fbp`, no como `fbc` / `fbp`:
+        // es la clave que GHL deriva sola del nombre del campo, y ademas evita
+        // chocar con `eventData.fbc` / `eventData.fbp`, que son campos nativos
+        // suyos en cada envio. La primera prueba —11-sep— mandaba `fbc` y llego
+        // a la encuesta, pero no lo recogio ningun campo.
+        //
         // Va con `data-src` y no con `src` a proposito: el iframe se carga UNA
         // vez, ya con los parametros dentro. La alternativa —dejar que cargue y
         // reescribirle el `src` despues— recarga el formulario delante del
@@ -454,14 +460,14 @@ html, body {
         if (!fbc && params.get('fbclid')) {
           fbc = 'fb.1.' + Date.now() + '.' + params.get('fbclid');
         }
-        if (fbc) lleva.fbc = fbc;
+        if (fbc) lleva.meta_fbc = fbc;
 
         // `_fbp` la crea el pixel al cargar. Como su codigo base va en el Head
         // del funnel, para cuando el navegador llega hasta aqui ya existe. Si no
         // esta, se manda sin ella y no se espera: retrasar el formulario por un
         // dato de medicion seria cambiar registros por analitica.
         var fbp = galleta('_fbp');
-        if (fbp) lleva.fbp = fbp;
+        if (fbp) lleva.meta_fbp = fbp;
 
         var cola = Object.keys(lleva).map(function (k) {
           return k + '=' + encodeURIComponent(lleva[k]);
