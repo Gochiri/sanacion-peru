@@ -21,10 +21,8 @@
          -> sale una tarjeta con botón, porque Drive no se deja embeber
      Desde la llamada del 4-sep el curso «La Verdad que Sana» va en una carpeta
      de Drive partida por módulos, así que hoy toca la segunda forma.
-   · link_educativo_es        -> checkout de BioCoscienza (Hotmart)
-   ⚠️ 11-sep: el valor sigue siendo el checkout de 21 Giorni. Joaquín pidió cambiar
-      la oferta a BioCoscienza pero no mandó enlace propio. Si es otro producto,
-      hay que cargar su checkout aquí — la página ya dice BioCoscienza.
+   · link_educativo_es        -> checkout de BioCoscienza (Hotmart, ya cargado)
+   · embed_video_educativo_es -> el MP4 del Media Storage de GHL
 
   Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
   mensaje de WF2 del no-calificado, que hoy manda directo al checkout.
@@ -308,7 +306,7 @@ html, body {
   // Media Storage de GHL, y sin él caían en el paso 3 —un botón que se lleva a
   // la persona fuera de la página a ver un archivo suelto, en vez de darle al
   // play aquí mismo.
-  var valor = "PENDIENTE".trim();
+  var valor = "https://assets.cdn.filesafe.space/oszNQJYK0E15KB4S06nM/media/6aa43ddd770fd0c165a899cd.mp4".trim();
   var caja = document.getElementById('sc-video');
   var espera = document.getElementById('sc-video-espera');
   if (!caja || !espera) return;

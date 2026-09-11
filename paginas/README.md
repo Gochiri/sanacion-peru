@@ -249,11 +249,10 @@ médico — desdeñar eso sería el error más caro de toda la página, y encima
 Es el low ticket que **ya existe** (checkout de Hotmart en `link_educativo_es`). En Fase 1 no se
 construyen funnels de low ticket: se enlaza el checkout actual.
 
-**11-sep: era «21 Días».** Joaquín pidió cambiar la oferta a **BioConsciencia** —un videocurso
-sobre las 5 Leyes Biológicas— y mandó el texto, pero **no mandó un checkout propio**. La página
-ya dice BioConsciencia y sigue apuntando a `link_educativo_es`, que es el checkout del 21 Días.
-Si son productos distintos, hay que cargar el enlace correcto ahí o alguien pagará por el que no
-es. Sin cerrar.
+**11-sep: era «21 Días».** Es el mismo checkout de siempre —`link_educativo_es` no cambia— pero
+el producto que hay detrás es **BioConsciencia**, un videocurso sobre las 5 Leyes Biológicas.
+Lo que estaba mal era el texto de la página, no el enlace: describía los 21 Días. Confirmado por
+Joaquín el 11-sep.
 
 Reflexología y Dispersión del dolor **no** se ofrecen aquí a propósito: Joaquín señaló en la
 llamada del 28-ago que van dirigidos a **operadores**, no a personas que quieren sanarse. A este
