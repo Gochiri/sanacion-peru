@@ -244,10 +244,16 @@ al momento de la persona, no a su valía, y se pasa enseguida a lo que sí sirve
 en tratamiento lo siga. La mitad de quien llega aquí marcó justamente que busca tratamiento
 médico — desdeñar eso sería el error más caro de toda la página, y encima es nicho salud.
 
-### El paso concreto: 21 Días
+### El paso concreto: BioConsciencia
 
-Es el low ticket que **ya existe** (checkout de Hotmart en `link_educativo_es`, ya cargado). En
-Fase 1 no se construyen funnels de low ticket: se enlaza el checkout actual.
+Es el low ticket que **ya existe** (checkout de Hotmart en `link_educativo_es`). En Fase 1 no se
+construyen funnels de low ticket: se enlaza el checkout actual.
+
+**11-sep: era «21 Días».** Joaquín pidió cambiar la oferta a **BioConsciencia** —un videocurso
+sobre las 5 Leyes Biológicas— y mandó el texto, pero **no mandó un checkout propio**. La página
+ya dice BioConsciencia y sigue apuntando a `link_educativo_es`, que es el checkout del 21 Días.
+Si son productos distintos, hay que cargar el enlace correcto ahí o alguien pagará por el que no
+es. Sin cerrar.
 
 Reflexología y Dispersión del dolor **no** se ofrecen aquí a propósito: Joaquín señaló en la
 llamada del 28-ago que van dirigidos a **operadores**, no a personas que quieren sanarse. A este
@@ -267,8 +273,8 @@ sección no se pinta. Cuando exista el pase italiano, basta con cargar el custom
 generar.
 
 ⚠️ **Queda por decidir si el pase VIP también entra en WF2.** Hoy el mensaje del no-calificado
-manda al checkout de 21 Días; ahora hay dos productos y la página los ordena, pero el workflow
-sigue apuntando a uno solo.
+manda al checkout de `link_educativo_es`; ahora hay dos productos y la página los ordena, pero el
+workflow sigue apuntando a uno solo.
 
 ### Cambio pendiente en WF2
 

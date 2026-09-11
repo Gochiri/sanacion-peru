@@ -15,7 +15,10 @@
          -> sale una tarjeta con botón, porque Drive no se deja embeber
      Desde la llamada del 4-sep el curso «La Verdad que Sana» va en una carpeta
      de Drive partida por módulos, así que hoy toca la segunda forma.
-   · link_educativo_es        -> checkout de 21 Días (ya cargado, Hotmart)
+   · link_educativo_es        -> checkout de BioConsciencia (Hotmart)
+   ⚠️ 11-sep: el valor sigue siendo el checkout de 21 Días. Joaquín pidió cambiar
+      la oferta a BioConsciencia pero no mandó enlace propio. Si es otro producto,
+      hay que cargar su checkout aquí — la página ya dice BioConsciencia.
 
   Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
   mensaje de WF2 del no-calificado, que hoy manda directo al checkout.
@@ -87,7 +90,9 @@ html, body {
   position:relative; width:100%; aspect-ratio:16/9;
   background:var(--sc-negro-2); border:1px solid var(--sc-linea);
 }
-.sc-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.sc-video iframe,
+.sc-video video { position:absolute; inset:0; width:100%; height:100%; border:0;
+  background:#000; }
 .sc-video-espera {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:var(--sc-s3);
@@ -211,18 +216,24 @@ html, body {
       <!-- ══ OFERTA ══ -->
       <section class="sc-oferta">
         <span class="sc-etiqueta">Si quieres seguir</span>
-        <h2>21 Días</h2>
+        <h2>BioConsciencia</h2>
         <p>
-          Es lo más parecido a probar esto por dentro sin meterte en un programa largo.
-          Un ejercicio corto cada día, durante tres semanas.
+          Un videocurso sobre las 5 Leyes Biológicas: la conexión entre emociones, cerebro y
+          cuerpo, y qué cambia cuando miras el síntoma desde ahí. Explicaciones simples y
+          ejemplos prácticos, sin dar por hecho que sabes del tema.
         </p>
         <ul class="sc-lista">
-          <li><span>Vas a tu ritmo: cada día se hace en pocos minutos.</span></li>
-          <li><span>Empieza por lo tuyo, no por teoría general.</span></li>
-          <li><span>Al terminar sabes si esto te interesa de verdad o no era para ti.</span></li>
+          <li><span>Las 5 Leyes Biológicas, explicadas de forma clara.</span></li>
+          <li><span>La conexión entre las emociones y los síntomas.</span></li>
+          <li><span>Qué es un conflicto biológico, y las fases por las que pasa.</span></li>
+          <li><span>El sentido biológico de las enfermedades.</span></li>
         </ul>
+        <p style="margin-top:var(--sc-s5); font-size:.93rem">
+          No sustituye a la medicina. Es una herramienta para entender lo que el cuerpo está
+          comunicando, y convive con tu tratamiento.
+        </p>
         <a class="sc-cta" href="{{custom_values.link_educativo_es}}" target="_blank" rel="noopener">
-          Quiero empezar los 21 Días
+          Quiero ver BioConsciencia
         </a>
       </section>
 
@@ -277,15 +288,20 @@ html, body {
 
 <script>
 (function () {
-  // Tres estados, y el orden importa:
+  // Cuatro estados, y el orden importa:
   //   1. embed de YouTube        -> reproductor dentro de la página
-  //   2. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
+  //   2. archivo de video (.mp4) -> reproductor nativo, sin salir de aquí
+  //   3. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
   //                                 responde con X-Frame-Options y el iframe
   //                                 sale en blanco, sin ningún error visible)
-  //   3. nada, o PENDIENTE       -> se queda el cartel de espera
+  //   4. nada, o PENDIENTE       -> se queda el cartel de espera
   //
-  // Sin el paso 2, pegar un enlace de Drive dejaba el cartel puesto para
+  // Sin el paso 3, pegar un enlace de Drive dejaba el cartel puesto para
   // siempre y nadie se enteraba. Fue lo que pasó al mudar el curso de System.io.
+  // El paso 2 se añadió el 11-sep: Joaquín mandó los videos como MP4 subidos al
+  // Media Storage de GHL, y sin él caían en el paso 3 —un botón que se lleva a
+  // la persona fuera de la página a ver un archivo suelto, en vez de darle al
+  // play aquí mismo.
   var valor = "{{custom_values.embed_video_educativo_es}}".trim();
   var caja = document.getElementById('sc-video');
   var espera = document.getElementById('sc-video-espera');
@@ -300,6 +316,20 @@ html, body {
     marco.referrerPolicy = 'strict-origin-when-cross-origin';
     marco.allowFullscreen = true;
     caja.appendChild(marco);
+    espera.remove();
+    return;
+  }
+
+  if (/^https:\/\/[^\s"'<>]+\.(mp4|webm|mov)(\?[^\s"'<>]*)?$/i.test(valor)) {
+    var reproductor = document.createElement('video');
+    reproductor.src = valor;
+    reproductor.controls = true;
+    reproductor.preload = 'metadata';
+    // Sin playsinline, Safari en iPhone lo abre a pantalla completa y saca a la
+    // persona de la página.
+    reproductor.playsInline = true;
+    reproductor.setAttribute('playsinline', '');
+    caja.appendChild(reproductor);
     espera.remove();
     return;
   }

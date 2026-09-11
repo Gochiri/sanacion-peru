@@ -147,6 +147,22 @@ TEXTOS = {
     # Estas dos solo aparecen dentro del <script> —el title del iframe y el
     # texto del estado— y por eso se colaron: van antes que "En vivo" por
     # ser mas largas, que es como se ordena la tabla al aplicarla.
+    # ── BioConsciencia · sustituye a 21 Dias (11-sep) ─────────────────
+    "BioConsciencia": "BioCoscienza",
+    "Un videocurso sobre las 5 Leyes Biológicas: la conexión entre emociones, cerebro y\n          cuerpo, y qué cambia cuando miras el síntoma desde ahí. Explicaciones simples y\n          ejemplos prácticos, sin dar por hecho que sabes del tema.":
+        "Un videocorso sulle 5 Leggi Biologiche: la connessione tra emozioni, cervello e\n          corpo, e cosa cambia quando guardi il sintomo da lì. Spiegazioni semplici ed\n          esempi pratici, senza dare per scontato che tu sappia del tema.",
+    "Las 5 Leyes Biológicas, explicadas de forma clara.":
+        "Le 5 Leggi Biologiche, spiegate in modo chiaro.",
+    "La conexión entre las emociones y los síntomas.":
+        "La connessione tra le emozioni e i sintomi.",
+    "Qué es un conflicto biológico, y las fases por las que pasa.":
+        "Cos'è un conflitto biologico, e le fasi che attraversa.",
+    "El sentido biológico de las enfermedades.":
+        "Il senso biologico delle malattie.",
+    "No sustituye a la medicina. Es una herramienta para entender lo que el cuerpo está\n          comunicando, y convive con tu tratamiento.":
+        "Non sostituisce la medicina. È uno strumento per capire quello che il corpo sta\n          comunicando, e convive con la tua cura.",
+    "Quiero ver BioConsciencia": "Voglio vedere BioCoscienza",
+
     # ── Pase VIP (8-sep) ──────────────────────────────────────────────
     # Traducción provisional: el pase italiano ni siquiera existe todavía
     # (`link_pase_vip_it` está en PENDIENTE), así que esto lo valida Luca

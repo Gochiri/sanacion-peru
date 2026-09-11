@@ -21,7 +21,10 @@
          -> sale una tarjeta con botón, porque Drive no se deja embeber
      Desde la llamada del 4-sep el curso «La Verdad que Sana» va en una carpeta
      de Drive partida por módulos, así que hoy toca la segunda forma.
-   · link_educativo_es        -> checkout de 21 Giorni (ya cargado, Hotmart)
+   · link_educativo_es        -> checkout de BioCoscienza (Hotmart)
+   ⚠️ 11-sep: el valor sigue siendo el checkout de 21 Giorni. Joaquín pidió cambiar
+      la oferta a BioCoscienza pero no mandó enlace propio. Si es otro producto,
+      hay que cargar su checkout aquí — la página ya dice BioCoscienza.
 
   Al publicarla: cargar link_comienza_aqui_es con su URL y apuntar ahí el
   mensaje de WF2 del no-calificado, que hoy manda directo al checkout.
@@ -93,7 +96,9 @@ html, body {
   position:relative; width:100%; aspect-ratio:16/9;
   background:var(--sc-negro-2); border:1px solid var(--sc-linea);
 }
-.sc-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.sc-video iframe,
+.sc-video video { position:absolute; inset:0; width:100%; height:100%; border:0;
+  background:#000; }
 .sc-video-espera {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:var(--sc-s3);
@@ -217,18 +222,24 @@ html, body {
       <!-- ══ OFERTA ══ -->
       <section class="sc-oferta">
         <span class="sc-etiqueta">Se vuoi proseguire</span>
-        <h2>21 Giorni</h2>
+        <h2>BioCoscienza</h2>
         <p>
-          È la cosa più simile a provare tutto questo da dentro senza entrare in un percorso lungo.
-          Un esercizio breve ogni giorno, per tre settimane.
+          Un videocorso sulle 5 Leggi Biologiche: la connessione tra emozioni, cervello e
+          corpo, e cosa cambia quando guardi il sintomo da lì. Spiegazioni semplici ed
+          esempi pratici, senza dare per scontato che tu sappia del tema.
         </p>
         <ul class="sc-lista">
-          <li><span>Vai al tuo ritmo: ogni giorno si fa in pochi minuti.</span></li>
-          <li><span>Parte da quello che è tuo, non dalla teoria generale.</span></li>
-          <li><span>Alla fine sai se questo ti interessa davvero o non faceva per te.</span></li>
+          <li><span>Le 5 Leggi Biologiche, spiegate in modo chiaro.</span></li>
+          <li><span>La connessione tra le emozioni e i sintomi.</span></li>
+          <li><span>Cos'è un conflitto biologico, e le fasi che attraversa.</span></li>
+          <li><span>Il senso biologico delle malattie.</span></li>
         </ul>
+        <p style="margin-top:var(--sc-s5); font-size:.93rem">
+          Non sostituisce la medicina. È uno strumento per capire quello che il corpo sta
+          comunicando, e convive con la tua cura.
+        </p>
         <a class="sc-cta" href="https://www.lanuovacoscienza.com/21giorni" target="_blank" rel="noopener">
-          Voglio iniziare i 21 Giorni
+          Voglio vedere BioCoscienza
         </a>
       </section>
 
@@ -283,15 +294,20 @@ html, body {
 
 <script>
 (function () {
-  // Tres estados, y el orden importa:
+  // Cuatro estados, y el orden importa:
   //   1. embed de YouTube        -> reproductor dentro de la página
-  //   2. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
+  //   2. archivo de video (.mp4) -> reproductor nativo, sin salir de aquí
+  //   3. cualquier otro https    -> tarjeta con botón (Drive no se deja embeber:
   //                                 responde con X-Frame-Options y el iframe
   //                                 sale en blanco, sin ningún error visible)
-  //   3. nada, o PENDIENTE       -> se queda el cartel de espera
+  //   4. nada, o PENDIENTE       -> se queda el cartel de espera
   //
-  // Sin el paso 2, pegar un enlace de Drive dejaba el cartel puesto para
+  // Sin el paso 3, pegar un enlace de Drive dejaba el cartel puesto para
   // siempre y nadie se enteraba. Fue lo que pasó al mudar el curso de System.io.
+  // El paso 2 se añadió el 11-sep: Joaquín mandó los videos como MP4 subidos al
+  // Media Storage de GHL, y sin él caían en el paso 3 —un botón que se lleva a
+  // la persona fuera de la página a ver un archivo suelto, en vez de darle al
+  // play aquí mismo.
   var valor = "PENDIENTE".trim();
   var caja = document.getElementById('sc-video');
   var espera = document.getElementById('sc-video-espera');
@@ -306,6 +322,20 @@ html, body {
     marco.referrerPolicy = 'strict-origin-when-cross-origin';
     marco.allowFullscreen = true;
     caja.appendChild(marco);
+    espera.remove();
+    return;
+  }
+
+  if (/^https:\/\/[^\s"'<>]+\.(mp4|webm|mov)(\?[^\s"'<>]*)?$/i.test(valor)) {
+    var reproductor = document.createElement('video');
+    reproductor.src = valor;
+    reproductor.controls = true;
+    reproductor.preload = 'metadata';
+    // Sin playsinline, Safari en iPhone lo abre a pantalla completa y saca a la
+    // persona de la página.
+    reproductor.playsInline = true;
+    reproductor.setAttribute('playsinline', '');
+    caja.appendChild(reproductor);
     espera.remove();
     return;
   }
