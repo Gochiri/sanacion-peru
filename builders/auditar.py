@@ -69,13 +69,19 @@ def _normalizar(texto: str | None) -> str:
     return " ".join((texto or "").split())
 
 
-def cuerpos_aprobados() -> set[str]:
-    """Los cuerpos de `docs/plantillas-whatsapp.md`, con las variables ya puestas.
+def variables_aprobadas() -> dict[str, set[str]]:
+    """Por cada plantilla de `docs/plantillas-whatsapp.md`, los merge fields que espera.
 
     El documento guarda el texto como lo ve Meta —con `{{1}}`, `{{2}}`— y debajo
-    una tabla que dice a qué merge field de GHL corresponde cada uno. El nodo
-    guarda el texto ya con los merge fields dentro, así que hay que rehacer esa
-    sustitución para poder compararlos.
+    una tabla que dice a qué campo de GHL corresponde cada uno. Esa tabla es lo
+    que importa: las claves de mapeo del nodo son **los parámetros que se mandan
+    con la plantilla**, y si apuntan a otra cosa, la persona recibe otra cosa.
+
+    El `message` del nodo NO sirve para esto: es un resto de cuando los nodos se
+    crearon como `sms`, GHL no lo actualiza al elegir plantilla, y en la UI ni
+    siquiera es editable —el recuadro que se ve es la vista previa que Meta
+    devuelve—. Comprobado el 11-sep, después de perseguir tres «fallos» que no
+    lo eran.
     """
     ruta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                         "docs", "plantillas-whatsapp.md")
@@ -84,16 +90,14 @@ def cuerpos_aprobados() -> set[str]:
     except OSError:
         return set()
 
-    salida = set()
+    salida = {}
     for bloque in md.split("\n### ")[1:]:
-        cuerpo = re.search(r"```\n(.*?)\n```", bloque, re.S)
-        if not cuerpo:
+        nombre = re.search(r"\*\*Nombre:\*\* `([a-z0-9_]+)`", bloque)
+        if not nombre:
             continue
-        texto = cuerpo.group(1)
         # Filas tipo: | `{{1}}` | `{{contact.first_name}}` | María |
-        for num, campo in re.findall(r"\|\s*`\{\{(\d+)\}\}`\s*\|\s*`([^`]+)`", bloque):
-            texto = texto.replace("{{%s}}" % num, campo)
-        salida.add(_normalizar(texto))
+        campos = re.findall(r"\|\s*`\{\{\d+\}\}`\s*\|\s*`([^`]+)`", bloque)
+        salida[nombre.group(1)] = set(campos)
     return salida
 
 
@@ -204,28 +208,35 @@ def main() -> None:
     if len(encuestas) < 2:
         print("     (sin la italiana no puede existir WF2-IT: su trigger filtra por encuesta)")
 
-    # ── Los cuerpos, contra lo que Meta aprobó ────────────────────────────
-    # Un nodo puede estar bien formado y mal configurado: el mapeo completo y la
-    # variable apuntando a lo que no es, o la plantilla de al lado en el
-    # desplegable. Ha pasado tres veces. `docs/plantillas-whatsapp.md` tiene el
-    # cuerpo aprobado de las 24, así que se puede comparar contra él.
-    aprobados = cuerpos_aprobados()
-    if aprobados:
-        raros = []
-        for n, d in wfs.items():
-            for t in d["pasos"]:
-                if t.get("type") != "whatsapp_v2":
-                    continue
-                at = t.get("attributes", {})
-                if _normalizar(at.get("message")) not in aprobados:
-                    raros.append("%s / %s" % (n, at.get("__name__") or t.get("name")))
-        print("   %s cuerpos que no coinciden con ninguna plantilla aprobada: %s"
-              % (OJO if raros else OK, "; ".join(raros) or "ninguno"))
-        if raros:
-            print("     (copy viejo, o una variable mapeada a otra cosa:"
-                  " comparar con docs/plantillas-whatsapp.md)")
-    else:
-        print("   %s no se pudo leer docs/plantillas-whatsapp.md" % OJO)
+    # ── El mapeo, contra lo que la plantilla espera ───────────────────────
+    # Las claves de mapeo son los parámetros que viajan con la plantilla. Si una
+    # apunta a otro campo, la persona recibe otra cosa: en WF2-IT la única
+    # variable del educativo apuntaba al nombre del contacto, así que donde iba
+    # el enlace del contenido salía «Giulia».
+    espera = variables_aprobadas()
+    por_id = {v: k for k, v in esb_lib.PLANTILLAS.items()}
+    descuadre, sin_identificar = [], 0
+    for n, d in wfs.items():
+        for t in d["pasos"]:
+            if t.get("type") != "whatsapp_v2":
+                continue
+            at = t.get("attributes", {})
+            nombre = por_id.get(at.get("template_id"))
+            if not nombre or nombre not in espera:
+                sin_identificar += 1
+                continue
+            puestas = {k for k in at if k.startswith("{{")}
+            if puestas != espera[nombre]:
+                descuadre.append("%s / %s (%s): %s en vez de %s"
+                                 % (n, at.get("__name__") or t.get("name"), nombre,
+                                    sorted(puestas) or "ninguna",
+                                    sorted(espera[nombre]) or "ninguna"))
+    print("   %s variables mapeadas a lo que no es: %s"
+          % (MAL if descuadre else OK, "; ".join(descuadre) or "ninguna"))
+    problemas += [x.split(":")[0] + " mal mapeado" for x in descuadre]
+    if sin_identificar:
+        print("     (%d nodo(s) con plantilla no listada en esb_lib.PLANTILLAS,"
+              " sin comprobar)" % sin_identificar)
 
     # Una plantilla puede repetirse —la confirmación de cita sale igual en las
     # dos ramas de WF4C— pero si aparece en nodos que se llaman distinto, alguien

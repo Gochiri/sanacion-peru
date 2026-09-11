@@ -89,7 +89,13 @@ que liste los tipos válidos. Salió de leer por API un nodo configurado a mano 
 - El `name` del nodo queda en `"WhatsApp"` para todos; el nombre legible vive en
   `attributes.__name__`. **Buscar los pendientes por el nombre no sirve** — hay que mirar el
   `type`: los que aún esperan plantilla son los que siguen siendo `sms`.
-- `message` tiene que ser **literalmente el cuerpo aprobado por Meta**, con las variables de GHL
+- **`message` no es lo que se manda.** Es un resto de cuando los nodos se crearon como `sms`:
+  GHL **no lo actualiza** al elegir plantilla, y en la UI el recuadro que se ve debajo del
+  desplegable **es de solo lectura** — la vista previa que devuelve Meta, no un campo editable.
+  Un nodo puede tener ahí copy viejo y mandar el texto correcto. Comprobado el 11-sep, después
+  de perseguir tres «fallos» que no lo eran. **No sirve para auditar nada**; lo que sí importa
+  son las claves de mapeo, porque son los parámetros que viajan con la plantilla.
+- `message` conviene que sea **el cuerpo aprobado por Meta**, con las variables de GHL
   donde Meta tiene `{{1}}`, `{{2}}`… El valor de una variable sí se puede cambiar sin volver a
   pasar por aprobación (así se metió el trigger link en los nodos «en vivo»).
 
