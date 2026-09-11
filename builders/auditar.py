@@ -64,6 +64,39 @@ RECORRIDO = [
 ]
 
 
+def _normalizar(texto: str | None) -> str:
+    """Para comparar cuerpos: los saltos y espacios de más no son diferencias."""
+    return " ".join((texto or "").split())
+
+
+def cuerpos_aprobados() -> set[str]:
+    """Los cuerpos de `docs/plantillas-whatsapp.md`, con las variables ya puestas.
+
+    El documento guarda el texto como lo ve Meta —con `{{1}}`, `{{2}}`— y debajo
+    una tabla que dice a qué merge field de GHL corresponde cada uno. El nodo
+    guarda el texto ya con los merge fields dentro, así que hay que rehacer esa
+    sustitución para poder compararlos.
+    """
+    ruta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "docs", "plantillas-whatsapp.md")
+    try:
+        md = open(ruta).read()
+    except OSError:
+        return set()
+
+    salida = set()
+    for bloque in md.split("\n### ")[1:]:
+        cuerpo = re.search(r"```\n(.*?)\n```", bloque, re.S)
+        if not cuerpo:
+            continue
+        texto = cuerpo.group(1)
+        # Filas tipo: | `{{1}}` | `{{contact.first_name}}` | María |
+        for num, campo in re.findall(r"\|\s*`\{\{(\d+)\}\}`\s*\|\s*`([^`]+)`", bloque):
+            texto = texto.replace("{{%s}}" % num, campo)
+        salida.add(_normalizar(texto))
+    return salida
+
+
 def main() -> None:
     c = esb_lib.cliente()
     cv, wfs = _cv(), _workflows(c)
@@ -170,6 +203,47 @@ def main() -> None:
     print("   %s encuestas: %s" % (OJO if len(encuestas) < 2 else OK, ", ".join(encuestas)))
     if len(encuestas) < 2:
         print("     (sin la italiana no puede existir WF2-IT: su trigger filtra por encuesta)")
+
+    # ── Los cuerpos, contra lo que Meta aprobó ────────────────────────────
+    # Un nodo puede estar bien formado y mal configurado: el mapeo completo y la
+    # variable apuntando a lo que no es, o la plantilla de al lado en el
+    # desplegable. Ha pasado tres veces. `docs/plantillas-whatsapp.md` tiene el
+    # cuerpo aprobado de las 24, así que se puede comparar contra él.
+    aprobados = cuerpos_aprobados()
+    if aprobados:
+        raros = []
+        for n, d in wfs.items():
+            for t in d["pasos"]:
+                if t.get("type") != "whatsapp_v2":
+                    continue
+                at = t.get("attributes", {})
+                if _normalizar(at.get("message")) not in aprobados:
+                    raros.append("%s / %s" % (n, at.get("__name__") or t.get("name")))
+        print("   %s cuerpos que no coinciden con ninguna plantilla aprobada: %s"
+              % (OJO if raros else OK, "; ".join(raros) or "ninguno"))
+        if raros:
+            print("     (copy viejo, o una variable mapeada a otra cosa:"
+                  " comparar con docs/plantillas-whatsapp.md)")
+    else:
+        print("   %s no se pudo leer docs/plantillas-whatsapp.md" % OJO)
+
+    # Una plantilla puede repetirse —la confirmación de cita sale igual en las
+    # dos ramas de WF4C— pero si aparece en nodos que se llaman distinto, alguien
+    # eligió la de al lado. Así se coló la del webinar en el recordatorio de cita.
+    donde = {}
+    for n, d in wfs.items():
+        for t in d["pasos"]:
+            if t.get("type") != "whatsapp_v2":
+                continue
+            at = t.get("attributes", {})
+            donde.setdefault(at.get("template_id"), set()).add(
+                (at.get("__name__") or t.get("name") or "").strip())
+    cruzadas = ["%s en %s" % (tpl, " / ".join(sorted(x for x in nombres if x)))
+                for tpl, nombres in donde.items() if len({x for x in nombres if x}) > 1]
+    print("   %s plantillas usadas en nodos distintos: %s"
+          % (OJO if cruzadas else OK, "; ".join(cruzadas) or "ninguna"))
+    if cruzadas:
+        print("     (puede ser deliberado, o la plantilla de al lado en el desplegable)")
 
     # ── Atribución ────────────────────────────────────────────────────────
     # Los cinco campos ocultos de F01/F02 son la cadena más silenciosa del
