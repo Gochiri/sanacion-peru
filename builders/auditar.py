@@ -143,6 +143,12 @@ def main() -> None:
     # workflow: se ve leyendo los `next`. Fue el fallo de WF4C el 7-sep, con la
     # rama italiana a medias: quien no fuera Peru-LATAM se quedaba sin la etapa
     # y sin los tres mensajes.
+    #
+    # Pero vacía NO siempre es un fallo: el guard de WF1 («¿ya tiene el tag
+    # registrado?») deja la rama del sí sin pasos a propósito, porque lo que
+    # tiene que hacer es exactamente nada. Por eso esto se informa y no se
+    # cuenta como problema: distinguir «vacía a propósito» de «vacía a medias»
+    # es un juicio, y el auditor solo puede señalar dónde mirar.
     vacias = []
     for n, d in wfs.items():
         for t in d["pasos"]:
@@ -154,14 +160,48 @@ def main() -> None:
                               % (n, (cond.get("attributes") or {}).get("name") or "bifurcacion",
                                  "rama si" if t.get("nodeType") == "branch-yes" else "rama no"))
     print("   %s ramas de bifurcacion vacias: %s"
-          % (MAL if vacias else OK, "; ".join(vacias) or "ninguna"))
-    problemas += ["rama vacia en %s" % x.split(" /")[0] for x in vacias]
+          % (OJO if vacias else OK, "; ".join(vacias) or "ninguna"))
+    if vacias:
+        print("     (puede ser deliberado —un guard que no hace nada— o una rama"
+              " a medio construir: hay que mirarla)")
 
     cod, r = publico.pedir("GET", "/surveys/?locationId=%s&limit=50" % os.environ["GHL_LOCATION_ID"])
     encuestas = [s.get("name") for s in (r.get("surveys", []) if cod == 200 else [])]
     print("   %s encuestas: %s" % (OJO if len(encuestas) < 2 else OK, ", ".join(encuestas)))
     if len(encuestas) < 2:
         print("     (sin la italiana no puede existir WF2-IT: su trigger filtra por encuesta)")
+
+    # ── Atribución ────────────────────────────────────────────────────────
+    # Los cinco campos ocultos de F01/F02 son la cadena más silenciosa del
+    # embudo: si una clave de consulta tiene una letra de más, o alguien repega
+    # una versión vieja de la página de registro, los contactos siguen entrando
+    # igual y no se nota hasta que Joaquín pide el reporte por anuncio.
+    ATRIBUCION = ["contact.utm_campaign", "contact.utm_adset", "contact.utm_ad",
+                  "contact.meta_fbc", "contact.meta_fbp"]
+    cod, r = publico.pedir("GET", "/locations/%s/customFields" % os.environ["GHL_LOCATION_ID"])
+    definidos = {f["fieldKey"]: f for f in (r.get("customFields") or [])}
+    faltan_campos = [k for k in ATRIBUCION if k not in definidos]
+    print("   %s campos de atribucion: %s"
+          % (MAL if faltan_campos else OK,
+             "faltan " + ", ".join(faltan_campos) if faltan_campos else "los 5"))
+    problemas += ["%s no existe" % k for k in faltan_campos]
+
+    # Y que además lleguen con valor. No es un fallo por sí solo: antes de que
+    # corran los anuncios lo normal es 0. Con los anuncios en marcha, un 0
+    # significa que la cadena está rota.
+    fbc = definidos.get("contact.meta_fbc", {}).get("id")
+    if fbc:
+        cod, r = publico.pedir(
+            "GET", "/contacts/?locationId=%s&limit=20" % os.environ["GHL_LOCATION_ID"])
+        recientes = r.get("contacts", []) if cod == 200 else []
+        con = sum(1 for c in recientes
+                  for f in (c.get("customFields") or [])
+                  if f.get("id") == fbc and f.get("value"))
+        print("   %s ultimos %d contactos con atribucion de Meta: %d"
+              % (OJO if not con else OK, len(recientes), con))
+        if not con:
+            print("     (0 es correcto mientras no haya anuncios corriendo;"
+                  " con anuncios activos, la cadena esta rota)")
 
     it = sorted(k for k, v in cv.items() if k.endswith("_it") and (not v or v == "PENDIENTE"))
     print("   %s valores italianos sin valor: %d" % (OJO, len(it)))
