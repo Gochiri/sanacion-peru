@@ -85,6 +85,17 @@ antes nada que algo mal delante del visitante.
 > trabajo. El reparto va por el orden en que el cliente mandó las biografías. Si están al revés se
 > intercambian los dos valores y listo.
 
+**El italiano tiene logo propio desde el 14-sep.** `logo_url_it` se había quedado apuntando al
+mismo archivo que `logo_url` al duplicar las páginas, así que las seis italianas enseñaron el
+logo español hasta entonces.
+
+⚠️ **El CSS recorta el logo**, y está calibrado para el archivo español: `aspect-ratio:3/1` con
+`object-fit:cover`, porque ese archivo es cuadrado y trae mucho negro alrededor. Si el logo
+italiano no tiene esas proporciones, ese recorte le corta arriba y abajo **sin dar ningún error**.
+Al cambiarlo hay que mirar una página antes de pegar las seis; si sale recortado, la regla va en
+`VALORES` de `builders/traducir.py`, no editando el archivo generado —eso se pierde en la
+siguiente regeneración.
+
 **El logo tampoco es un placeholder.** Sale de `{{custom_values.logo_url}}`, así que se cambia en
 un solo sitio y se actualiza en todas las páginas a la vez. Los dos que subió el cliente están
 cargados: `logo_url` (el que se usa) y `logo_url_alt` (el otro). Si el que se ve no es el
