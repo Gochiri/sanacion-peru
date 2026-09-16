@@ -233,8 +233,22 @@ Sin estos, el reporte por anuncio de Joaquín no funciona.
 
 ### Al enviar
 
-- **Califica** → redirigir a `/gracias-es`
-- **No califica / A educar** → redirigir a `/comienza-aqui-es`
+| | F01 (español) | F02 (italiano) |
+|---|---|---|
+| Califica | `/gracias-es` | `/gracias-it` |
+| No califica | `/comienza-aqui` | `/comienza-aqui-it` |
+
+⚠️ **F02 heredó las dos de F01 al duplicarse** (4-sep), así que mandaba a las españolas. Salió el
+16-sep rellenando el formulario italiano y cayendo en `gracias-es`. Las dos se copian juntas: si
+una está mal, mirar la otra.
+
+**Esto no lo puede comprobar el auditor.** El API no expone la configuración de una encuesta —se
+probaron `/surveys/{loc}/{id}`, `/surveys/{id}`, `/surveys/{id}/config` y `/forms/{id}`: `null` o
+404—. De una encuesta solo se pueden leer su nombre, su id y sus envíos. **La redirección se
+verifica enviando el formulario, y no hay otra forma.**
+
+Y no está en el HTML: la página solo mete el iframe del widget, y qué pasa al enviar lo decide
+GHL con lo que tenga configurado la encuesta. Buscar el fallo en las páginas es perder el rato.
 
 ⚠️ **Prueba obligatoria antes de dar por bueno:** rellenar la encuesta eligiendo la opción
 descalificadora de Q3 y verificar que **el contacto queda creado igual y con sus respuestas
