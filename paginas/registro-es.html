@@ -447,10 +447,20 @@ html, body {
         var params = new URLSearchParams(window.location.search);
         var lleva = {};
 
-        // Las UTMs viajan tal cual desde la URL del anuncio.
-        ['utm_campaign', 'utm_adset', 'utm_ad'].forEach(function (k) {
-          var v = params.get(k);
-          if (v) lleva[k] = v;
+        // Las UTMs. Meta NO las manda con los nombres de nuestros campos: su
+        // generador de parametros usa `utm_content` para el anuncio y `utm_term`
+        // para el conjunto. Se vio el 16-sep en el primer clic real de un
+        // anuncio, que llego con utm_campaign/utm_id/utm_content/utm_term y dejo
+        // `Utm adset` y `Utm ad` vacios — justo los dos niveles que hacen falta
+        // para saber que creativo funciona.
+        //
+        // Se acepta cada nombre y su alias de Meta, por si alguna URL se arma a
+        // mano con los nuestros.
+        [['utm_campaign', 'utm_campaign'],
+         ['utm_adset',    'utm_term'],
+         ['utm_ad',       'utm_content']].forEach(function (par) {
+          var v = params.get(par[0]) || params.get(par[1]);
+          if (v) lleva[par[0]] = v;
         });
 
         // `_fbc` la escribe el pixel, pero tarda un instante y puede no estar

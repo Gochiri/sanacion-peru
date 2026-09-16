@@ -168,6 +168,13 @@ con el nombre del campo encima en mitad del registro.
 Quien pone los parámetros en la URL de la encuesta es el script de `paginas/registro-es.html`,
 que los lee de la URL de la página y de las cookies del píxel.
 
+**Meta no manda las UTMs con nuestros nombres.** Su generador de parámetros usa `utm_content`
+para el anuncio y `utm_term` para el conjunto; `utm_adset` y `utm_ad` no existen en sus URLs. Se
+vio el 16-sep, en el primer clic real de un anuncio: llegó con
+`utm_campaign` + `utm_id` + `utm_content` + `utm_term`, y `Utm adset` y `Utm ad` quedaron vacíos
+— justo los dos niveles que hacen falta para saber qué creativo funciona. El script de
+`registro-es.html` acepta desde entonces cada nombre y su alias de Meta.
+
 **Los dos de Meta van como `meta_fbc` / `meta_fbp`, no como `fbc` / `fbp`.** Es la clave que GHL
 deriva sola del nombre del campo, así que es la que ya estaba puesta. La primera prueba (11-sep)
 mandaba `fbc`: llegó a la encuesta —se ve en el `documentURL` del envío— y **no lo recogió ningún
