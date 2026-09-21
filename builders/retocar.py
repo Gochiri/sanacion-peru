@@ -338,6 +338,22 @@ def _minutos(dias: int = 0, horas: int = 0, minutos: int = 0,
                             "minutes": minutos}}
 
 
+# (workflow, template_id del nodo, campo viejo, campo nuevo, por qué)
+#
+# Cambia a qué apunta UNA variable de un nodo `whatsapp_v2`. No vale una
+# sustitución de texto: `{{contact.first_name}}` es legítimo en el otro nodo del
+# mismo workflow, así que hay que localizar el nodo por su plantilla.
+#
+# Las claves de mapeo son los parámetros que viajan con la plantilla: si una
+# apunta a otro campo, la persona recibe otra cosa. El `message` se cambia
+# también, aunque no sea lo que se manda, para que el nodo no mienta al leerlo.
+RETOQUES_MAPEOS: list[tuple[str, str, str, str, str]] = [
+    ("WF2-IT - Registrazione e qualifica", "1875430140536137",
+     "{{contact.first_name}}", "{{custom_values.link_educativo_it}}",
+     "la unica variable apuntaba al nombre: donde iba el enlace salia «Giulia»"),
+]
+
+
 RETOQUES_ESPERAS: list[tuple[str, str, dict, str]] = [
     ("WF4C - Cita agendada", "Esperar hasta 24 h antes de la cita",
      _minutos(dias=1), "era «1 dia despues de entrar», no 24 h antes de la cita"),
@@ -418,7 +434,8 @@ def main() -> None:
     # Cada fase reescribe nodos enteros. Si una ya se aplicó y alguien la afinó
     # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
     # correr una sola: `--solo inserciones`.
-    ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas"],
+    ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas",
+                                      "mapeos"],
                     help="ejecutar solo una fase (por defecto, todas)")
     # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
     # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
@@ -476,6 +493,49 @@ def main() -> None:
         aplicar_inserciones(c, loc, ids, args.dry_run, toca)
     if fase("esperas"):
         aplicar_esperas(c, loc, ids, args.dry_run, toca)
+    if fase("mapeos"):
+        aplicar_mapeos(c, loc, ids, args.dry_run, toca)
+
+
+def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
+    """Reapunta una variable de un nodo de WhatsApp, localizando el nodo por su plantilla."""
+    for nombre, tpl, viejo, nuevo, motivo in RETOQUES_MAPEOS:
+        if not toca(nombre):
+            continue
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates, tocados = [], 0
+        for t in (wd.get("templates") or []):
+            at = t.get("attributes") or {}
+            if t.get("type") != "whatsapp_v2" or at.get("template_id") != tpl or viejo not in at:
+                templates.append(t); continue
+            nuevos = {}
+            for k, v in at.items():
+                if k == viejo:
+                    nuevos[nuevo] = nuevo          # clave y valor son el mismo merge field
+                elif k == "message":
+                    nuevos[k] = (v or "").replace(viejo, nuevo)
+                else:
+                    nuevos[k] = v
+            templates.append({**t, "attributes": nuevos}); tocados += 1
+
+        if not tocados:
+            print(f"  = {nombre:34} nada que cambiar  ({motivo})"); continue
+        if dry_run:
+            print(f"  · {nombre:34} {viejo} → {nuevo}  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nombre:34} {viejo} → {nuevo}  ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
 def aplicar_avisos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
