@@ -242,6 +242,32 @@ fecha inventada.
 cambia en una línea cuando el cliente confirme cuánto dura la clase.
 
 
+## El vídeo del evento sale del canal, no de la emisión
+
+`embed_youtube_es` apunta desde el 22-sep a la **URL de directo del canal**:
+
+```
+https://www.youtube.com/embed/live_stream?channel=UCS_hRGpfcRRWjqfm-8zf1dw
+```
+
+Reproduce lo que el canal esté emitiendo en ese momento, así que **no cambia de ciclo a ciclo** y
+la noche del evento no hay nada que tocar. Antes llevaba el id de una emisión concreta, que
+obligaba a programar la sala, pasar el id, recargar el valor, regenerar y volver a pegar la
+página — cinco pasos en la peor ventana posible, y con el riesgo de que abrieran otra sala y los
+registrados vieran el cartel de espera durante todo el webinar sin que saltara ningún error.
+
+**La condición:** solo engancha **directos** en ese canal. Si algún ciclo se hace como estreno o
+se sube un vídeo grabado, ese ciclo necesita el id concreto — el filtro de la página acepta las
+dos formas a propósito.
+
+El reproductor aparece **15 minutos antes** de `fecha_evento_es_iso`, que es cuando WF3 manda el
+«estamos en vivo». Antes de esa ventana se ve el cartel de espera, que es lo que la página
+promete.
+
+⚠️ `embed_youtube_it` sigue en `PENDIENTE`: falta saber si el italiano emite desde este mismo
+canal o desde otro.
+
+
 ## Los dos eventos de Meta, y por qué son dos
 
 | Evento | Canal | Dónde | Significa |
