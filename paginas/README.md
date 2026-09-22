@@ -264,8 +264,14 @@ El reproductor aparece **15 minutos antes** de `fecha_evento_es_iso`, que es cua
 «estamos en vivo». Antes de esa ventana se ve el cartel de espera, que es lo que la página
 promete.
 
-⚠️ `embed_youtube_it` sigue en `PENDIENTE`: falta saber si el italiano emite desde este mismo
-canal o desde otro.
+El italiano emite desde **su propio canal**, así que lleva el suyo:
+
+```
+embed_youtube_it → …/embed/live_stream?channel=UCTpPwWqAfoWeXOzkDY2i6gQ
+```
+
+Son dos canales distintos y cada página apunta al que le toca. Si alguna vez se ve el directo
+equivocado en una de las dos, es que se cruzaron estos dos valores.
 
 
 ## Los dos eventos de Meta, y por qué son dos
