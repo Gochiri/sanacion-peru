@@ -157,13 +157,13 @@ _EV = "https://eventos.lanuovacoscienza.com/"
 ITALIA = {
     "link_registro_it":      _EV + "registro-it",
     "link_evento_it":        _EV + "evento-it",
-    "link_postulacion_it":   _EV + "candidatura-it",
+    "link_postulacion_it":   _EV + "postulacion-it",
     "link_agenda_it":        _EV + "agenda-it",
-    "link_comienza_aqui_it": _EV + "inizia-qui",
-    # No hay logo italiano en Media Storage — solo los dos de Salud Consciente.
-    # Apunta al mismo archivo: el día que llegue uno, se cambia este valor y se
-    # regenera, sin tocar HTML. Es P-11, abierto desde julio.
-    "logo_url_it": (_MEDIA + "6a988e51fac7854efe335f37.png"),
+    "link_comienza_aqui_it": _EV + "comienza-aqui-it",
+    # Llegó el 14-sep, y cierra P-11. Hasta entonces apuntaba al archivo español,
+    # así que las seis italianas enseñaron el logo de Salud Consciente desde que
+    # se crearon.
+    "logo_url_it": (_MEDIA + "6aa8438a4c0f71e6c6cbc0bd.png"),
 }
 
 
@@ -198,6 +198,15 @@ def cargar(valores: dict[str, str], escribir: bool) -> None:
         actual = cv.get("value") or ""
         if actual == nuevo:
             print("  = %-28s ya estaba" % clave)
+            continue
+        # PENDIENTE significa «nadie nos ha dado esto todavía», así que nunca
+        # puede ganarle a un valor real: si alguien cargó el Zoom de Joaquín en
+        # la subcuenta, correr este grupo no puede devolverlo a PENDIENTE. Pasó a
+        # un paso de ocurrir la víspera del evento, con el SOP pidiendo correr
+        # `valores.py` para el cambio de ciclo.
+        if (not nuevo or nuevo == "PENDIENTE") and actual and actual != "PENDIENTE":
+            print("  ! %-28s la tabla dice PENDIENTE y en la cuenta ya hay valor:"
+                  " se respeta el de la cuenta" % clave)
             continue
         print("  %s %-28s %s → %s"
               % ("→" if escribir else "·", clave,
