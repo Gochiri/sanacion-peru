@@ -14,6 +14,7 @@ Hay dos clases de valor y por eso hay dos comandos:
     python3 builders/valores.py personas --aplicar
     python3 builders/valores.py zoom --aplicar
     python3 builders/valores.py italia --aplicar
+    python3 builders/valores.py miniaturas --aplicar
 
 El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
@@ -159,6 +160,21 @@ ZOOM = {
 }
 
 
+# La miniatura que se ve en la caja del reproductor mientras no ha empezado la
+# clase. La pidió el cliente el 24-sep: antes salía un cartel de texto y prefiere
+# la misma imagen que usan de portada en YouTube. Es 16:9 —1280x720— porque la
+# caja tiene esa proporción y cualquier otra cosa se recorta.
+#
+# Si cambia el cartel de un lanzamiento, se sube la nueva a Media Storage y se
+# cambia aquí: la página no lleva la imagen dentro, la lee de este valor.
+MINIATURAS = {
+    "miniatura_evento_es": (_MEDIA + "03dffc07-3399-49e6-85fe-70ca0802ba98.jpg"),
+    # Luca todavía no ha pasado la suya. Mientras esté así, la página italiana
+    # enseña el cartel de texto de siempre, que es la alternativa buena.
+    "miniatura_evento_it": "PENDIENTE",
+}
+
+
 # Las páginas italianas. Se cargan por adelantado —antes de que existan en GHL—
 # porque las páginas se enlazan entre sí: sin esto, lo generado saldría con
 # «PENDIENTE» donde va la URL de la siguiente. Oliver crea las páginas en GHL
@@ -251,6 +267,9 @@ if __name__ == "__main__":
     elif args[:1] == ["zoom"]:
         print("Enlaces de Zoom de las llamadas de cierre")
         cargar(ZOOM, escribir)
+    elif args[:1] == ["miniaturas"]:
+        print("Miniatura del reproductor de la página de evento")
+        cargar(MINIATURAS, escribir)
     elif args[:1] == ["italia"]:
         print("URLs y logo de las páginas italianas")
         cargar(ITALIA, escribir)

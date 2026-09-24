@@ -109,6 +109,22 @@ html, body {
 .sc-video-espera p { color:var(--sc-mudo); max-width:38ch; font-size:1rem; }
 .sc-video-espera .sc-video-nota { color:var(--sc-oro); font-size:.9rem; }
 
+/* La miniatura de la clase ocupando la caja entera. El cartel de texto sigue
+   dentro del HTML —es lo que se ve si no hay miniatura— pero se esconde: la
+   imagen ya trae su propio titular y encimarle otro texto lo ensucia. */
+.sc-video-espera--foto {
+  padding:0;
+  background-position:center; background-size:cover; background-repeat:no-repeat;
+}
+.sc-video-espera--foto > * { display:none; }
+/* Lo que decía el cartel pasa aquí debajo, fuera de la imagen: hace falta
+   seguir diciendo que no cierren la página. */
+.sc-video-pie {
+  margin-top:var(--sc-s4); text-align:center;
+  color:var(--sc-mudo); font-size:.95rem;
+}
+.sc-video-pie b { color:var(--sc-oro); font-weight:500; }
+
 /* ── Bloque de acción bajo el video ──────────────────────────────────── */
 .sc-accion { padding:clamp(32px,5vw,64px) var(--sc-pad-x) 0; }
 .sc-accion-grid { display:grid; gap:clamp(24px,4vw,48px); align-items:start; }
@@ -203,6 +219,7 @@ html, body {
           <p class="sc-video-nota">Deja esta página abierta.</p>
         </div>
       </div>
+      <p class="sc-video-pie" id="sc-video-pie" hidden>La clase se abre aquí unos minutos antes de empezar. <b>Deja esta página abierta.</b></p>
     </div>
   </div>
 
@@ -323,7 +340,19 @@ html, body {
   var inicio = new Date(crudo);
   var caja   = document.getElementById('sc-video');
   var espera = document.getElementById('sc-video-espera');
+  var pie    = document.getElementById('sc-video-pie');
   var puesto = false;
+
+  // La miniatura de la clase. Ocupa la caja entera mientras se espera, en vez
+  // del cartel de texto. Si el valor no es una URL —esta en PENDIENTE, o GHL no
+  // lo sustituyo— no se toca nada y se queda el cartel de siempre: mas vale el
+  // texto que una caja vacia.
+  var cartel = "https://assets.cdn.filesafe.space/oszNQJYK0E15KB4S06nM/media/03dffc07-3399-49e6-85fe-70ca0802ba98.jpg";
+  if (espera && /^https?:\/\//.test(cartel)) {
+    espera.style.backgroundImage = 'url("' + cartel + '")';
+    espera.classList.add('sc-video-espera--foto');
+    if (pie) pie.hidden = false;
+  }
 
   function montar() {
     if (puesto || !caja || !VALIDO.test(embed)) return;
@@ -337,6 +366,7 @@ html, body {
     marco.allowFullscreen = true;
     caja.appendChild(marco);
     if (espera) espera.remove();
+    if (pie) pie.remove();
   }
 
   // Sin fecha valida no hay a que esperar: se monta y ya.
