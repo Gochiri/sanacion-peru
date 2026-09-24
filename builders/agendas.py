@@ -224,6 +224,38 @@ REENVIAR = ["name", "description", "slug", "widgetSlug", "calendarType", "widget
             "guestType", "consentLabel", "calendarCoverImage"]
 
 
+def _reenviar(cal_id: str, cambios: dict, escribir: bool) -> dict | None:
+    """GET + PUT del cuerpo entero con `cambios` encima. Ver el aviso de la
+    cabecera: mandar solo los campos que cambian borra todo lo demás."""
+    cod0, r0 = publico.pedir("GET", "/calendars/" + cal_id)
+    if cod0 != 200:
+        print("   ✗ GET %s %s" % (cod0, r0)); return None
+    actual = r0.get("calendar", r0)
+    cuerpo = {k: actual[k] for k in REENVIAR if k in actual}
+    cuerpo["teamMembers"] = actual.get("teamMembers", [])
+    cuerpo.update(cambios)
+    if not escribir:
+        print("   — simulación, no se escribió nada"); return actual
+    cod, r = publico.pedir("PUT", "/calendars/" + cal_id, cuerpo)
+    print("   PUT %s" % cod, "" if cod == 200 else r)
+    return actual
+
+
+def horizonte(cal: dict, escribir: bool) -> None:
+    """Corta hasta dónde se puede reservar, contado en días naturales.
+
+    Es el único freno que sigue funcionando desde la API desde que el calendario
+    toma su disponibilidad de la «programación» del closer: las excepciones por
+    fecha que escribe `aplicar()` dejaron de mirarse, así que sin esto se puede
+    reservar en noviembre, cuando ya no hay nadie vendiendo."""
+    ultimo = max(cal["dias"])
+    dias = (datetime.date.fromisoformat(ultimo) - datetime.date.today()).days + 1
+    print("\n%s · %s" % (cal["quien"], cal["id"]))
+    print("   ultimo dia de venta %s → reservable %d dias naturales" % (ultimo, dias))
+    _reenviar(cal["id"], {"allowBookingFor": dias, "allowBookingForUnit": "days",
+                          "countAvailableDaysOnly": False}, escribir)
+
+
 def ubicacion(cal: dict, escribir: bool) -> None:
     """Cambia el enlace de la reunión. Reenvía el cuerpo entero a propósito: un
     PUT parcial deja los campos ausentes en su valor por defecto (ver cabecera)."""
@@ -258,6 +290,12 @@ def ubicacion(cal: dict, escribir: bool) -> None:
 
 if __name__ == "__main__":
     escribir = "--aplicar" in sys.argv
+    if "horizonte" in sys.argv:
+        for cal in VENTANAS:
+            horizonte(cal, escribir)
+        if not escribir:
+            print("\nPara escribirlo: python3 builders/agendas.py horizonte --aplicar")
+        raise SystemExit
     if "ubicacion" in sys.argv:
         for cal in VENTANAS:
             ubicacion(cal, escribir)
