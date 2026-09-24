@@ -338,6 +338,26 @@ def _minutos(dias: int = 0, horas: int = 0, minutos: int = 0,
                             "minutes": minutos}}
 
 
+# (workflow, template_id que ancla la rama, viejo, nuevo, por qué)
+#
+# Sustituye texto **dentro de una sola rama** de un workflow con `if_else`. Hace
+# falta cuando las dos ramas tienen nodos idénticos carácter por carácter y lo
+# único que las distingue es en qué lado del condicional están: entonces ni una
+# sustitución de texto ni una búsqueda por plantilla saben cuál es cuál.
+#
+# La rama se localiza por un nodo que solo exista en ella —su `template_id`—, no
+# por su posición: el orden cambia en cuanto alguien arrastra un nodo en la UI.
+RETOQUES_RAMAS: list[tuple[str, str, str, str, str]] = [
+    # El correo interno «en 1 hora es la llamada» es el mismo en las dos ramas, y
+    # el de la italiana daba el Zoom español. Hasta el 24-sep los dos custom
+    # values eran la misma sala, así que no se notaba; ese día Joaquín pasó sala
+    # propia y el aviso de las citas de Luca empezó a mentir.
+    ("WF4C - Cita agendada", "1793164765343016",
+     "{{custom_values.link_zoom_llamada_es}}", "{{custom_values.link_zoom_llamada_it}}",
+     "el aviso interno de la rama italiana daba la sala de Joaquin"),
+]
+
+
 # (workflow, template_id del nodo, campo viejo, campo nuevo, por qué)
 #
 # Cambia a qué apunta UNA variable de un nodo `whatsapp_v2`. No vale una
@@ -435,7 +455,7 @@ def main() -> None:
     # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
     # correr una sola: `--solo inserciones`.
     ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas",
-                                      "mapeos"],
+                                      "mapeos", "ramas"],
                     help="ejecutar solo una fase (por defecto, todas)")
     # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
     # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
@@ -495,6 +515,8 @@ def main() -> None:
         aplicar_esperas(c, loc, ids, args.dry_run, toca)
     if fase("mapeos"):
         aplicar_mapeos(c, loc, ids, args.dry_run, toca)
+    if fase("ramas"):
+        aplicar_ramas(c, loc, ids, args.dry_run, toca)
 
 
 def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
@@ -536,6 +558,62 @@ def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nombre:34} {viejo} → {nuevo}  ({motivo})"
               f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
+
+
+def _ramas(templates: list) -> list[list[int]]:
+    """Los índices de cada rama. Un workflow con `if_else` no anida: llega como
+    una lista plana donde los propios nodos `if_else` hacen de separador."""
+    ramas, actual = [], []
+    for i, n in enumerate(templates):
+        if isinstance(n, dict) and n.get("type") == "if_else":
+            ramas.append(actual); actual = []
+        else:
+            actual.append(i)
+    ramas.append(actual)
+    return ramas
+
+
+def aplicar_ramas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
+    """Sustituye texto dentro de una sola rama, localizada por un nodo suyo."""
+    for nombre, ancla, viejo, nuevo, motivo in RETOQUES_RAMAS:
+        if not toca(nombre):
+            continue
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = list(wd.get("templates") or [])
+
+        cual = [r for r in _ramas(templates)
+                if any((templates[i].get("attributes") or {}).get("template_id") == ancla
+                       for i in r)]
+        if len(cual) != 1:
+            print(f"  ✗ {nombre:34} la plantilla {ancla} aparece en {len(cual)} ramas,"
+                  f" no se toca  ({motivo})")
+            continue
+
+        n = 0
+        for i in cual[0]:
+            templates[i], k = sustituir(templates[i], viejo, nuevo)
+            n += k
+
+        if not n:
+            print(f"  = {nombre:34} nada que cambiar  ({motivo})"); continue
+        if dry_run:
+            print(f"  · {nombre:34} {n} sustitucion(es) en la rama de {ancla}"
+                  f"  ({motivo})  DRY-RUN")
+            continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es) en una rama"
+              f"  ({motivo})" + ("" if ok else "  " + str(r.get("message"))[:110]))
 
 
 def aplicar_avisos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:

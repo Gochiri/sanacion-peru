@@ -143,8 +143,19 @@ PERSONAS = {
 # ofrece custom values pero no campos de la cita, por eso {{appointment.address}}
 # no se encontraba.
 ZOOM = {
-    "link_zoom_llamada_es": "PENDIENTE",   # Joaquín — cierra el mercado español
-    "link_zoom_llamada_it": "PENDIENTE",   # Luca — cierra el italiano
+    # Sala propia de Joaquín, que llegó el 24-sep y deshace el choque: hasta
+    # entonces los dos mercados apuntaban a la misma sala y hay 12 franjas que
+    # se solapan entre la agenda de Joaquín y la de Luca.
+    "link_zoom_llamada_es": (
+        "https://us05web.zoom.us/j/3628157207"
+        "?pwd=TxquWaxcIkDIIGSk1MDNrCHpM7oaqR.1"
+    ),
+    # La dio el cliente el 21-sep para Italia. Es la sala de Joaquín; lo pidió
+    # así expresamente.
+    "link_zoom_llamada_it": (
+        "https://zoom.us/j/95875104488"
+        "?pwd=dZn75afJd3zOXKI7tpRmEyz7FmFkon.1"
+    ),
 }
 
 

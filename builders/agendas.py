@@ -20,6 +20,19 @@ del horizonte reservable que no estén en la ventana**.
 
     python3 builders/agendas.py            # muestra lo que haría
     python3 builders/agendas.py --aplicar
+
+Y un modo para cambiar solo el enlace de la reunión, que cambia cada vez que un
+closer estrena sala:
+
+    python3 builders/agendas.py ubicacion --aplicar
+
+⚠️ **El PUT de calendarios no es un parche: es un reemplazo.** Todo campo que no
+viaje en el cuerpo vuelve a su valor por defecto, sin avisar y con un 200 de
+respuesta. Comprobado a las malas el 24-sep mandando solo `teamMembers`: la
+duración del turno cayó de 60 a 30 min, `openHours` quedó vacío y
+`allowBookingFor` pasó de 45 a 7 días, o sea que la mitad de la ventana de venta
+dejó de ser reservable. Por eso `ubicacion` relee el calendario entero y
+reenvía el cuerpo completo con el enlace cambiado.
 """
 from __future__ import annotations
 
@@ -197,8 +210,60 @@ def comprobar() -> None:
             print("   ⚠ sin turnos: %s" % ", ".join(sorted(faltan)))
 
 
+# Lo que el PUT acepta de vuelta tal cual. No se manda el objeto entero porque
+# lleva campos de solo lectura (`id`, `locationId`, fechas) que dan 422.
+REENVIAR = ["name", "description", "slug", "widgetSlug", "calendarType", "widgetType",
+            "eventTitle", "eventColor", "slotDuration", "slotDurationUnit",
+            "slotInterval", "slotIntervalUnit", "slotBuffer", "slotBufferUnit",
+            "preBuffer", "preBufferUnit", "appoinmentPerSlot", "appoinmentPerDay",
+            "allowBookingAfter", "allowBookingAfterUnit", "allowBookingFor",
+            "allowBookingForUnit", "openHours", "availabilities", "enableRecurring",
+            "formId", "stickyContact", "isLivePaymentMode", "autoConfirm",
+            "shouldSendAlertEmailsToAssignedMember", "notes", "isActive",
+            "shouldAssignContactToTeamMember", "shouldSkipAssigningContactForExisting",
+            "guestType", "consentLabel", "calendarCoverImage"]
+
+
+def ubicacion(cal: dict, escribir: bool) -> None:
+    """Cambia el enlace de la reunión. Reenvía el cuerpo entero a propósito: un
+    PUT parcial deja los campos ausentes en su valor por defecto (ver cabecera)."""
+    print("\n%s · %s" % (cal["quien"], cal["id"]))
+    zoom = _zoom(cal["zoom"])
+    if not zoom:
+        print("   %s en PENDIENTE, no se toca" % cal["zoom"]); return
+
+    cod0, r0 = publico.pedir("GET", "/calendars/" + cal["id"])
+    if cod0 != 200:
+        print("   ✗ GET %s %s" % (cod0, r0)); return
+    actual = r0.get("calendar", r0)
+
+    miembros = actual.get("teamMembers", [])
+    for m in miembros:
+        for lc in m.get("locationConfigurations", []):
+            print("   %s: «%s» → %s" % (m.get("userId"), lc.get("location", ""), zoom))
+            lc["location"] = zoom
+
+    cuerpo = {k: actual[k] for k in REENVIAR if k in actual}
+    cuerpo["teamMembers"] = miembros
+    print("   se reenvían %d campos más para no perderlos"
+          " (duración %s min, reservable %s %s, %d franjas semanales)"
+          % (len(cuerpo) - 1, cuerpo.get("slotDuration"), cuerpo.get("allowBookingFor"),
+             cuerpo.get("allowBookingForUnit"), len(cuerpo.get("openHours") or [])))
+    if not escribir:
+        print("   — simulación, no se escribió nada"); return
+
+    cod, r = publico.pedir("PUT", "/calendars/" + cal["id"], cuerpo)
+    print("   PUT %s" % cod, "" if cod == 200 else r)
+
+
 if __name__ == "__main__":
     escribir = "--aplicar" in sys.argv
+    if "ubicacion" in sys.argv:
+        for cal in VENTANAS:
+            ubicacion(cal, escribir)
+        if not escribir:
+            print("\nPara escribirlo: python3 builders/agendas.py ubicacion --aplicar")
+        raise SystemExit
     for cal in VENTANAS:
         aplicar(cal, escribir)
     if escribir:
