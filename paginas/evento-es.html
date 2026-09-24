@@ -116,7 +116,6 @@ html, body {
   padding:0;
   background-position:center; background-size:cover; background-repeat:no-repeat;
 }
-.sc-video-espera--foto > * { display:none; }
 /* Lo que decía el cartel pasa aquí debajo, fuera de la imagen: hace falta
    seguir diciendo que no cierren la página. */
 .sc-video-pie {
@@ -349,6 +348,7 @@ html, body {
   // texto que una caja vacia.
   var cartel = "{{custom_values.miniatura_evento_es}}";
   if (espera && /^https?:\/\//.test(cartel)) {
+    espera.textContent = '';          // el cartel escrito sobra: la imagen ya trae titular
     espera.style.backgroundImage = 'url("' + cartel + '")';
     espera.classList.add('sc-video-espera--foto');
     if (pie) pie.hidden = false;

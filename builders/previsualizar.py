@@ -69,7 +69,40 @@ def valores() -> dict[str, str]:
     return salida
 
 
-def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False) -> None:
+def sin_comentarios(html: str) -> str:
+    """Quita los comentarios y las líneas en blanco, sin tocar nada más.
+
+    Existe porque el 24-sep una página dejó de renderizarse al pegarla en GHL:
+    salía en blanco, sin ni siquiera el fondo negro que pone nuestro CSS, o sea
+    que el bloque entero no llegaba. Lo único que había cambiado era el tamaño
+    —de 15.794 a 17.293 caracteres— y buena parte de eso son comentarios, que
+    son para quien lea el repo y al navegador no le dicen nada.
+
+    No es minificado: no toca nombres, ni espacios dentro de una línea, ni junta
+    reglas. Solo borra lo que no se ejecuta, para que lo pegado sea lo más
+    parecido posible a lo que hay en `paginas/` cuando haya que depurarlo.
+    """
+    m = re.search(r"(<script[^>]*>)(.*?)(</script>)", html, re.S)
+    if m is None:
+        cab, js, cola, ini, fin = "", "", "", html, ""
+    else:
+        cab, js, cola = m.group(1), m.group(2), m.group(3)
+        ini, fin = html[:m.start()], html[m.end():]
+
+    def podar(s: str) -> str:
+        s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)     # comentarios CSS
+        s = re.sub(r"<!--.*?-->", "", s, flags=re.S)      # comentarios HTML
+        return "\n".join(l for l in s.split("\n") if l.strip())
+
+    # Dentro del script solo se quitan las líneas que son enteras un comentario:
+    # un `//` a media línea puede ser el de `https://`.
+    js = "\n".join(l for l in js.split("\n")
+                   if l.strip() and l.strip()[:2] != "//")
+    return podar(ini) + cab + js + cola + podar(fin)
+
+
+def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False,
+                  compacto: bool = False) -> None:
     html = open(ruta).read()
     usados, faltan, vacios = set(), set(), set()
 
@@ -84,6 +117,8 @@ def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False) -> None
         return cv[clave]
 
     html = PATRON.sub(cambiar, html)
+    if compacto:
+        html = sin_comentarios(html)
 
     if para_ghl:
         carpeta = "paginas/generado"
@@ -96,7 +131,7 @@ def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False) -> None
     open(destino, "w").write(html)
 
     print("\n%s → %s" % (ruta, destino))
-    print("   %d valores sustituidos" % len(usados))
+    print("   %d valores sustituidos · %d caracteres" % (len(usados), len(html)))
     if vacios:
         print("   ⚠ vacíos o en PENDIENTE: %s" % ", ".join(sorted(vacios)))
     if faltan:
@@ -115,11 +150,12 @@ def previsualizar(ruta: str, cv: dict[str, str], para_ghl: bool = False) -> None
 if __name__ == "__main__":
     args = sys.argv[1:]
     para_ghl = "--ghl" in args
-    rutas = [a for a in args if a != "--ghl"]
+    compacto = "--compacto" in args
+    rutas = [a for a in args if a not in ("--ghl", "--compacto")]
     if not rutas:
         raise SystemExit(__doc__)
     cv = valores()
     for r in rutas:
-        previsualizar(r, cv, para_ghl)
+        previsualizar(r, cv, para_ghl, compacto)
     if para_ghl:
         print("\nEsto es lo que se pega en GHL. Los de paginas/ no.")
