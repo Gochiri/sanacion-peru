@@ -15,6 +15,7 @@ Hay dos clases de valor y por eso hay dos comandos:
     python3 builders/valores.py zoom --aplicar
     python3 builders/valores.py italia --aplicar
     python3 builders/valores.py miniaturas --aplicar
+    python3 builders/valores.py grupos --aplicar
 
 El formato de cada valor está fijado por dónde se consume, no por gusto:
 `fecha_evento_es` se lee en las fichas de registro-es y gracias-es, y la
@@ -160,6 +161,25 @@ ZOOM = {
 }
 
 
+# Los grupos de WhatsApp. Nacen aquí el 24-sep, después de que el italiano
+# cambiara tres veces en tres semanas sin que nadie avisara: el valor vivía solo
+# dentro de GHL y no había forma de saber cuándo ni por qué había cambiado.
+#
+#   italiano:  GqQBPWcE7gvLNRGcbog6Uf → HpBkhPRjYYB6eFTywmhZT5 (21-sep)
+#                                     → IK42QRwsZGQ7LJ49lgrOW8 (24-sep)
+#   español:   BYlmTu7XDWmCzEb3IkM9uF → LxeB3sWCZlx70vjGypyisB (entre el 16 y el 21)
+#
+# Cada cambio deja atrás a todos los que ya recibieron el anterior en su móvil,
+# así que no basta con cambiarlo aquí: hay que reenviarlo a quien tenga el viejo.
+#
+# Se guardan sin los parámetros `?s=cl&p=i&…` que añade WhatsApp al compartir:
+# son de procedencia, y el enlace funciona igual sin ellos.
+GRUPOS = {
+    "link_grupo_whatsapp_es": "https://chat.whatsapp.com/LxeB3sWCZlx70vjGypyisB",
+    "link_grupo_whatsapp_it": "https://chat.whatsapp.com/IK42QRwsZGQ7LJ49lgrOW8",
+}
+
+
 # La miniatura que se ve en la caja del reproductor mientras no ha empezado la
 # clase. La pidió el cliente el 24-sep: antes salía un cartel de texto y prefiere
 # la misma imagen que usan de portada en YouTube. Es 16:9 —1280x720— porque la
@@ -267,6 +287,9 @@ if __name__ == "__main__":
     elif args[:1] == ["zoom"]:
         print("Enlaces de Zoom de las llamadas de cierre")
         cargar(ZOOM, escribir)
+    elif args[:1] == ["grupos"]:
+        print("Enlaces de los grupos de WhatsApp")
+        cargar(GRUPOS, escribir)
     elif args[:1] == ["miniaturas"]:
         print("Miniatura del reproductor de la página de evento")
         cargar(MINIATURAS, escribir)
