@@ -55,6 +55,12 @@ TEXTOS = {
 
     # ── registro ────────────────────────────────────────────────────────────
     "Clase en vivo · Sin costo": "Lezione dal vivo · Gratuita",
+    # El titular español cambió el 25-sep —lo alinearon con la miniatura de
+    # YouTube— y el italiano se dejó como estaba, porque su creatividad es
+    # otra. Las dos formas apuntan al mismo italiano a propósito: regenerar
+    # la página italiana no debe cambiarle el titular sin que nadie lo pida.
+    "Cómo sanar tus enfermedades <em>sin pastillas ni terapias</em>.":
+        "Perché il tuo corpo si è ammalato, e <em>cosa puoi fare</em> per guarirlo.",
     "Por qué tu cuerpo enfermó, y": "Perché il tuo corpo si è ammalato, e",
     "qué puedes hacer": "cosa puoi fare",
     "para sanarlo.": "per guarirlo.",

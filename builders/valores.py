@@ -56,6 +56,21 @@ CICLOS = {
         "fecha_evento_it_ghl": "09-26-2026 11:00 AM",
         "hora_evento_it": "18:00 (ora italiana)",
     },
+    # Webinar 3 · LATAM jueves 8-oct 20:00 Perú
+    #
+    # Lo pidió el cliente el 25-sep: el siguiente español no es el 1 de octubre,
+    # es el 8. **Solo lleva las claves españolas**, y es a propósito: el italiano
+    # del 26-sep estaba a un día cuando se escribió esto, y cargar un ciclo
+    # entero le habría movido la fecha a la cuenta atrás de su página y a la
+    # fecha del evento en sus contactos. Cuando confirmen el italiano que toca,
+    # se añaden aquí sus cuatro claves.
+    "3": {
+        "nombre_lanzamiento_vigente": "LNZ-2026-W41",
+        "fecha_evento_es": "jueves 8 de octubre",
+        "fecha_evento_es_iso": "2026-10-08T20:00:00-05:00",
+        "fecha_evento_es_ghl": "10-08-2026 08:00 PM",
+        "hora_evento_pe": "8:00 p. m. (hora de Perú)",
+    },
     # Webinar 2 · LATAM jueves 1-oct 20:00 Perú · Italia sábado 3-oct 18:00
     "2": {
         "nombre_lanzamiento_vigente": "LNZ-2026-W40",
