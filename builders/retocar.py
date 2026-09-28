@@ -455,7 +455,7 @@ def main() -> None:
     # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
     # correr una sola: `--solo inserciones`.
     ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas",
-                                      "mapeos", "ramas"],
+                                      "mapeos", "ramas", "oportunidades"],
                     help="ejecutar solo una fase (por defecto, todas)")
     # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
     # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
@@ -517,6 +517,8 @@ def main() -> None:
         aplicar_mapeos(c, loc, ids, args.dry_run, toca)
     if fase("ramas"):
         aplicar_ramas(c, loc, ids, args.dry_run, toca)
+    if fase("oportunidades"):
+        aplicar_oportunidades(c, loc, ids, args.dry_run, toca)
 
 
 def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
@@ -614,6 +616,56 @@ def aplicar_ramas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es) en una rama"
               f"  ({motivo})" + ("" if ok else "  " + str(r.get("message"))[:110]))
+
+
+def aplicar_oportunidades(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
+    """Repara los nodos `create_opportunity` que no mueven la etapa.
+
+    GHL lee la etapa de **`pipeline_stage_id`**, no de `stage_id`. Los nodos que
+    escribimos por API solo llevaban `stage_id`, así que la acción corría —el
+    workflow seguía— pero la oportunidad se quedaba donde estaba, sin error y sin
+    rastro. Los que alguien abrió y guardó en la UI tienen las dos claves: por eso
+    WF2, WF4A y WF4B sí movían y WF4C no.
+
+    Se vio el 28-sep: cinco italianos con cita confirmada seguían en *Postuló*, y
+    el pipeline del cliente contaba mal. Afecta también a WF5, el nodo que cierra
+    la venta como ganada, que nunca se habia llegado a disparar.
+
+    No inventa nada: copia la etapa que el nodo ya tiene y le añade el `type` que
+    llevan los nodos buenos.
+    """
+    for nombre, wid in sorted(ids.items()):
+        if not toca(nombre):
+            continue
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates, tocados = [], []
+        for n in (wd.get("templates") or []):
+            at = n.get("attributes") or {}
+            if n.get("type") != "create_opportunity" or (at.get("pipeline_stage_id") and at.get("type")):
+                templates.append(n); continue
+            etapa = at.get("pipeline_stage_id") or at.get("stage_id")
+            if not etapa:
+                print(f"  ! {nombre:34} {at.get('__name__') or n.get('name')}: sin etapa, no se toca")
+                templates.append(n); continue
+            templates.append({**n, "attributes": {**at, "pipeline_stage_id": etapa,
+                                                  "type": "create_opportunity"}})
+            tocados.append(at.get("__name__") or n.get("name") or "?")
+
+        if not tocados:
+            continue
+        if dry_run:
+            print(f"  · {nombre:34} {len(tocados)} nodo(s): {', '.join(tocados)}  DRY-RUN")
+            continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nombre:34} {len(tocados)} nodo(s): {', '.join(tocados)}"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
 def aplicar_avisos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
