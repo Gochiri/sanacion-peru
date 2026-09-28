@@ -249,6 +249,22 @@ Sin estos, el reporte por anuncio de Joaquín no funciona.
 16-sep rellenando el formulario italiano y cayendo en `gracias-es`. Las dos se copian juntas: si
 una está mal, mirar la otra.
 
+⚠️ **Y volvió a pasar con F03-IT** (28-sep): redirigía a `agenda-es`, así que el italiano que
+postulaba caía en el calendario de Joaquín y reservaba con él. Tres italianas lo hicieron —una ya
+tuvo su llamada con el closer equivocado— y el calendario de Luca seguía a cero. El aviso lo dio
+Joaquín, no nosotros, doce días después de que F02 enseñara el mismo fallo.
+
+**La lección, escrita para la próxima duplicación:** un formulario duplicado hereda TODAS las
+redirecciones del original, y hay tantas como pasos tenga el embudo. No basta con arreglar la que
+salta primero. Al duplicar un formulario italiano hay que abrir su pestaña *Configuración* y
+repasar la URL entera, no solo el idioma: `agenda-es` y `agenda-it` se diferencian en dos letras.
+
+**Lo que NO era, y costó descartarlo:** el enlace del calendario en los custom values estaba bien,
+la página `agenda-it` embebía el calendario correcto, y WF4B mandaba por WhatsApp el enlace de
+Luca en su rama italiana. El fallo no estaba en ninguno de los tres sitios donde se busca primero.
+Al leer WF4B por API, además, **el orden en que vienen los nodos no es el del recorrido**: parecía
+que la rama italiana estaba vacía. Hay que seguir `parentKey`/`next`, no el orden de la lista.
+
 **Esto no lo puede comprobar el auditor.** El API no expone la configuración de una encuesta —se
 probaron `/surveys/{loc}/{id}`, `/surveys/{id}`, `/surveys/{id}/config` y `/forms/{id}`: `null` o
 404—. De una encuesta solo se pueden leer su nombre, su id y sus envíos. **La redirección se
