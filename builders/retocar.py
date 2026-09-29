@@ -455,7 +455,8 @@ def main() -> None:
     # después en la UI, volver a pasarla le encima lo escrito. Por eso se puede
     # correr una sola: `--solo inserciones`.
     ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas",
-                                      "mapeos", "ramas", "oportunidades"],
+                                      "mapeos", "ramas", "oportunidades",
+                                      "etapas"],
                     help="ejecutar solo una fase (por defecto, todas)")
     # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
     # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
@@ -519,6 +520,8 @@ def main() -> None:
         aplicar_ramas(c, loc, ids, args.dry_run, toca)
     if fase("oportunidades"):
         aplicar_oportunidades(c, loc, ids, args.dry_run, toca)
+    if fase("etapas"):
+        aplicar_etapas(c, loc, ids, args.dry_run, toca)
 
 
 def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
@@ -616,6 +619,57 @@ def aplicar_ramas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
         ok = bool(r and not r.get("_error"))
         print(f"  {'✓' if ok else '✗'} {nombre:34} {n} sustitucion(es) en una rama"
               f"  ({motivo})" + ("" if ok else "  " + str(r.get("message"))[:110]))
+
+
+# (workflow, nombre del nodo, id de la etapa nueva, por qué)
+#
+# Cambia a qué etapa manda un nodo `create_opportunity`. Se localiza por el
+# nombre del nodo, que en estos es único dentro de su workflow.
+RETOQUES_ETAPAS: list[tuple[str, str, str, str]] = [
+    # El cliente añadió la etapa «Compró» el 29-sep, al final del embudo. WF5 —el
+    # que corre al confirmar el cobro— seguía cerrando en «Llamada realizada»,
+    # que ahora significa otra cosa: la llamada que ya ocurrió, haya venta o no.
+    ("WF5 - Cobro confirmado", "Cerrar oportunidad como Ganado",
+     "327c9cfb-2c91-4962-9938-9a07a735bdf1",
+     "la venta va a «Compró», que es la etapa nueva"),
+]
+
+
+def aplicar_etapas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
+    """Reapunta un nodo de oportunidad a otra etapa del pipeline."""
+    for nombre, nodo, etapa, motivo in RETOQUES_ETAPAS:
+        if not toca(nombre):
+            continue
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates, tocados = [], 0
+        for n in (wd.get("templates") or []):
+            at = n.get("attributes") or {}
+            if n.get("type") != "create_opportunity" or (at.get("__name__") or n.get("name")) != nodo:
+                templates.append(n); continue
+            if at.get("pipeline_stage_id") == etapa and at.get("stage_id") == etapa:
+                templates.append(n); continue
+            templates.append({**n, "attributes": {**at, "stage_id": etapa,
+                                                  "pipeline_stage_id": etapa}})
+            tocados += 1
+
+        if not tocados:
+            print(f"  = {nombre:34} nada que cambiar  ({motivo})"); continue
+        if dry_run:
+            print(f"  · {nombre:34} «{nodo}» → {etapa}  ({motivo})  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nombre:34} «{nodo}» reapuntado  ({motivo})"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
 def aplicar_oportunidades(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
