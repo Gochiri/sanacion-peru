@@ -456,7 +456,7 @@ def main() -> None:
     # correr una sola: `--solo inserciones`.
     ap.add_argument("--solo", choices=["retoques", "campos", "avisos", "inserciones", "esperas",
                                       "mapeos", "ramas", "oportunidades",
-                                      "etapas"],
+                                      "etapas", "borrados"],
                     help="ejecutar solo una fase (por defecto, todas)")
     # Y dentro de una fase, un solo workflow: `--workflow WF3-IT`. Hace falta
     # porque un mismo retoque puede alcanzar nodos que alguien acaba de tocar en
@@ -522,6 +522,8 @@ def main() -> None:
         aplicar_oportunidades(c, loc, ids, args.dry_run, toca)
     if fase("etapas"):
         aplicar_etapas(c, loc, ids, args.dry_run, toca)
+    if fase("borrados"):
+        aplicar_borrados(c, loc, ids, args.dry_run, toca)
 
 
 def aplicar_mapeos(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
@@ -633,6 +635,75 @@ RETOQUES_ETAPAS: list[tuple[str, str, str, str]] = [
      "327c9cfb-2c91-4962-9938-9a07a735bdf1",
      "la venta va a «Compró», que es la etapa nueva"),
 ]
+
+
+# (workflow, nombre del nodo, por qué)
+#
+# Quita un nodo y vuelve a enlazar la cadena. Solo para pasos lineales: si el
+# nodo tiene varias salidas —un `if_else`— no se toca, porque reenganchar ramas
+# a ciegas deja el canvas roto y GHL no avisa.
+RETOQUES_BORRADOS: list[tuple[str, str, str]] = [
+    # Los dos se mudaron a «WF5b - Bono de contado LATAM», que ya está publicado
+    # y entra solo con la etiqueta de contado. Dejarlos aquí haría que quien
+    # pague de contado activara el bono dos veces y Christie recibiera dos
+    # correos por la misma venta.
+    ("WF5 - Cobro confirmado", "Activar bono si pago de contado",
+     "el bono vive ahora en WF5b, que solo entra si el pago es de contado"),
+    ("WF5 - Cobro confirmado", "Avisar a Christie: sesion bono de 40 min",
+     "el aviso vive ahora en WF5b, junto al bono"),
+]
+
+
+def aplicar_borrados(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:
+    """Quita nodos de un workflow y vuelve a enlazar lo que quedaba detrás."""
+    porwf: dict[str, list[tuple[str, str]]] = {}
+    for nombre, nodo, motivo in RETOQUES_BORRADOS:
+        porwf.setdefault(nombre, []).append((nodo, motivo))
+
+    for nombre, quitar in porwf.items():
+        if not toca(nombre):
+            continue
+        wid = ids.get(nombre)
+        if not wid:
+            print(f"  ✗ {nombre:34} no existe"); continue
+
+        actual = c.request("GET", f"/workflow/{loc}/{wid}") or {}
+        wd = actual.get("workflowData") or {}
+        templates = [dict(n) for n in (wd.get("templates") or [])]
+        por_id = {n["id"]: n for n in templates}
+        fuera, hechos = set(), []
+
+        for nodo, motivo in quitar:
+            victima = next((n for n in templates
+                            if (n.get("attributes") or {}).get("__name__") == nodo
+                            or n.get("name") == nodo), None)
+            if victima is None or victima["id"] in fuera:
+                print(f"  = {nombre:34} «{nodo}» ya no está  ({motivo})"); continue
+            if isinstance(victima.get("next"), list):
+                print(f"  ! {nombre:34} «{nodo}» tiene ramas, no se toca"); continue
+
+            siguiente = victima.get("next")
+            padre = next((n for n in templates if n.get("next") == victima["id"]), None)
+            if padre is not None:
+                padre["next"] = siguiente
+            if siguiente and siguiente in por_id:
+                por_id[siguiente]["parentKey"] = victima.get("parentKey")
+            fuera.add(victima["id"]); hechos.append(nodo)
+
+        if not hechos:
+            continue
+        templates = [n for n in templates if n["id"] not in fuera]
+        if dry_run:
+            print(f"  · {nombre:34} quita {len(hechos)}: {', '.join(hechos)}  DRY-RUN"); continue
+
+        cuerpo = {"name": nombre, "version": actual.get("version", 1),
+                  "workflowData": {**wd, "templates": templates}}
+        if actual.get("status"):
+            cuerpo["status"] = actual["status"]
+        r = c.request("PUT", f"/workflow/{loc}/{wid}", cuerpo)
+        ok = bool(r and not r.get("_error"))
+        print(f"  {'✓' if ok else '✗'} {nombre:34} quita {len(hechos)}: {', '.join(hechos)}"
+              f"{'' if ok else '  ' + str(r.get('message'))[:110]}")
 
 
 def aplicar_etapas(c, loc, ids, dry_run: bool, toca=lambda _n: True) -> None:

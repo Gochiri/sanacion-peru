@@ -40,7 +40,10 @@ from esb_lib import (  # noqa: E402
     CARPETA, campo, carpeta, cliente, desplegar, guardar, resumen, uid,
 )
 
-NOMBRE = "WF5b - Bono de contado"
+# El cliente lo renombró al publicarlo, el 29-sep: el bono es solo de LATAM,
+# porque Christie da la sesión en español. Si esto no coincide con el nombre
+# real, volver a correr el script crearía un workflow duplicado.
+NOMBRE = "WF5b - Bono de contado LATAM"
 
 # El id de Christie en la subcuenta, copiado del nodo que hoy vive en WF5.
 CHRISTIE = "BrFbQVQSRj6Q7UDUlNiK"
